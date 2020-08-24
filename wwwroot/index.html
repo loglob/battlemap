@@ -1,0 +1,155 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="/css/site.css"> 
+		<meta charset="UTF-8">
+	</head>
+	<body>
+		<h1>FAQ</h1>
+		<h2>Was ist das?</h2>
+		<p>
+			Eine online Battlemap.
+			<br/>
+			Es gibt bewegbare Tokens, eine einfärbbare Karte etc.
+		</p>
+		<h2>Wie funktioniert das?</h2>
+		<p>
+			ASP.NET Core in C# unter .NET core fürs Backend,
+			<br/>
+			SignalR für real time bidirectional RPC,
+			<br/>
+			Mehrere HTML5 Canvases zum Rendern &
+			<br/>
+			janky vanilla JS für den Rest
+		</p>
+		<h2 id="players">Wie benuzte ich das? (Für Spieler)</h2>
+		<p>
+			<ul>
+				<li>Der DM schickt euch einen Link, unter dem ihr die Karte sehen könnt</li>
+				<li>Click & Drag um Tokens zu verschieben</li>
+				<li>Doppelt clicken um Tokens/Felder zu markieren (Für alle sichtbar)</li>
+				<li>Shift click & drag um Distanzen zu messen</li>
+				<li>Control click & drag um kreisförmige AoEs zu setzen</li>
+				<li>'H' nach dem Setzen drücken, um eine AoE zu markieren.</li>
+				<li>Ich empfehle, zumindest ein Bisschen rauszuzoomen</li>
+				<li>
+					Manchmal kommt es zu Desyncs, sodass Tokens lokal falsch positioniert sind.
+					<br/>
+					Wenn sowas auffält bitte Seite neu laden. Falls das nicht hilft, mir bitte Bescheid sagen
+					<br/>
+					(Ihr könnt mir beim Debuggen helfen, wenn ihr bei Desyncs den Inhalt der Konsole (F12) kopiert)
+				</li>
+			</ul>
+		</p>
+		<h2 id="dm">Wie benutze ich das? (Für DMs)</h2>
+		<p>
+			<ul>
+				<li><a href="/map">Dieser Link</a> führt zu einer neuen, leeren Map</li>
+				<li>Eine Map kann unter dem selben Link immer wieder erreicht werden</li>
+				<li>An die URL "&dm=true" anhängen, um die DM toolbox freizuschalten</li>
+				<li>
+					Indem man Bilder auf ein Token zieht, wird das Token mit diesem Bild gezeichnet.
+					<br/>
+					Dabei gilt:
+					<ul>
+						<li>Lokale Dateien müssen unter 1MiB groß sein</li>
+						<li>Bilder von anderen Websites werden nicht immer korrekt erkannt (Am besten funktioniert ein reiner Bild Link)</li>
+						<li>Manche Websites verbieten Cross Origin Resource Sharing und Links zu deren Bildern können nicht genutzt werden</li>
+						<li>Manche Links unterliegen auch der 1MiB Beschränkung</li>
+						<li>In der Konsole (F12) steht generell, warum ein Bild nicht angenommen wird</li>
+					</ul>
+				</li>
+			</ul>
+		</p>
+		<h3 id="dmtools">Die Tools:</h3>
+		<h3>Cursor (🖰)</h3>
+		<p>
+			Siehe Spielerbeschreibung.
+			<br/>
+			Außerdem können durch markieren & Entf-Key mehrere Tokens auf einmal gelöscht werden.
+			<br/>
+			(Esc ist ein Shortcut zum Cursor)
+		</p>
+		<h3>Add Token (+)</h3>
+		<p>
+			Im Fenster unten rechts kann das Token angepasst werden.
+			<br/>
+			Shift-click um automatisch numerierte Tokens zu generieren.
+			<br/>
+			Control-click um Namen und Nummer eines Tokens zu kopieren.
+		</p>
+		<h3>Remove Token (-)</h3>
+		<p>
+			Löscht tokens.
+			<br/>
+			Shift click entfernt sprites von tokens
+		</p>
+		<h3>Tile edit (🖌️)</h3>
+		<p>
+			Setzt die Hintergrundfarbe.
+			<br/>
+			Im Fenster unten rechts kann die Farbe ausgewählt werden.
+			<br/>
+			Shift-click um die Farbe eines Tiles zu kopieren.
+		</p>
+		<h3>Resize Map (🗺️)</h3>
+		<p>
+			Ändert die Kartengröße.
+			<br/>
+			Im Fenster unten rechts werden die Änderungen für die einzelnen Seiten eingegeben.
+			<br/>
+			Wenn durch Verkleinerung Tokens abgeschnitten werden, muss die Größenänderung bestätigt werden.
+			<br/>
+			Abgeschnittene Tokens werden entfernt.
+		</p>
+		<h3>Hiding (👁️)</h3>
+		<p>
+			Versteckt Tokens.
+			<br/>
+			Versteckte Tokens sind für DMs durchsichtig & haben ein 👁️-Symbol in der Ecke.
+			<br/>
+			Für Spieler sind sie komplett unsichtbar.
+		</p>
+		<h3>Shapes (⬡)</h3>
+		<p>
+			Zeichnet Shapes auf der Map.
+			<br/>
+			Im Fenster unten rechts wird die Form ausgewählt.
+			<br/>
+			Durch drücken von H kann die Form jedem gezeigt werden.
+			<br/>
+			Alle markierte Tokens können auf einmal bewegt werden.
+		</p>
+		<h3>Dice (🎲)</h3>
+		<p>
+			Würfel würfeln.
+			<br/>
+			Im Fenster unten rechts sind d2 bis d100 verfügbar.
+			<br/>
+			Die 🗑️ erlauben es, die Werte einzelner/aller Würfel zu löschen.
+		</p>
+		<h3>Einstellungen (⚙️)</h3>
+		<p>
+			Verwaltet Map-Einstellungen.
+			<br/>
+			Die Karte kann geklont werden.
+			<br/>
+			Die genutze √2 Approximation kann geändert werden.
+			
+		</p>
+		<p id="secret">
+			peasant() um die Debug Commoner zu erhalten. 
+		</p>
+		<h1 id="todo">TODO</h1>
+		<ul>
+			<li>Effect Sprites</li>
+			<li>Effect Ordering</li>
+			<li>Sprite caching</li>
+			<li>(Voller) Mobile Support (villeicht)</li>
+		</ul>
+		<h2>Known Bugs</h2>
+		<ul>
+			<li>Desync (Mitigations in place)</li>
+			<li>Cert Error</li>
+		</ul>
+	</body>
+</html>

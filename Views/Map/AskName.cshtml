@@ -1,0 +1,12 @@
+@model string
+
+<br/>
+<br/>
+What is your Character's Name?
+<br/>
+<form method="GET">
+	<input type="text" name="name" spellcheck="false">
+	<input type="hidden" name="token" value="@Model">
+	<br/>
+	<input type="submit">
+</form>

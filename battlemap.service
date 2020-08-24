@@ -1,0 +1,13 @@
+[Unit]
+	Description=Online Battlemap
+	After=network-online.target
+	Wants=network-online.target
+
+[Service]
+	User=loglob
+	Type=simple
+	ExecStart=/srv/battlemap/battlemap
+	WorkingDirectory=/srv/battlemap/
+
+[Install]
+	WantedBy=multi-user.target

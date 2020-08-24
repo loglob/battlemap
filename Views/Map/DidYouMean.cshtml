@@ -1,0 +1,29 @@
+@using System.Net
+@model (string token, Token[] choices, string name)
+
+@{
+	var suggestions = String.Join("\n",
+	Model.choices
+		.Select(tk => WebUtility.HtmlEncode(tk.Name))
+		.ToHashSet()
+		.Select(str => $"<option value=\"{str}\">{str}</option>")).AsHtml();
+}
+
+<br/>
+<form method="GET">
+	<label for="name">Did you mean </label>
+	<select name="name">
+		@suggestions
+	</select>
+	<br/>
+	<input type="hidden" value="true" name="sure">
+	<input type="hidden" name="token" value="@Model.token">
+	<input type="submit" value="Yes">
+</form>
+<!-- Form because the URL can either lead to map/beta or map/ (i.e. legacy reasons) -->
+<form method="GET">
+	<input type="hidden" value="@Model.name" name="name">
+	<input type="hidden" value="true" name="sure">
+	<input type="hidden" name="token" value="@Model.token">
+	<input type="submit" value="No">
+</form>

@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"]</title>
+	<link rel="stylesheet" href="~/css/site.css" />
+	@RenderSection("Head", required: false)
+</head>
+<body onload="init && init()">
+	@RenderBody()
+
+	@if (IsSectionDefined("Scripts"))
+	{
+		<script src="~/lib/jquery/dist/jquery.min.js"></script>
+		@RenderSection("Scripts", required: false)
+	}
+	else
+	{
+		<script>function init(){}</script>
+	}
+</body>
+</html>

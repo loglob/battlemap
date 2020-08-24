@@ -1,0 +1,138 @@
+.hidden
+{
+	display: none;
+}
+
+#distance
+{
+	font-size: 5vh;
+	text-align: left;
+	
+	min-height: 5vh;
+	max-height: 5vh;
+	margin: 0.5vh;
+}
+
+#toolbox
+{
+	margin: 0.4vmax;
+	background-color: gray;
+	border-radius: 1vmax;
+	padding: 0.5vmax;
+}
+
+#toolbox button
+{
+	height:	3vmax;
+	width:	3vmax;
+	min-width:	3vmax;
+	max-width:	3vmax;
+	min-height:	3vmax;
+	max-height:	3vmax;
+	padding: 0;
+	font-size: 2vmax;
+	text-align: center;
+	align-content: center;
+	align-items: center;
+}
+
+#toolbox button span
+{
+	display: block;
+	font-size: 100%;
+	text-align: center;
+	line-height: 1vmax;
+	align-content: center;
+	align-items: center;
+}
+
+.window
+{
+	font-size: 1vmax;
+	margin: 0.4vmax;
+	background-color: gray;
+	border-radius: 1vmax;
+	padding: 0.5vmax;
+}
+
+#settings_window input,
+#addtoken_width,
+#addtoken_height
+{
+	width: 3vw !important;
+}
+
+#addtoken_window input
+{
+	width: min-content;
+}
+
+#tileedit_window input{
+	height: 10vmax;
+	width: 10vmax;
+	padding: 0;
+	margin: 0;
+	border: none;
+	background: none;
+}
+
+#dice_window {
+	overflow-y: hidden;
+	min-width: 15vmax;
+	max-width: 15vmax;
+	width: 15vmax;
+}
+
+.noselect {
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none; /* Safari */
+	-khtml-user-select: none; /* Konqueror HTML */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+	user-select: none;/* Chrome and Opera */
+}
+
+.clickable {
+	cursor: pointer;
+}
+
+.spread {
+	display: flex;
+	justify-content: space-around;
+}
+
+.ralign {
+	text-align: right;
+}
+
+.lalign {
+	text-align: left;
+}
+
+.fixed *
+{
+	font-size: 100%;
+}
+
+.error {
+	color: red;
+	margin-bottom: 10%;
+}
+
+#effects_window {
+	height: 40vmin;
+	overflow:hidden;
+	overflow-y:scroll;
+	padding: 2vmin;
+}
+
+#effects_window div a {
+	cursor: pointer;
+}
+
+#effects_window div input {
+	padding: 0;
+	border: none;
+	background: none;
+	width: 1em;
+}

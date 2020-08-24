@@ -1,0 +1,151 @@
+﻿@using System.Linq
+@using System.Xml.Linq
+@using Newtonsoft.Json
+@using System.IO
+@model (string token, Map map)
+
+@{
+	var map = Model.map;
+	var token = Model.token;
+	var w = map.Width * Map.CellSize;
+	var h = map.Height * Map.CellSize;
+}
+
+@if(ViewBag.LoadDmTools) {
+	<div id="toolbox" class="fixed tr">
+		<button id="cursor_button"><span>🖰</span></button>
+		<button id="addtoken_button"><span>+</span></button>
+		<button id="removetoken_button"><span>–</span></button>
+		<button id="tileedit_button"><span>🖌</span></button>
+		<button id="resize_button"><span>🗺️</span></button>
+		<button id="effects_button"><span>🔥</span></button>
+		<button id="hide_button"><span>👁️</span></button>
+		<button id="shapes_button"><span>⬡</span></button>
+		<button id="spawnzone_button"><span>🏥</span></button>
+		<button id="dice_button"><span>🎲</span></button>
+		<button id="settings_button"><span>⚙️</span></button>
+	</div>
+	<div id="addtoken_window" class="hidden fixed br window">
+		Name: <input id="addtoken_name" size="10" type="text" value="">
+		Num: <input id="addtoken_num" size="3" min="1" type="number" value="1">
+		<br/>
+		Width: <input id="addtoken_width" size="1" min="1" type="number" value="1">
+		Height: <input id="addtoken_height" size="1" min="1" type="number" value="1">
+	</div>
+	<div id="tileedit_window" class="hidden fixed br window">
+		<input id="tileedit_color" type="color">
+	</div>
+	<div id="settings_window" class="hidden fixed br window">
+		<a href="clone?token=@Model.token">Clone Map</a>
+		<br/>
+		√2 = <input id="setting_sqrt2_num" value="@map.Sqrt2Numerator" type="number" min="1">/
+		<input id="setting_sqrt2_denom" value="@map.Sqrt2Denominator" type="number" min="1">
+		<br/>
+		<button onclick="toolbox.tools.settings.save()">Save</button>
+	</div>
+	<div id="resize_window" class="hidden fixed br window">
+		<div class="ralign">
+			Left:
+			<input id="resize_left" value="0" type="number" oninput="toolbox.tools.resize.onInput('left')">
+			<br/>
+			Right:
+			<input id="resize_right" value="0" type="number" oninput="toolbox.tools.resize.onInput('right')">
+			<br/>
+			Up:
+			<input id="resize_up" value="0" type="number" oninput="toolbox.tools.resize.onInput('up')">
+			<br/>
+			Down:
+			<input id="resize_down" value="0" type="number" oninput="toolbox.tools.resize.onInput('down')">
+		</div>
+		<b id="resize_error" class="hidden error"></b>
+		<br/>
+		<button id="resize_savebutton" onclick="toolbox.tools.resize.save()">Save</button>
+	</div>
+	<div id="effects_window" class="ralign hidden fixed br window">
+		<div>Foo <a>👁️</a> <a>🗑️</a></div>
+	</div>
+} else {
+	<div id="toolbox" class="fixed tr">
+		<button id="cursor_button"><span>🖰</span></button>
+		<button id="shapes_button"><span>⬡</span></button>
+		<button id="dice_button"><span>🎲</span></button>
+	</div>
+}
+
+<div id="shapes_window" class="hidden fixed br window">
+	<select id="shapes_selection">
+	</select>
+</div>
+<div id="dice_window" class="hidden lalign fixed br window">
+
+</div>
+
+<div id="distance" class="fixed bl"></div>
+
+<div id="canvas_stack">
+	<canvas id="tile_layer" width="@w" height="@h" ></canvas>
+	<canvas id="grid_layer" width="@w" height="@h" ></canvas>
+	<canvas id="effect_layer" width="@w" height="@h" ></canvas>
+	<canvas id="token_layer" width="@w" height="@h" ></canvas>
+	<canvas id="highlight_layer" width="@w" height="@h" ></canvas>
+	<canvas id="special_layer" width="@w" height="@h" ></canvas>
+</div>
+
+
+@{
+	ViewData["Title"] = ViewBag.Token;
+	/*var colors = string.Join(",\n",
+		map.Colors
+			.Unwrap()
+			.Select(row => $"[{string.Join(", ", row.Select(c => c.ToString()))}]")
+	).AsHtml();
+	var tokens = string.Join(",\n",
+		map.Tokens.Select(t => JsonConvert.SerializeObject(t))
+	).AsHtml();
+
+	var effects = map.Effects.ToJson().AsHtml();
+
+	var mapHints = map.Images.Keys.ToJson().AsHtml();
+
+	 {
+			// The id/token of this map
+			id:	"@token",
+			width:	@map.Width,
+			height:	@map.Height,
+			// int[][]
+			colors: [ @colors ],
+			// (int Height, string Name, int Width, int X, int Y)[]
+			tokens: [ @tokens ],
+			sqrt2denom: @map.Sqrt2Denominator,
+			sqrt2num: @map.Sqrt2Numerator,
+			effects: @effects,
+			spawn: @map.SpawnZone.ToJson().AsHtml()
+		}*/
+}
+
+@section head
+{
+	<link rel="stylesheet" href="~/css/map.css" />
+}
+
+@section scripts
+{
+	<script>
+		const map = @Model.map.FieldData(MapFields.All).json.AsHtml()
+
+		map.id = "@token"
+
+		const cellSize = @Map.CellSize;
+		const huburl = "/mapHub?token=@token"
+		var w = @w
+		var h = @h
+		const isDM = @ViewBag.LoadDmTools.ToString().ToLower()
+	</script>
+
+	<script src="~/js/signalr/dist/browser/signalr.js"></script>
+	<script src="~/js/map.common.js"></script>
+	<script src="~/js/map.js"></script>
+	<script src="~/js/map.hub.js"></script>
+	<script src="~/js/map.ui.js"></script>
+	<!--<script src="~/js/maphub.js"></script> -->
+}
