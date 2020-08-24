@@ -5,9 +5,9 @@
 var oldmousepos;
 // (int x, int y)?
 var mousepos;
-// automagically initializes fields to document elements with the id,
-// toolname_fieldname
-const initpls = "initpls";
+
+// automagically initializes fields to document elements with the id toolname_fieldname
+const initpls = "_initpls_";
 
 var canvasStyle = document.getElementById("canvas_stack").style;
 
@@ -555,6 +555,7 @@ const toolbox = {
 	},
 }
 
+/* Handles visual effects */
 const effects = {
 	// { color, kind, start: { x, y }, end: { x, y }, local }
 	list : [],
@@ -1315,6 +1316,7 @@ const handlers = {
 	}
 }
 
+/* Handles outside interaction with the UI */
 const uiInterface = {
 	init: function() {
 		const s = document.getElementById("canvas_stack");
@@ -1329,6 +1331,7 @@ const uiInterface = {
 		toolbox.init();
 	},
 
+	/* Reacts to changes in the map datastructure. Called by maphub. */
 	onMapUpdate: function(fieldIds) {
 		if((fieldIds & mapFields.sqrt2) && toolbox.enabled)
 		{
@@ -1342,10 +1345,12 @@ const uiInterface = {
 			layers.special.draw()
 	},
 
+	/* Reacts to highlighed shape. Called by maphub. */
 	onBlinkShape: function(s) {
 		effects.onBlinkShape(s);
 	},
 
+	/* Returns the text and border color for the given token. Called from the token layer. */
 	getTokenColor: function(token) {
 		if(selection.current?.isSelected && selection.current.isSelected(token))
 			return selection.current.tokenColor;
@@ -1373,29 +1378,5 @@ const uiInterface = {
 		{
 			selection.last.drawOutline(ct)
 		}
-		
-		/*else if(selection.circle.circ)
-		{
-			ct.save();
-			const c = selection.circle.circ
-			ct.beginPath();
-			ct.strokeStyle = "darkblue"
-			ct.lineWidth = 2
-			ct.arc(c.x * cellSize, c.y * cellSize, c.r * cellSize, 0, 2 * Math.PI);
-			ct.stroke()
-			ct.restore();
-		}
-		else if(selection.mask.rect)
-		{
-			ct.save();
-			const r = selection.mask.rect;
-			ct.beginPath();
-			ct.strokeStyle = "darkblue";
-			ct.lineWidth = 2;
-			ct.rect(r.x * cellSize, r.y * cellSize, r.w * cellSize, r.h * cellSize);
-			ct.stroke();
-			ct.restore();	
-		}*/
-	
 	}
 }

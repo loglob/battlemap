@@ -1,3 +1,5 @@
+// testing.js: Testing data for proper type recognition in the IDE
+
 const map = {
 	/* The id/token of this map */
 	id:	"DEBUG",
@@ -24,6 +26,7 @@ const map = {
 		"Foo" : "fsnfsafnjskfe"
 	}
 }
+
 const cellSize = 150
 const huburl = "/mapHub?token=DEBUG"
 var w = cellSize * map.Width

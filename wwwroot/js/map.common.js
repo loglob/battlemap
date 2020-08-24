@@ -11,6 +11,9 @@ const mapFields = {
 	sprites: 64,
 };
 
+//#region Array Extension methods
+
+/* Removes every item in the array that matches the predicate */
 Array.prototype.removeAll = function(matches) {
 	let i = this.length
 	let c = 0
@@ -27,6 +30,7 @@ Array.prototype.removeAll = function(matches) {
 	return c
 }
 
+/* Removes the given item in-place. Returns whether or not the item was found. */
 Array.prototype.remove = function(item) {
 	let i = this.length
 	
@@ -41,6 +45,7 @@ Array.prototype.remove = function(item) {
 
 	return false;
 }
+//#endregion
 
 const shape = {
 	circle: {
@@ -339,6 +344,10 @@ function valid(x)
 	return typeof x != "undefined" && x
 }
 
+
+//#region vector functions
+
+// Maps vector to the list of its components [x,y]
 function vx(v)
 {
 	return [ v.x, v.y ];
@@ -361,16 +370,19 @@ function orth(v)
 	return norm({ x: v.y, y: -v.x })
 }
 
+// Maps each components of vector v via f
 function vmap(v, f)
 {
 	return { x: f(v.x), y: f(v.y) }
 }
 
+// Multiplies vector v with scalar k
 function vmul(v, k)
 {
 	return { x: v.x * k, y: v.y * k }
 }
 
+// Divides vector v by scalar or linearly dependant vector u
 function vdiv(v, u)
 {
 	if(typeof u === "number")
@@ -389,6 +401,7 @@ function vdiv(v, u)
 	}
 }
 
+// Adds vector v and vector or scalar u
 function vadd(v, u)
 {
 	if(typeof u === "number")
@@ -397,6 +410,8 @@ function vadd(v, u)
 		return { x: v.x + u.x, y: v.y + u.y }
 }
 
+// Calculates inclusive bounds of the any amount of vectors
+// : { min { x,y : num }, max { x,y : num } }
 function vbounds(v, ...other)
 {
 	let xmin = v.x
@@ -424,15 +439,19 @@ function vsub(v, u)
 	return { x: v.x - u.x, y: v.y - u.y };
 }
 
+// Length of vector v
 function vlen(v)
 {
 	return Math.sqrt(v.x * v.x + v.y * v.y);
 }
 
+// (Length of vector v)^2
 function vlensq(v)
 {
 	return v.x * v.x + v.y * v.y;
 }
+
+//#endregion
 
 // Turns a color number to a HTML color String
 function colorString(color)
@@ -444,17 +463,6 @@ function colorString(color)
 function parseColor(color)
 {
 	return parseInt(color.substring(1), 16);
-}
-
-function sameShape(e1, e2)
-{
-	const c1 = e1.Circle
-	const c2 = e2.Circle
-	const m1 = e1.Mask
-	const m2 = e2.Mask
-
-	return (c1 && c2 && c2.x === c1.x && c2.y === c1.y && c2.r === c1.r)
-		|| (m1 && m2 && m1.x === m2.x && m1.y === m2.y && m1.w === m2.w && m1.h === m2.h);
 }
 
 function cutByResize(tk, left, right, up, down)
@@ -606,6 +614,8 @@ function tile(coord)
 		return { x: tile(coord.x), y: tile(coord.y) }
 }
 
+/* Gets the tile coordinate for the given canvas coordinate
+	Works via rounding the coordinate. */
 function rtile(coord)
 {
 	if(typeof coord === "number")

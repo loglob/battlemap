@@ -222,12 +222,14 @@ CanvasRenderingContext2D.prototype.putToken = function(tk, x, y, color = "black"
 }
 //#endregion
 
+// Sets the image for all commoners on the board
 function peasant()
 {
 	for(let c of arguments.length ? arguments : new Set(map.tokens.map(tk => tk.Name).filter(n => /^[commoner]+(\n.*)?$/i.test(n))))
 		textures.uploadURL(c, "/img/commoner.png")
 }
 
+// Sets a token's image to a minecraft item texture
 function mc(tk, item)
 {
 	if(tk === undefined)

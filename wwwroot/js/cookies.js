@@ -1,4 +1,5 @@
-/* cookies.js: Declares the  Handles HTML cookies data */
+/* cookies.js: Handles HTML cookies data and automatically stores data on tab close  */
+// Currently unused
 
 function getCookies()
 {
