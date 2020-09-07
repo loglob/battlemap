@@ -9,6 +9,11 @@
 	var token = Model.token;
 	var w = map.Width * Map.CellSize;
 	var h = map.Height * Map.CellSize;
+	var isDmStr = ViewBag.LoadDmTools.ToString().ToLower();
+
+	var hubargs = $"token={token}&dm={isDmStr}{(ViewBag.tokenName == null ? "" : $"&name={ViewBag.tokenName}")}".AsHtml();
+	
+	ViewData["Title"] = ViewBag.Token;
 }
 
 @if(ViewBag.LoadDmTools) {
@@ -91,38 +96,6 @@
 	<canvas id="special_layer" width="@w" height="@h" ></canvas>
 </div>
 
-
-@{
-	ViewData["Title"] = ViewBag.Token;
-	/*var colors = string.Join(",\n",
-		map.Colors
-			.Unwrap()
-			.Select(row => $"[{string.Join(", ", row.Select(c => c.ToString()))}]")
-	).AsHtml();
-	var tokens = string.Join(",\n",
-		map.Tokens.Select(t => JsonConvert.SerializeObject(t))
-	).AsHtml();
-
-	var effects = map.Effects.ToJson().AsHtml();
-
-	var mapHints = map.Images.Keys.ToJson().AsHtml();
-
-	 {
-			// The id/token of this map
-			id:	"@token",
-			width:	@map.Width,
-			height:	@map.Height,
-			// int[][]
-			colors: [ @colors ],
-			// (int Height, string Name, int Width, int X, int Y)[]
-			tokens: [ @tokens ],
-			sqrt2denom: @map.Sqrt2Denominator,
-			sqrt2num: @map.Sqrt2Numerator,
-			effects: @effects,
-			spawn: @map.SpawnZone.ToJson().AsHtml()
-		}*/
-}
-
 @section head
 {
 	<link rel="stylesheet" href="~/css/map.css" />
@@ -135,11 +108,11 @@
 
 		map.id = "@token"
 
+		const isDM = @isDmStr
 		const cellSize = @Map.CellSize;
-		const huburl = "/mapHub?token=@token"
+		const huburl = "/mapHub?@hubargs"
 		var w = @w
 		var h = @h
-		const isDM = @ViewBag.LoadDmTools.ToString().ToLower()
 	</script>
 
 	<script src="~/js/signalr/dist/browser/signalr.js"></script>

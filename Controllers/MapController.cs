@@ -18,6 +18,7 @@ namespace battlemap.Controllers
         public async Task<IActionResult> Index(string token, bool dm, string name, bool sure)
 		{
 			ViewBag.LoadDmTools = dm;
+			ViewBag.tokenName = name;
 
 			if(token == null)
 				return Redirect($"/map?token={State.MapJoinTokens.Insert(new Map()).token}&dm=true");

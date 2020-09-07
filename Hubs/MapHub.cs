@@ -16,21 +16,41 @@ namespace battlemap.Hubs
 		/* Represents a connection from a client. */
 		private class ConnectionInfo
 		{
-			public Map Map;
-			public string JoinToken;
+			public readonly Map Map;
 			public bool IsDM;
+			public string TokenName;
+			public readonly string JoinToken;
+			public readonly string ConnectionId;
+			
+			/* Maps ConnectionTokens to ConnectionInfo objects */
+			private static readonly Dictionary<string, ConnectionInfo> connections =
+				new Dictionary<string, ConnectionInfo>();
 
-			public ConnectionInfo(HttpRequest req)
+			public static IEnumerable<ConnectionInfo> OfToken(string token, string map)
+				=> connections.Values.Where(ci => ci.JoinToken == map && ci.TokenName == token);
+
+			public static ConnectionInfo Add(HubCallerContext ct)
+			{
+				return connections[ct.ConnectionId] = new ConnectionInfo(ct.GetHttpContext().Request, ct.ConnectionId);
+			}
+
+			public static ConnectionInfo Get(HubCallerContext ct)
+				=> connections[ct.ConnectionId];
+
+			private ConnectionInfo(HttpRequest req, string connectionId)
 			{
 				JoinToken = req.Query["token"];
+				TokenName = req.Query["name"];
+				ConnectionId = connectionId;
+
+				if(string.IsNullOrEmpty(TokenName))
+					TokenName = null;
+
 				Map = State.MapJoinTokens[JoinToken];
 				IsDM = true;
 			}
 		}
 
-		/* Maps ConnectionTokens to ConnectionInfo objects */
-		private static readonly Dictionary<string, ConnectionInfo> connections =
-			new Dictionary<string, ConnectionInfo>();
 
 #region Fields
 		private ConnectionInfo info;
@@ -41,7 +61,7 @@ namespace battlemap.Hubs
 			=> Info.JoinToken;
 			
 		private ConnectionInfo Info
-			=> info ?? (info = connections[Context.ConnectionId]);
+			=> info ?? (info = ConnectionInfo.Get(this.Context));
 #endregion
 
 #region Methods
@@ -52,7 +72,7 @@ namespace battlemap.Hubs
 		{
 			try
 			{
-				connections[this.Context.ConnectionId] = new ConnectionInfo(this.Context.GetHttpContext().Request);
+				ConnectionInfo.Add(this.Context);
 				await Groups.AddToGroupAsync(this.Context.ConnectionId, GroupId);
 			}
 			catch
