@@ -1286,7 +1286,7 @@ const handlers = {
 			case "Delete":
 				if(toolbox.activeTool == toolbox.tools.spawnzone)
 					maphub.setSpawnZone(-1, -1, -1, -1);
-				else
+				else if(isDM)
 				{
 					const s = selection.getShape()
 
