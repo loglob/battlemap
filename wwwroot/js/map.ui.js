@@ -499,6 +499,9 @@ const toolbox = {
 					ct.stroke();
 				}
 			},
+			onPutAway: function() {
+				layers.special.draw();
+			},
 			getCursor: function() { return "copy" },
 		}
 	},

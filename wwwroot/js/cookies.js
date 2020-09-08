@@ -1,54 +1,40 @@
 /* cookies.js: Handles HTML cookies data and automatically stores data on tab close  */
 // Currently unused
 
-function getCookies()
-{
-	try
+const cookie = {
+	cookiename: `mapdata_${map.id}`,
+	load: function()
 	{
-		let obj = {}
-		
 		for(let line of document.cookie.split(";"))
 		{
-			let kvp = line.split("=", 2);
+			const kvp = line.split("=", 2);
 
-			if(kvp.length != 2)
+			if(kvp.length != 2 || kvp[0] != this.cookiename)
 				continue;
 
-			let key = decodeURIComponent(kvp[0]).trim()
-			let val = decodeURIComponent(kvp[1])
-			
 			try
 			{
-				obj[key] = JSON.parse(val);
+				this.data = JSON.parse(decodeURIComponent(kvp[1]));
+				return;
 			}
 			catch
 			{
-				obj[key] = val;
+				console.error("Failed parsing cookie data:", kvp[1]);
 			}
 		}
 
-		return obj;
-	}
-	catch
+		this.data = null;
+	},
+	store: function()
 	{
-		console.error(`Failed parsing cookie "${dec}", deleting it`);
-		document.cookie = ""
-		return null;
-	}
-}
+		document.cookie = `${this.cookiename}=${encodeURIComponent(JSON.stringify(this.data))}`
+	},
+	data: null,
+};
 
-function setCookies(obj)
-{
-	for (const name in getCookies())
-		document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT; sameSite=strict';
-
-	for (const key in obj)
-		document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(JSON.stringify(obj[key]))}; sameSite=strict`
-}
-
-let cookies = getCookies();
+cookie.load()
 
 window.addEventListener("beforeunload", function() {
-	setCookies(cookies)
+	cookie.store();
 	return null;
 })
