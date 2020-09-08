@@ -4,6 +4,7 @@ An online battlemap for TTRPGs
 ## Usage
 The path `/map/` always creates and redirects to a new, empty map.
 Append or remove `&dm=true` to/from the URL to toggle DM view.
+Check the `wwroot/index.en.html` file for tool descriptions.
 
 ## install
 A SystemD service file (`battlemap.service`) is included.
