@@ -201,8 +201,6 @@ const toolbox = {
 			error: initpls,
 			savebutton: initpls,
 			force: false,
-			onMouseDown: function(e) { toolbox.tools.cursor.onMouseDown(e) },
-			getCursor: function() { toolbox.tools.cursor.getCursor() },
 			onInput: function(dir) {	
 				if(((dir == "left" || dir == "right") && parseInt(this.left.value) + parseInt(this.right.value) < -map.width)
 					|| ((dir == "up" || dir == "down") && parseInt(this.up.value) + parseInt(this.down.value) < -map.height))
@@ -277,8 +275,6 @@ const toolbox = {
 			}
 		},
 		effects: {
-			onMouseDown: function(e) { toolbox.tools.cursor.onMouseDown(e) },
-			getCursor: function() { toolbox.tools.cursor.getCursor() },
 			genDiv: function(item) {
 				let div = document.createElement("div");
 				let name = document.createElement("span")
@@ -345,7 +341,6 @@ const toolbox = {
 
 				selection.current = selection.shape
 			},
-			getCursor: function() { return toolbox.tools.cursor.getCursor() },
 			init: function() {
 				for(let s in shape)
 				{
@@ -362,12 +357,6 @@ const toolbox = {
 		},
 		dice: {
 			pips: [ 2, 4, 6, 8, 10, 12, 20, 100 ],
-			onMouseDown: function(evnt) {
-				return toolbox.tools.cursor.onMouseDown(evnt);
-			},
-			getCursor: function() {
-				return toolbox.tools.cursor.getCursor();
-			},
 			roll : function(p) {
 				let roll = Math.floor(Math.random() * p) + 1;
 				
@@ -475,8 +464,6 @@ const toolbox = {
 		settings: {
 			Denom: document.getElementById("setting_sqrt2_denom"),
 			Num: document.getElementById("setting_sqrt2_num"),
-			onMouseDown: function(e) { toolbox.tools.cursor.onMouseDown(e) },
-			getCursor: function() { toolbox.tools.cursor.getCursor() },
 			save: function() {
 				const n = parseInt(this.Num.value)
 				const d = parseInt(this.Denom.value)
@@ -516,9 +503,6 @@ const toolbox = {
 			onSave: function() {
 				maphub.connection.invoke("Save");
 			},
-			getCursor: function() {
-				return toolbox.tools.cursor.getCursor();
-			},
 			onDebug: function() {
 				maphub.debug();
 			},
@@ -545,33 +529,35 @@ const toolbox = {
 				tool.window = document.getElementById(name + "_window")
 				tool.button = document.getElementById(name + "_button")
 
-				if(tool.button != null)
-					tool.button.onclick = function(evnt){
-						if(toolbox.activeTool == tool)
-							return;
-						
-						for(let name in toolbox.tools)
-						{
-							const t = toolbox.tools[name]
-							if(t != tool && t.window != null)
-								t.window.hide()
-						}
+				if(tool.button == null)
+					continue;
 
-
-						canvasStyle.cursor = tool.getCursor()
-						
-						if(tool.window != null)
-							tool.window.unhide();
-
-						const ltool = toolbox.activeTool
-
-						toolbox.activeTool = tool
-
-						if(ltool.onPutAway)
-							ltool.onPutAway();
-						if(tool.onSelect)
-							tool.onSelect();
+				tool.button.onclick = function(evnt){
+					if(toolbox.activeTool == tool)
+						return;
+					
+					for(let name in toolbox.tools)
+					{
+						const t = toolbox.tools[name]
+						if(t != tool && t.window != null)
+							t.window.hide()
 					}
+
+
+					canvasStyle.cursor = toolbox.getCursor(tool)
+					
+					if(tool.window != null)
+						tool.window.unhide();
+
+					const ltool = toolbox.activeTool
+
+					toolbox.activeTool = tool
+
+					if(ltool.onPutAway)
+						ltool.onPutAway();
+					if(tool.onSelect)
+						tool.onSelect();
+				}
 
 				for(let v in tool)
 				{
@@ -583,6 +569,13 @@ const toolbox = {
 					tool.init();
 			}
 		}
+	},
+	getCursor: function(tool) {
+		return ((tool ?? this.activeTool)?.getCursor ?? this.tools.cursor.getCursor)();
+	},
+	onMouseDown: function(e) {
+		return ((this.activeTool)?.onMouseDown?.bind(this.activeTool)
+			?? this.tools.cursor.onMouseDown.bind(this.tools.cursor))(e);
 	},
 }
 
@@ -1125,8 +1118,8 @@ const handlers = {
 
 		const cur = selection.current
 
-		toolbox.activeTool.onMouseDown(evnt);
-		canvasStyle.cursor = toolbox.activeTool.getCursor();
+		toolbox.onMouseDown(evnt);
+		canvasStyle.cursor = toolbox.getCursor();
 
 		if(selection.current != null)
 		{
@@ -1168,7 +1161,7 @@ const handlers = {
 			layers.special.draw();
 		}
 
-		canvasStyle.cursor = toolbox.activeTool.getCursor();
+		canvasStyle.cursor = toolbox.getCursor();
 	},
 	/* Blinks a token */
 	onCanvasDoubleClick: function(evnt)
