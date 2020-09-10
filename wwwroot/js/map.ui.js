@@ -571,7 +571,9 @@ const toolbox = {
 		}
 	},
 	getCursor: function(tool) {
-		return ((tool ?? this.activeTool)?.getCursor ?? this.tools.cursor.getCursor)();
+		const _tool = tool ?? this.activeTool
+		return ((_tool?.getCursor?.bind(_tool))
+			?? (this.tools.cursor.getCursor.bind(this.tools.cursor)))();
 	},
 	onMouseDown: function(e) {
 		return ((this.activeTool)?.onMouseDown?.bind(this.activeTool)
