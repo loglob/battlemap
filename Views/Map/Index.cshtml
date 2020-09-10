@@ -27,6 +27,7 @@
 	<button id="effects_button"><span>🔥</span></button>
 	<button id="hide_button"><span>👁️</span></button>
 	<button id="spawnzone_button"><span>🏥</span></button>
+	<button id="initiative_button"><span>⏱️</span></button>
 	<button id="settings_button"><span>⚙️</span></button>
 }
 	<button id="shapes_button"><span>⬡</span></button>
@@ -81,6 +82,12 @@
 
 	<div id="effects_window" class="ralign hidden fixed br window">
 		<div>Foo <a>👁️</a> <a>🗑️</a></div>
+	</div>
+
+	<div id="initiative_window" class="ralign hidden fixed br window">
+		<ul id="initiative_list" class="malign"></ul>
+		<label for="initiative_mod">Init. Mod:</label>
+		<input type="number" class="slimInput" id="initiative_mod" size="1" min="-5" max="10" value="0">
 	</div>
 }
 

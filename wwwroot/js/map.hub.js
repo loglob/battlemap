@@ -9,7 +9,8 @@ const blinkKind =
 {
 	tile : 0,
 	token : 1,
-	max : 1,
+	initiative: 2,
+	max : 2,
 	min : 0,
 }
 

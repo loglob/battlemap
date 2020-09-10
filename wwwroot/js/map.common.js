@@ -1,6 +1,8 @@
 "use strict";
 // map.common.js: Handles common operations with the map object
 
+window.onerror = console.error
+
 const mapFields = {
 	size: 1,
 	tokens: 2,

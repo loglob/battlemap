@@ -219,6 +219,15 @@ CanvasRenderingContext2D.prototype.putToken = function(tk, x, y, color = "black"
 		this.putText(symbol, x, y, tk.Width * cellSize - 10, tk.Height * cellSize - 10, "bl")
 		this.globalAlpha = 1;
 	}
+
+	if(currentTurn === tk)
+	{
+		this.beginPath();
+		this.strokeStyle = "green"
+		this.fillStyle = "green"
+		this.irect(x + 5, y + 5, cW - 10, cH - 10, 5)
+		this.stroke();
+	}
 }
 //#endregion
 
@@ -414,12 +423,23 @@ const layers =
 
 						ct.beginPath()
 
+						if(h.initiative)
+						{
+							ct.strokeStyle = "green";
+						}
+
 						ct.irect(h.token.X * cellSize, h.token.Y * cellSize,
 							h.token.Width * cellSize, h.token.Height * cellSize, 10)
 
 						ct.globalAlpha = 1;
 						ct.stroke();
 						ct.globalAlpha = 0.4;
+
+
+						if(h.initiative)
+						{
+							ct.strokeStyle = "darkorange";
+						}
 					}
 					else if(h.pos)
 					{
@@ -454,6 +474,7 @@ const layers =
 
 // (int time, token_t token)[]
 var highlighted = []
+var currentTurn = null
 
 // Deprecates the old sprites interface
 const textures = {
@@ -591,6 +612,17 @@ const mapInterface = {
 
 			case blinkKind.token:
 				highlighted.push({ time: Date.now(), token: tk });
+			break;
+
+			case blinkKind.initiative:
+				highlighted.push({ time: Date.now(), token: tk, initiative: true });
+
+				const _ct = currentTurn
+				currentTurn = tk;
+
+				if(_ct)
+					mapInterface.redrawToken(_ct);
+				mapInterface.redrawToken(currentTurn);
 			break;
 		}
 

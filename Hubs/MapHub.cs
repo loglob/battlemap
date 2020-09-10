@@ -64,6 +64,7 @@ namespace battlemap.Hubs
 		{
 			Tile = 0,
 			Token = 1,
+			Initiative = 2,
 		}
 #region Fields
 		private ConnectionInfo info;

@@ -512,6 +512,105 @@ const toolbox = {
 				this.debug.onclick = this.onDebug;
 				this.resync.onclick = this.onResync;
 			}
+		},
+		initiative: {
+			list: initpls,
+			mod: initpls,
+			cur: null,
+			sort: function() {
+				let ls = [];
+				
+				while(this.list.hasChildNodes())
+				{
+					const c = this.list.firstChild;
+					ls.push(c);
+					this.list.removeChild(c);
+				}
+
+				ls.sort((l,r) => r.initCount - l.initCount);
+
+				for (const i of ls) {
+					this.list.appendChild(i);
+				}
+			},
+			setCur: function(li) {
+				if(this.cur)
+					this.cur.style.fontWeight = "inherit"
+				
+				this.cur = li
+
+				if(this.cur)
+				{
+					this.cur.style.fontWeight = "bold"
+					maphub.blink(blinkKind.initiative, li.token.X, li.token.Y);
+				}
+			},
+			next: function() {
+				this.setCur(this.cur?.nextSibling ?? this.list.firstChild)
+			},
+			update: function(li) {
+				li.initCount = parseInt(li.lastChild.value);
+				this.sort();
+			},
+			insert: function(tk, genIc) {
+				for (const c of this.list.children) {
+					if(c.token === tk)
+						return;
+				}
+
+				const li = document.createElement("li");
+				let roll = Math.floor(Math.random() * 20) + 1
+				li.initCount = (!genIc) ? -100 : (roll === 20) ? 99 : (roll === 1) ? -99 : (roll + parseInt(this.mod.value));
+				li.token = tk;
+
+				const txt = document.createElement("span");
+				txt.innerText = flatName(tk);
+				txt.style.cursor = "pointer"
+				txt.onclick = function(ev) {
+					toolbox.tools.initiative.onClick(li, ev);
+				}
+
+				li.appendChild(txt);
+
+				const num = document.createElement("input");
+				num.type = "number";
+				num.max = 99;
+				num.min = -99;
+				num.oninput = function(ev) {
+					toolbox.tools.initiative.update(li, ev);
+				}
+
+				if(genIc)
+					num.value = li.initCount
+				else
+					num.placeholder = "--"
+
+				li.appendChild(num);
+
+				this.list.appendChild(li);
+				this.sort();
+			},
+			onClick: function(li, ev) {
+				if(ev.shiftKey) // Remove item
+					this.list.removeChild(li);
+				else
+					this.setCur(li);
+			},
+			onMouseDown: function(evnt) {
+				const tk = tokenAt(tile(evnt.pageX), tile(evnt.pageY))
+
+				if(tk)
+					this.insert(tk, !evnt.shiftKey);
+			},
+			onMapUpdate: function() {
+				for (let li = this.list.firstChild; li; li = li.nextSibling) {
+					if(map.tokens.indexOf(li.token) == -1)
+						this.list.removeChild(li);
+				}
+			},
+			init: function() {
+				mapUpdateHooks.push({ mask: mapFields.tokens, callback: function() { toolbox.tools.initiative.onMapUpdate() } })
+			}
 		}
 	},
 	activeTool: null,
@@ -1334,6 +1433,11 @@ const handlers = {
 	}
 }
 
+/* Allows for hooking of map update event */
+const mapUpdateHooks = [
+	// { mask: number, callback: void(number) }
+]
+
 /* Handles outside interaction with the UI */
 const uiInterface = {
 	init: function() {
@@ -1361,6 +1465,18 @@ const uiInterface = {
 
 		if(fieldIds & mapFields.spawn && toolbox.activeTool == toolbox.tools.spawnzone)
 			layers.special.draw()
+
+		for (const hook of mapUpdateHooks) {
+			try
+			{
+				if((hook.mask & fieldIds) === hook.mask)
+					hook.callback(fieldIds);
+			}
+			catch(ex)
+			{
+				console.error(ex)
+			}
+		}
 	},
 
 	/* Reacts to highlighed shape. Called by maphub. */
