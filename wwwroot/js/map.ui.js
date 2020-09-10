@@ -508,6 +508,29 @@ const toolbox = {
 				layers.special.draw();
 			},
 			getCursor: function() { return "copy" },
+		},
+		debug: {
+			save: initpls,
+			debug: initpls,
+			resync: initpls,
+			onSave: function() {
+				maphub.connection.invoke("Save");
+			},
+			getCursor: function() {
+				return toolbox.tools.cursor.getCursor();
+			},
+			onDebug: function() {
+				maphub.debug();
+			},
+			onResync: function() {
+				maphub.resync(mapFields.all);
+			},
+			init: function() {
+				this.save.onclick = this.onSave;
+				this.debug.onclick = this.onDebug;
+				this.resync.onclick = this.onResync;
+				
+			}
 		}
 	},
 	activeTool: null,

@@ -87,6 +87,15 @@ const maphub =
 			modifies: mapFields.colors
 		},
 
+		Debug: {
+			receive: function(conn, ctxt) {
+				console.log(JSON.parse(conn));
+				console.log(JSON.parse(ctxt));
+			},
+			check: function() { },
+			modified: 0,
+		},
+
 		GotImage: {
 			receive: mapInterface.gotImage,
 			check: function(img){},

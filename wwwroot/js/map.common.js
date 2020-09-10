@@ -9,6 +9,7 @@ const mapFields = {
 	effects: 16,
 	spawn: 32,
 	sprites: 64,
+	all: 127
 };
 
 //#region Array Extension methods

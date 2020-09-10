@@ -29,6 +29,10 @@
 		<button id="spawnzone_button"><span>🏥</span></button>
 		<button id="dice_button"><span>🎲</span></button>
 		<button id="settings_button"><span>⚙️</span></button>
+
+		@if(ViewBag.LoadDevTools) {
+			<button id="debug_button"><span>💻</span></button>
+		}
 	</div>
 	<div id="addtoken_window" class="hidden fixed br window">
 		Name: <input id="addtoken_name" size="10" type="text" value="">
@@ -69,6 +73,16 @@
 	<div id="effects_window" class="ralign hidden fixed br window">
 		<div>Foo <a>👁️</a> <a>🗑️</a></div>
 	</div>
+	@if(ViewBag.LoadDevTools) {
+		<div id="debug_window" class="ralign hidden fixed br window">
+			<button id="debug_save">Save</button>
+			<br/>
+			<button id="debug_debug">Debug</button>
+			<br/>
+			<button id="debug_resync">Resync</button>
+			<br/>
+		</div>
+	}
 } else {
 	<div id="toolbox" class="fixed tr">
 		<button id="cursor_button"><span>🖰</span></button>

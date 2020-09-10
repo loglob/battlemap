@@ -16,6 +16,7 @@ namespace battlemap.Hubs
 		/* Represents a connection from a client. */
 		private class ConnectionInfo
 		{
+			[JsonIgnore]
 			public readonly Map Map;
 			public bool IsDM;
 			public string TokenName;
@@ -34,8 +35,16 @@ namespace battlemap.Hubs
 				return connections[ct.ConnectionId] = new ConnectionInfo(ct.GetHttpContext().Request, ct.ConnectionId);
 			}
 
+			public static void Remove(HubCallerContext ct)
+			{
+				connections.Remove(ct.ConnectionId);
+			}
+
 			public static ConnectionInfo Get(HubCallerContext ct)
 				=> connections[ct.ConnectionId];
+
+			public static string GetDebugInfo(HubCallerContext ct)
+				=> connections.Values.ToJson();
 
 			private ConnectionInfo(HttpRequest req, string connectionId)
 			{
@@ -83,6 +92,11 @@ namespace battlemap.Hubs
 			{
 				Context.Abort();
 			}
+		}
+
+		public override async Task OnDisconnectedAsync(Exception exception)
+		{
+			ConnectionInfo.Remove(this.Context);
 		}
 
 		public async Task Add(string name, int x, int y, int w, int h)
@@ -169,6 +183,12 @@ namespace battlemap.Hubs
 			}
 		}
 
+		#if DEBUG
+		public async Task Debug()
+		{
+			await Clients.Caller.SendAsync("Debug", ConnectionInfo.GetDebugInfo(this.Context), Context.ConnectionId.ToJson());
+		}
+		#endif
 		public async Task Move(int xFrom, int yFrom, int xTo, int yTo)
 		{
 			var t = Info.Map.TokenAt(xFrom, yFrom);

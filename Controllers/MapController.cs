@@ -15,9 +15,16 @@ namespace battlemap.Controllers
         public MapController(ILogger<MapController> logger)
         {}
 	
-        public async Task<IActionResult> Index(string token, bool dm, string name, bool sure)
+        public async Task<IActionResult> Index(string token, bool dm, string name, bool sure, bool dev = false)
 		{
+			#if DEBUG
+				dm = dm || dev;
+			#else
+				dev = false;
+			#endif
+
 			ViewBag.LoadDmTools = dm;
+			ViewBag.LoadDevTools = dev;
 			ViewBag.tokenName = name;
 
 			if(token == null)
