@@ -20,6 +20,8 @@
 			Mehrere HTML5 Canvases zum Rendern &
 			<br/>
 			janky vanilla JS für den Rest
+			<br/>
+			<a href="https://github.com/loglob/battlemap">Hier</a> gibts den Quelltext.
 		</p>
 		<h2 id="players">Wie benuzte ich das? (Für Spieler)</h2>
 		<p>
@@ -59,6 +61,9 @@
 					</ul>
 				</li>
 			</ul>
+		</p>
+		<p>
+			Manche Toolfenster können durch Shift-Klick auf ihr Icon oben links angepinnt werden.
 		</p>
 		<h3 id="dmtools">Die Tools:</h3>
 		<h3>Cursor (🖰)</h3>
@@ -101,6 +106,16 @@
 			<br/>
 			Abgeschnittene Tokens werden entfernt.
 		</p>
+		<h3>Effects (🔥)</h3>
+		<p>
+			Listet alle markierten und permanent gesetzten Shapes. 
+			<br/>
+			💾 Nimmt den Effekt mit der ausgewählten Farbe in die permanente Liste auf
+			<br/>
+			👁️ Highlightet den Effekt
+			<br/>
+			🗑️ Löscht den Effekt
+		</p>
 		<h3>Hiding (👁️)</h3>
 		<p>
 			Versteckt Tokens.
@@ -108,16 +123,6 @@
 			Versteckte Tokens sind für DMs durchsichtig & haben ein 👁️-Symbol in der Ecke.
 			<br/>
 			Für Spieler sind sie komplett unsichtbar.
-		</p>
-		<h3>Shapes (⬡)</h3>
-		<p>
-			Zeichnet Shapes auf der Map.
-			<br/>
-			Im Fenster unten rechts wird die Form ausgewählt.
-			<br/>
-			Durch drücken von H kann die Form jedem gezeigt werden.
-			<br/>
-			Alle markierte Tokens können auf einmal bewegt werden.
 		</p>
 		<h3>Spawn Zone (🏥)</h3>
 		<p>
@@ -129,13 +134,19 @@
 			<br/>
 			Durch DEL wird die Spawnzone wieder entfernt.
 		</p>
-		<h3>Dice (🎲)</h3>
+		<h3>Initiative Tracker (⏱️)</h3>
 		<p>
-			Würfel würfeln.
+			Klicken, um tokens in die Initiative-Ordnung aufzunehmen. Ihre Position wird dabei als 1d20 + angegebener modifier berechnet.
 			<br/>
-			Im Fenster unten rechts sind d2 bis d100 verfügbar.
+			Natural 20s werden dabei zu +99 und natural 1s zu -99.
 			<br/>
-			Die 🗑️ erlauben es, die Werte einzelner/aller Würfel zu löschen.
+			Shift-Click, um Tokens ohne automatischen Initiative-Wert aufzunehmen.
+			<br/>
+			Auf einen Namen in der Liste klicken, um das Token als momentan am Zug zu markieren.
+			<br/>
+			Mit dem ▶️ Knopf das nächste Token auswählen.
+			<br/>
+			(⚠️ Die Liste wird lokal und nicht auf dem Server gespeichert)
 		</p>
 		<h3>Einstellungen (⚙️)</h3>
 		<p>
@@ -144,7 +155,24 @@
 			Die Karte kann geklont werden.
 			<br/>
 			Die genutze √2 Approximation kann geändert werden.
-			
+		</p>
+		<h3>Shapes (⬡)</h3>
+		<p>
+			Zeichnet Shapes auf der Map.
+			<br/>
+			Im Fenster unten rechts wird die Form ausgewählt.
+			<br/>
+			Durch drücken von H kann die Form jedem gezeigt werden.
+			<br/>
+			Alle markierte Tokens können auf einmal bewegt werden.
+		</p>
+		<h3>Dice (🎲)</h3>
+		<p>
+			Würfel würfeln.
+			<br/>
+			Im Fenster unten rechts sind d2 bis d100 verfügbar.
+			<br/>
+			Die 🗑️ erlauben es, die Werte einzelner/aller Würfel zu löschen.
 		</p>
 		<p id="secret">
 			peasant() um die Debug Commoner zu erhalten. 

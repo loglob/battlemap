@@ -5,11 +5,11 @@
 	</head>
 	<body class="faq">
 		<h1>FAQ</h1>
-		<h2><span id="secret">owo</span> What's this?</h2>
+		<h2>What is this?</h2>
 		<p>
 			An online battlemap.
 			<br/>
-			YOu can add, move and remove tokens, color the map grid, etc.
+			You can add, move and remove tokens, color the map grid, etc.
 		</p>
 		<h2>How does it work?</h2>
 		<p>
@@ -20,13 +20,15 @@
 			layered HTML5 canvases for rendering,
 			<br/>
 			all joined with janky vanilla JS
+			<br/>
+			The code is available <a href="https://github.com/loglob/battlemap">here.</a>
 		</p>
 		<h2 id="players">How do I use it? (for players)</h2>
 		<p>
 			<ul>
 				<li>Your DM sends you a link, which you click on</li>
 				<li>Zoom out a bit to see the full map</li>
-				<li>Then press 'H' to highlight a mask</li>
+				<li>Use the cursor or shape tool to mark a shape, then press 'H' to highlight it</li>
 			</ul>
 		</p>
 		<h2 id="dm">How do I use it? (for DMs)</h2>
@@ -46,6 +48,9 @@
 					</ul>
 				</li>
 			</ul>
+		</p>
+		<p>
+			Shift-click lets you pin some tool windows to the upper-right corner.
 		</p>
 		<h3 id="tools">The tools:</h3>
 		<h3>Cursor (🖰)</h3>
@@ -92,21 +97,21 @@
 			<br/>
 			If shrinking the map would remove tokens, the resize needs to be confirmed.
 		</p>
+		<h3>Effects (🔥)</h3>
+		<p>
+			Keeps track of all highlighted and permanent Shapes.
+			<br/>
+			💾 Makes a shape permanent
+			<br/>
+			👁️ Highlights the shape
+			<br/>
+			🗑️ Deletes the shape
+		</p>
 		<h3>Hiding (👁️)</h3>
 		<p>
 			Hides tokens.
 			<br/>
 			Hidden tokens are only visible for DMs and are marked with a 👁️.
-		</p>
-		<h3>Shapes (⬡)</h3>
-		<p>
-			Draws shapes on the map.
-			<br/>
-			Select the shape on the bottom right.
-			<br/>
-			Pressing H highlights the shape.
-			<br/>
-			All marked tokens can be moved at once.
 		</p>
 		<h3>Spawn Zone (🏥)</h3>
 		<p>
@@ -118,17 +123,41 @@
 			<br/>
 			Pressing DEL removes the spawnzone.
 		</p>
-		<h3>Dice (🎲)</h3>
+		<h3>Initiative Tracker (⏱️)</h3>
 		<p>
-			Rolls dice.
+			Click to add tokens to the list. Their position is calculated as 1d20 + the given modifier.
 			<br/>
-			The 🗑️ delete the values of some/all dice.
+			Natural 20s turn to +99, natural 1s to -99.
+			<br/>
+			Shift-click to add tokens without generating values.
+			<br/>
+			Click on a token to mark it as the current token.
+			<br/>
+			Press ▶️ to mark the next token.
+			<br/>
+			(⚠️ The list is stored locally, not on the server)
 		</p>
 		<h3>Setings (⚙️)</h3>
 		<p>
 			Configures map settings.
 			<br/>
 			The given √2 Approximation is used to calculate distance.
+		</p>
+		<h3>Shapes (⬡)</h3>
+		<p>
+			Draws shapes on the map.
+			<br/>
+			Select the shape on the bottom right.
+			<br/>
+			Pressing H highlights the shape.
+			<br/>
+			All marked tokens can be moved at once.
+		</p>
+		<h3>Dice (🎲)</h3>
+		<p>
+			Rolls dice.
+			<br/>
+			The 🗑️ delete the values of some/all dice.
 		</p>
 		<h1 id="todo">TODO</h1>
 		<ul>
