@@ -193,14 +193,12 @@ const toolbox = {
 				}
 
 				this.reset()
-				layers.special.draw();
 			},
 			reset: function() {
 				this.error.hide()
 				this.force = false
 				this.savebutton.innerText = "Save"
 				layers.special.draw();
-		
 			},
 			resize: function(left,right,up,down,force)
 			{
@@ -255,7 +253,6 @@ const toolbox = {
 				this.reset()
 			},
 			draw: function(ct) {
-				ct.clear()
 				ct.globalAlpha = 0.5
 				ct.fillStyle = "red"
 				const l = Math.min(map.width, Math.max(0, -parseInt(toolbox.tools.resize.left.value)))
@@ -1595,6 +1592,13 @@ const uiInterface = {
 
 	draw: function(ct) {
 		ct.clear();
+
+		if(toolbox.pinned?.draw)
+		{
+			ct.save();
+			toolbox.pinned.draw(ct);
+			ct.restore();
+		}
 
 		if(toolbox.activeTool?.draw)
 		{
