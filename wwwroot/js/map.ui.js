@@ -33,7 +33,6 @@ function resize(left,right,up,down,force)
 /* Handles the DM toolbox */
 const toolbox = {
 	div: document.getElementById("toolbox"),
-	enabled: document.getElementById("toolbox") != null,
 	tools : {
 		cursor: {
 			onMouseDown:function(evnt) {
@@ -91,10 +90,10 @@ const toolbox = {
 			}
 		},
 		addtoken: {
-			Name: document.getElementById("addtoken_name"),
-			Width: document.getElementById("addtoken_width"),
-			Height: document.getElementById("addtoken_height"),
-			Num: "initpls",
+			Name: initpls,
+			Width: initpls,
+			Height: initpls,
+			Num: initpls,
 			name: "",
 			num: 1,
 			dontBlink: true,
@@ -168,7 +167,7 @@ const toolbox = {
 		},
 		tileedit: {
 			dontBlink: true,
-			Color: document.getElementById("tileedit_color"),
+			Color: initpls,
 			onMouseDown: function(evnt) {
 				if(evnt.shiftKey || evnt.ctrlKey)
 				{
@@ -521,53 +520,50 @@ const toolbox = {
 	init: function(){
 		this.activeTool = this.tools.cursor
 
-		if(this.enabled)
+		for(let name in this.tools)
 		{
-			for(let name in this.tools)
-			{
-				const tool = this.tools[name]
-				tool.window = document.getElementById(name + "_window")
-				tool.button = document.getElementById(name + "_button")
+			const tool = this.tools[name]
+			tool.window = document.getElementById(name + "_window")
+			tool.button = document.getElementById(name + "_button")
 
-				if(tool.button == null)
-					continue;
+			if(tool.button == null)
+				continue;
 
-				tool.button.onclick = function(evnt){
-					if(toolbox.activeTool == tool)
-						return;
-					
-					for(let name in toolbox.tools)
-					{
-						const t = toolbox.tools[name]
-						if(t != tool && t.window != null)
-							t.window.hide()
-					}
-
-
-					canvasStyle.cursor = toolbox.getCursor(tool)
-					
-					if(tool.window != null)
-						tool.window.unhide();
-
-					const ltool = toolbox.activeTool
-
-					toolbox.activeTool = tool
-
-					if(ltool.onPutAway)
-						ltool.onPutAway();
-					if(tool.onSelect)
-						tool.onSelect();
-				}
-
-				for(let v in tool)
+			tool.button.onclick = function(evnt){
+				if(toolbox.activeTool == tool)
+					return;
+				
+				for(let name in toolbox.tools)
 				{
-					if(tool[v] === initpls)
-						tool[v] = document.getElementById(`${name}_${v}`.toLowerCase())
+					const t = toolbox.tools[name]
+					if(t != tool && t.window != null)
+						t.window.hide()
 				}
 
-				if(tool.init)
-					tool.init();
+
+				canvasStyle.cursor = toolbox.getCursor(tool)
+				
+				if(tool.window != null)
+					tool.window.unhide();
+
+				const ltool = toolbox.activeTool
+
+				toolbox.activeTool = tool
+
+				if(ltool.onPutAway)
+					ltool.onPutAway();
+				if(tool.onSelect)
+					tool.onSelect();
 			}
+
+			for(let v in tool)
+			{
+				if(tool[v] === initpls)
+					tool[v] = document.getElementById(`${name}_${v}`.toLowerCase())
+			}
+
+			if(tool.init)
+				tool.init();
 		}
 	},
 	getCursor: function(tool) {
@@ -1295,19 +1291,16 @@ const handlers = {
 		switch(evnt.code)
 		{
 			case "Escape":
-				if(toolbox.enabled)
+				if(toolbox.activeTool === toolbox.tools.cursor)
 				{
-					if(toolbox.activeTool === toolbox.tools.cursor)
-					{
-						for (const key in selection) {
-							if(selection[key] && typeof selection[key] === "object" && selection[key].reset)
-								selection[key].reset();
-						}
-						layers.special.draw();
+					for (const key in selection) {
+						if(selection[key] && typeof selection[key] === "object" && selection[key].reset)
+							selection[key].reset();
 					}
-					else
-						toolbox.tools.cursor.button.click();
+					layers.special.draw();
 				}
+				else
+					toolbox.tools.cursor.button.click();
 			break;
 
 			case "Delete":
@@ -1360,7 +1353,7 @@ const uiInterface = {
 
 	/* Reacts to changes in the map datastructure. Called by maphub. */
 	onMapUpdate: function(fieldIds) {
-		if((fieldIds & mapFields.sqrt2) && toolbox.enabled)
+		if((fieldIds & mapFields.sqrt2))
 		{
 			toolbox.tools.settings.Denom.value = map.sqrt2denom
 			toolbox.tools.settings.Num.value = map.sqrt2num
