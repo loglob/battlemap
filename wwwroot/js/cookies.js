@@ -9,7 +9,7 @@ const cookie = {
 		{
 			const kvp = line.split("=", 2);
 
-			if(kvp.length != 2 || kvp[0] != this.cookiename)
+			if(kvp.length != 2 || kvp[0].trim() != this.cookiename)
 				continue;
 
 			try
