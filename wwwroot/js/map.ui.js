@@ -97,6 +97,7 @@ const toolbox = {
 			Num: "initpls",
 			name: "",
 			num: 1,
+			dontBlink: true,
 			onMouseDown: function(evnt) {
 				if(evnt.ctrlKey)
 				{
@@ -143,6 +144,7 @@ const toolbox = {
 			}
 		},
 		removetoken: {
+			dontBlink: true,
 			onMouseDown: function(evnt) {
 				const cx = tile(evnt.pageX)
 				const cy = tile(evnt.pageY)
@@ -165,6 +167,7 @@ const toolbox = {
 			}
 		},
 		tileedit: {
+			dontBlink: true,
 			Color: document.getElementById("tileedit_color"),
 			onMouseDown: function(evnt) {
 				if(evnt.shiftKey || evnt.ctrlKey)
@@ -460,6 +463,7 @@ const toolbox = {
 			}
 		},
 		hide: {
+			dontBlink: true,
 			onMouseDown: function(evnt) {
 				const tk = tokenAt(tile(evnt.pageX), tile(evnt.pageY))
 
@@ -480,6 +484,7 @@ const toolbox = {
 			}
 		},
 		spawnzone: {
+			dontBlink: true,
 			onSelect: function() {
 				layers.special.draw();
 			},
