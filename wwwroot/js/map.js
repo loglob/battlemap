@@ -578,20 +578,21 @@ const textures = {
 
 // The interface external scripts interact with
 const mapInterface = {
-	// highlights a token
-	blink: function(x,y)
+	// highlights a token or tile
+	blink: function(k,x,y)
 	{
-		highlighted.push({ time: Date.now(), pos: { x: x, y: y } })
+		let tk = tokenAtExact(x,y);
 
-		const f = layers.highlight.draw
+		switch(k)
+		{
+			case blinkKind.tile:
+				highlighted.push({ time: Date.now(), pos: { x: x, y: y } })
+			break;
 
-		f()
-		window.setTimeout(f, 401)
-		window.setTimeout(f, 801)
-		window.setTimeout(f, 1201)
-	},
-	blinkToken: function(tk) {
-		highlighted.push({ time: Date.now(), token: tk })
+			case blinkKind.token:
+				highlighted.push({ time: Date.now(), token: tk });
+			break;
+		}
 
 		const f = layers.highlight.draw
 

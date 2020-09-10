@@ -1149,11 +1149,12 @@ const handlers = {
 		const cY = tile(evnt.pageY)
 		const tk = tokenAt(cX, cY)
 
+		if(typeof toolbox.activeTool?.dontBlink !== "undefined")
+			return;
 		if(tk && (!tk.Hidden || isDM))
-			maphub.blinkToken(tk.X, tk.Y);
+			maphub.blink(blinkKind.token, tk.X, tk.Y);
 		else
-			maphub.blink(cX, cY);
-		
+			maphub.blink(blinkKind.tile, cX, cY);
 	},
 	onCanvasDrop: function(ev)
 	{

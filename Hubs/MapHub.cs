@@ -51,7 +51,11 @@ namespace battlemap.Hubs
 			}
 		}
 
-
+		private enum BlinkKind
+		{
+			Tile = 0,
+			Token = 1,
+		}
 #region Fields
 		private ConnectionInfo info;
 #endregion
@@ -119,12 +123,16 @@ namespace battlemap.Hubs
 		}
 
 		/* Highlights a token or tile */
-		public async Task Blink(int x, int y)
+		public async Task Blink(int kind, int x, int y)
 		{
 			if(Info.Map.Outside(x,y,1,1))
 				await fail("Out of bounds");
+			else if(!Enum.IsDefined(typeof(BlinkKind), kind))
+				await fail("Invalid blink kind");
+			else if(kind >= (int)BlinkKind.Token && Info.Map.TokenAtExact(x, y) == null)
+				await fail("Expecting token with blink kind");
 			else
-				await Clients.Group(GroupId).SendAsync("Blink", x, y);
+				await Clients.Group(GroupId).SendAsync("Blink", kind, x, y);
 		}
 
 		public async Task BlinkToken(int x, int y)

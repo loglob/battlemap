@@ -5,6 +5,14 @@ function oob(msg)
 	return { field: mapFields.size, msg: msg ?? "Out of bounds" };
 }
 
+const blinkKind =
+{
+	tile : 0,
+	token : 1,
+	max : 1,
+	min : 0,
+}
+
 const maphub =
 {
 	/* Contains objects with receive(), check() and modifies fields.
@@ -47,18 +55,12 @@ const maphub =
 
 		Blink: {
 			receive: mapInterface.blink,
-			check: function(x,y){
+			check: function(kind,x,y){
 				if(outOfBounds(x,y))
 					return oob("Refusing blink out of bounds")
-			},
-			modifies: 0
-		},
-		BlinkToken: {
-			receive: function(x,y) {
-				mapInterface.blinkToken(tokenAtExact(x, y))
-			},
-			check: function(x,y){
-				if(!tokenAtExact(x,y))
+				if(kind < blinkKind.min || kind > blinkKind.max)
+					return "Invalid blink kind"
+				if(kind >= blinkKind.token && !tokenAtExact(x,y))
 					return { field: mapFields.tokens, msg: "Refusing BlinkToken without token" }
 			},
 			modifies: 0
