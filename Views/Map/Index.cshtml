@@ -16,24 +16,29 @@
 	ViewData["Title"] = ViewBag.Token;
 }
 
-@if(ViewBag.LoadDmTools) {
-	<div id="toolbox" class="fixed tr">
-		<button id="cursor_button"><span>🖰</span></button>
-		<button id="addtoken_button"><span>+</span></button>
-		<button id="removetoken_button"><span>–</span></button>
-		<button id="tileedit_button"><span>🖌</span></button>
-		<button id="resize_button"><span>🗺️</span></button>
-		<button id="effects_button"><span>🔥</span></button>
-		<button id="hide_button"><span>👁️</span></button>
-		<button id="shapes_button"><span>⬡</span></button>
-		<button id="spawnzone_button"><span>🏥</span></button>
-		<button id="dice_button"><span>🎲</span></button>
-		<button id="settings_button"><span>⚙️</span></button>
+<div id="toolbox" class="fixed tr">
+	<button id="cursor_button"><span>🖰</span></button>
+@if(ViewBag.LoadDmTools)
+{
+	<button id="addtoken_button"><span>+</span></button>
+	<button id="removetoken_button"><span>–</span></button>
+	<button id="tileedit_button"><span>🖌</span></button>
+	<button id="resize_button"><span>🗺️</span></button>
+	<button id="effects_button"><span>🔥</span></button>
+	<button id="hide_button"><span>👁️</span></button>
+	<button id="spawnzone_button"><span>🏥</span></button>
+	<button id="settings_button"><span>⚙️</span></button>
+}
+	<button id="shapes_button"><span>⬡</span></button>
+	<button id="dice_button"><span>🎲</span></button>
 
-		@if(ViewBag.LoadDevTools) {
-			<button id="debug_button"><span>💻</span></button>
-		}
-	</div>
+@if(ViewBag.LoadDevTools) {
+	<button id="debug_button"><span>💻</span></button>
+}
+</div>
+
+@if(ViewBag.LoadDmTools)
+{
 	<div id="addtoken_window" class="hidden fixed br window">
 		Name: <input id="addtoken_name" size="10" type="text" value="">
 		Num: <input id="addtoken_num" size="3" min="1" type="number" value="1">
@@ -41,9 +46,11 @@
 		Width: <input id="addtoken_width" size="1" min="1" type="number" value="1">
 		Height: <input id="addtoken_height" size="1" min="1" type="number" value="1">
 	</div>
+	
 	<div id="tileedit_window" class="hidden fixed br window">
 		<input id="tileedit_color" type="color">
 	</div>
+
 	<div id="settings_window" class="hidden fixed br window">
 		<a href="clone?token=@Model.token">Clone Map</a>
 		<br/>
@@ -52,6 +59,7 @@
 		<br/>
 		<button onclick="toolbox.tools.settings.save()">Save</button>
 	</div>
+
 	<div id="resize_window" class="hidden fixed br window">
 		<div class="ralign">
 			Left:
@@ -70,24 +78,20 @@
 		<br/>
 		<button id="resize_savebutton" onclick="toolbox.tools.resize.save()">Save</button>
 	</div>
+
 	<div id="effects_window" class="ralign hidden fixed br window">
 		<div>Foo <a>👁️</a> <a>🗑️</a></div>
 	</div>
-	@if(ViewBag.LoadDevTools) {
-		<div id="debug_window" class="ralign hidden fixed br window">
-			<button id="debug_save">Save</button>
-			<br/>
-			<button id="debug_debug">Debug</button>
-			<br/>
-			<button id="debug_resync">Resync</button>
-			<br/>
-		</div>
-	}
-} else {
-	<div id="toolbox" class="fixed tr">
-		<button id="cursor_button"><span>🖰</span></button>
-		<button id="shapes_button"><span>⬡</span></button>
-		<button id="dice_button"><span>🎲</span></button>
+}
+
+@if(ViewBag.LoadDevTools) {
+	<div id="debug_window" class="ralign hidden fixed br window">
+		<button id="debug_save">Save</button>
+		<br/>
+		<button id="debug_debug">Debug</button>
+		<br/>
+		<button id="debug_resync">Resync</button>
+		<br/>
 	</div>
 }
 
