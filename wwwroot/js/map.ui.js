@@ -14,8 +14,10 @@ var canvasStyle = document.getElementById("canvas_stack").style;
 /* Handles the DM toolbox */
 const toolbox = {
 	div: document.getElementById("toolbox"),
+	pinned: null,
 	tools : {
 		cursor: {
+			pinnable: true,
 			onMouseDown:function(evnt) {
 				const cX = tile(evnt.pageX)
 				const cY = tile(evnt.pageY)
@@ -174,6 +176,7 @@ const toolbox = {
 			}
 		},
 		resize: {
+			pinnable: true,
 			left: initpls,
 			right: initpls,
 			up: initpls,
@@ -273,6 +276,7 @@ const toolbox = {
 			}
 		},
 		effects: {
+			pinnable: true,
 			genDiv: function(item) {
 				let div = document.createElement("div");
 				let name = document.createElement("span")
@@ -354,6 +358,7 @@ const toolbox = {
 			},
 		},
 		dice: {
+			pinnable: true,
 			pips: [ 2, 4, 6, 8, 10, 12, 20, 100 ],
 			roll : function(p) {
 				let roll = Math.floor(Math.random() * p) + 1;
@@ -460,6 +465,7 @@ const toolbox = {
 			getCursor: function() { return "help" },
 		},
 		settings: {
+			pinnable: true,
 			Denom: document.getElementById("setting_sqrt2_denom"),
 			Num: document.getElementById("setting_sqrt2_num"),
 			save: function() {
@@ -495,6 +501,7 @@ const toolbox = {
 			getCursor: function() { return "copy" },
 		},
 		debug: {
+			pinnable: true,
 			save: initpls,
 			debug: initpls,
 			resync: initpls,
@@ -517,6 +524,7 @@ const toolbox = {
 			list: initpls,
 			mod: initpls,
 			nextbutton: initpls,
+			pinnable: true,
 			cur: null,
 			sort: function() {
 				let ls = [];
@@ -698,13 +706,35 @@ const toolbox = {
 				continue;
 
 			tool.button.onclick = function(evnt){
+				if(evnt.shiftKey && tool.pinnable)
+				{ // pin
+					if(toolbox.pinned)
+					{
+						const w  = toolbox.pinned.window
+						w.classList.remove("tl");
+						w.classList.add("br");
+						w.hide();
+					}
+					
+					if(tool !== toolbox.tools.cursor)
+					{
+						tool.window.unhide();
+						tool.window.classList.remove("br");
+						tool.window.classList.add("tl");
+						toolbox.pinned = tool;
+					}
+
+					return;
+				}
+
 				if(toolbox.activeTool == tool)
 					return;
 				
 				for(let name in toolbox.tools)
 				{
 					const t = toolbox.tools[name]
-					if(t != tool && t.window != null)
+
+					if(t != tool && t.window != null && t != toolbox.pinned)
 						t.window.hide()
 				}
 
