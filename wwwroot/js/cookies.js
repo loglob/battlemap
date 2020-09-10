@@ -23,13 +23,13 @@ const cookie = {
 			}
 		}
 
-		this.data = null;
+		this.data = {};
 	},
 	store: function()
 	{
-		document.cookie = `${this.cookiename}=${encodeURIComponent(JSON.stringify(this.data))}`
+		document.cookie = `${this.cookiename}=${encodeURIComponent(JSON.stringify(this.data))}; SameSite=strict; expires=${new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365).toUTCString()};`
 	},
-	data: null,
+	data: {},
 };
 
 cookie.load()

@@ -532,6 +532,8 @@ const toolbox = {
 				for (const i of ls) {
 					this.list.appendChild(i);
 				}
+
+				cookie.data.initiative = this.store();
 			},
 			setCur: function(li) {
 				if(this.cur)
@@ -552,16 +554,10 @@ const toolbox = {
 				li.initCount = parseInt(li.lastChild.value);
 				this.sort();
 			},
-			insert: function(tk, genIc) {
-				for (const c of this.list.children) {
-					if(c.token === tk)
-						return;
-				}
-
+			addLi: function(tk, count) {
 				const li = document.createElement("li");
-				let roll = Math.floor(Math.random() * 20) + 1
-				li.initCount = (!genIc) ? -100 : (roll === 20) ? 99 : (roll === 1) ? -99 : (roll + parseInt(this.mod.value));
 				li.token = tk;
+				li.initCount = count;
 
 				const txt = document.createElement("span");
 				txt.innerText = flatName(tk);
@@ -580,14 +576,23 @@ const toolbox = {
 					toolbox.tools.initiative.update(li, ev);
 				}
 
-				if(genIc)
+				if(count > -100)
 					num.value = li.initCount
 				else
 					num.placeholder = "--"
 
 				li.appendChild(num);
-
 				this.list.appendChild(li);
+			},
+			insert: function(tk, genIc) {
+				for (const c of this.list.children) {
+					if(c.token === tk)
+						return;
+				}
+				let roll = Math.floor(Math.random() * 20) + 1
+				let count = (!genIc) ? -100 : (roll === 20) ? 99 : (roll === 1) ? -99 : (roll + parseInt(this.mod.value));
+				
+				this.addLi(tk, count)
 				this.sort();
 			},
 			onClick: function(li, ev) {
@@ -610,6 +615,24 @@ const toolbox = {
 			},
 			init: function() {
 				mapUpdateHooks.push({ mask: mapFields.tokens, callback: function() { toolbox.tools.initiative.onMapUpdate() } })
+
+				if(cookie.data.initiative)
+					this.load(cookie.data.initiative);
+			},
+			load: function(obj) {
+				for (const i of obj) {
+					this.addLi(i.token, i.initCount);
+				}
+
+				this.sort();
+			},
+			store: function() {
+				let data  = []
+
+				for(const c of this.list.children)
+					data.push({ token: c.token, initCount: c.initCount });
+				
+				return data
 			}
 		}
 	},

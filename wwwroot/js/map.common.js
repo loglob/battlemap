@@ -648,6 +648,8 @@ function dist(cX1, cY1, cX2, cY2)
 
 function init()
 {
+	cookie.load();
+	
 	if(typeof mapInterface !== "undefined" && mapInterface)
 		mapInterface.init();
 	if(typeof uiInterface !== "undefined" && uiInterface)
