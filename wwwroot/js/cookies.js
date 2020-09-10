@@ -27,8 +27,20 @@ const cookie = {
 	},
 	store: function()
 	{
+		for (const cb of this.onStoreCallbacks) {
+			try
+			{
+				cb();
+			}
+			catch(ex)
+			{
+				console.error("Error in cookie.store callback: ", ex);
+			}
+		}
+
 		document.cookie = `${this.cookiename}=${encodeURIComponent(JSON.stringify(this.data))}; SameSite=strict; expires=${new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365).toUTCString()};`
 	},
+	onStoreCallbacks: [],
 	data: {},
 };
 

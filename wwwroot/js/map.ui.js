@@ -538,8 +538,6 @@ const toolbox = {
 				for (const i of ls) {
 					this.list.appendChild(i);
 				}
-
-				cookie.data.initiative = this.store();
 			},
 			setCur: function(li, dontblink) {
 				if(this.cur)
@@ -557,7 +555,6 @@ const toolbox = {
 			},
 			next: function() {
 				this.setCur(this.cur?.nextSibling ?? this.list.firstChild)
-				cookie.data.initiative = this.store()
 			},
 			update: function(li) {
 				li.initCount = parseInt(li.lastChild.value);
@@ -610,8 +607,6 @@ const toolbox = {
 					this.list.removeChild(li);
 				else
 					this.setCur(li);
-
-				cookie.data.initiative = this.store()
 			},
 			onMouseDown: function(evnt) {
 				const tk = tokenAt(tile(evnt.pageX), tile(evnt.pageY))
@@ -627,6 +622,7 @@ const toolbox = {
 			},
 			init: function() {
 				mapUpdateHooks.push({ mask: mapFields.tokens, callback: function() { toolbox.tools.initiative.onMapUpdate() } })
+				cookie.onStoreCallbacks.push(this.onStore.bind(this));
 
 				this.nextbutton.onclick = this.next.bind(this);
 
@@ -672,7 +668,7 @@ const toolbox = {
 
 				this.sort();
 			},
-			store: function() {
+			onStore: function() {
 				let data  = []
 
 				for(const c of this.list.children)
@@ -685,7 +681,7 @@ const toolbox = {
 					data.push(co);
 				}
 				
-				return data
+				cookie.data.initiative = data;
 			}
 		}
 	},
