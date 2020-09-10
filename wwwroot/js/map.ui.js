@@ -516,6 +516,7 @@ const toolbox = {
 		initiative: {
 			list: initpls,
 			mod: initpls,
+			nextbutton: initpls,
 			cur: null,
 			sort: function() {
 				let ls = [];
@@ -535,7 +536,7 @@ const toolbox = {
 
 				cookie.data.initiative = this.store();
 			},
-			setCur: function(li) {
+			setCur: function(li, dontblink) {
 				if(this.cur)
 					this.cur.style.fontWeight = "inherit"
 				
@@ -544,7 +545,9 @@ const toolbox = {
 				if(this.cur)
 				{
 					this.cur.style.fontWeight = "bold"
-					maphub.blink(blinkKind.initiative, li.token.X, li.token.Y);
+
+					if(!dontblink)
+						maphub.blink(blinkKind.initiative, li.token.X, li.token.Y);
 				}
 			},
 			next: function() {
@@ -616,12 +619,38 @@ const toolbox = {
 			init: function() {
 				mapUpdateHooks.push({ mask: mapFields.tokens, callback: function() { toolbox.tools.initiative.onMapUpdate() } })
 
-				if(cookie.data.initiative)
-					this.load(cookie.data.initiative);
+				this.nextbutton.onclick = this.next.bind(this);
+
+				try
+				{
+					if(cookie.data.initiative)
+						this.load(cookie.data.initiative);
+				}
+				catch(ex)
+				{
+					console.error("Failed loading initiative order from ", cookie.data.initiative, ex);
+				}
 			},
 			load: function(obj) {
+				const _tokens = map.tokens.map(JSON.stringify);
+
+				for (let k = 0; k < obj.length; k++) {
+					const eqi = _tokens.indexOf(JSON.stringify(obj[k].token));
+
+					if(eqi == -1)
+					{
+						console.error("Cannot find token for entry from old initiative list:", obj[k]);
+						continue;
+					}
+
+					obj[k].token = map.tokens[eqi]
+				}
+				
 				for (const i of obj) {
 					this.addLi(i.token, i.initCount);
+
+					if(i.cur)
+						this.setCur(this.list.lastChild, true);
 				}
 
 				this.sort();
@@ -630,7 +659,14 @@ const toolbox = {
 				let data  = []
 
 				for(const c of this.list.children)
-					data.push({ token: c.token, initCount: c.initCount });
+				{
+					let co = { token: c.token, initCount: c.initCount };
+
+					if(this.cur == c)
+						co.cur = true;
+
+					data.push(co);
+				}
 				
 				return data
 			}
