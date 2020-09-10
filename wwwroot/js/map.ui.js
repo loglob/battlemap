@@ -635,12 +635,20 @@ const toolbox = {
 				const _tokens = map.tokens.map(JSON.stringify);
 
 				for (let k = 0; k < obj.length; k++) {
-					const eqi = _tokens.indexOf(JSON.stringify(obj[k].token));
+					let eqi = _tokens.indexOf(JSON.stringify(obj[k].token));
 
 					if(eqi == -1)
 					{
-						console.error("Cannot find token for entry from old initiative list:", obj[k]);
-						continue;
+						// Attempt to recover from moved token
+						let samename =  map.tokens.filter(tk => tk.Name == obj[k].token.Name);
+
+						if(samename.length == 1)
+							eqi = map.tokens.indexOf(samename[0]);
+						else
+						{
+							console.error("Cannot find token for entry from old initiative list:", obj[k]);
+							continue;
+						}
 					}
 
 					obj[k].token = map.tokens[eqi]
