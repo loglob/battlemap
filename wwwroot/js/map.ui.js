@@ -81,26 +81,18 @@ const toolbox = {
 			num: 1,
 			dontBlink: true,
 			onMouseDown: function(evnt) {
-				if(evnt.ctrlKey)
+				const tk = tokenAt(tile(evnt.pageX), tile(evnt.pageY))
+				
+				if(evnt.ctrlKey && tk)
 				{
-					const tk = tokenAt(tile(evnt.pageX), tile(evnt.pageY))
+					const spl = tk.Name.split('\n');
 
-					if(tk)
-					{
-						const spl = tk.Name.split('\n');
-
-						/*if(spl.length > 1)
-							this.num = parseInt(spl[1].substring(1))
-						else
-							this.num = 0*/
-
-						this.Name.value = spl[0]
-						this.Num.value = (spl.length > 1) ? parseInt(spl[1].substring(1)) : 1;
-
-						return;
-					}
+					this.Name.value = spl[0]
+					this.Num.value = (spl.length > 1) ? parseInt(spl[1].substring(1)) : 1;
 				}
-				if(evnt.shiftKey)
+				else if(tk)
+					console.log("Refusing addToken on top of token");
+				else if(evnt.shiftKey)
 				{
 					let num = parseInt(this.Num.value)
 					maphub.add(this.Name.value + "\n#" + num++, tile(evnt.pageX), tile(evnt.pageY),
