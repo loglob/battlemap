@@ -1,3 +1,18 @@
+:root
+{
+	--bg-light: #333;
+	--bg-medium: #252526;
+	--bg-dark: #1E1E1E;
+	--fg-bright: #fff;
+	--fg-medium: #ccc; 
+}
+
+a {
+	color: #9CDCF0;
+}
+
+
+
 .hidden
 {
 	display: none;
@@ -16,7 +31,7 @@
 #toolbox
 {
 	margin: 0.4vmax;
-	background-color: gray;
+	background-color: var(--bg-dark);
 	border-radius: 1vmax;
 	padding: 0.5vmax;
 }
@@ -34,6 +49,12 @@
 	text-align: center;
 	align-content: center;
 	align-items: center;
+	
+	cursor: pointer;
+	background: none;
+	border: none;
+	outline: none;
+	color: var(--fg-bright);
 }
 
 #toolbox button span
@@ -48,32 +69,50 @@
 
 .window
 {
-	font-size: 1vmax;
+	font-size: 1.1vmax;
 	margin: 0.4vmax;
-	background-color: gray;
+	background-color: var(--bg-medium);
+	color: var(--fg-medium);
 	border-radius: 1vmax;
 	padding: 0.5vmax;
 }
 
-#settings_window input,
-#addtoken_width,
-#addtoken_height
+.window a
 {
-	width: 3vw !important;
+	color: #9CDCF0;
 }
 
-#addtoken_window input
+.window input
 {
+	background-color: var(--bg-light);
+	color: var(--fg-bright);
+	border-color: var(--bg-light);
 	width: min-content;
+	margin: 0.1em;
+}
+
+.window button
+{
+	margin: 0.33em;
+	background-color: var(--bg-light);
+	color: var(--fg-bright);
+	border-color: var(--bg-light);
+	font-weight: bold;
+}
+
+
+#tileedit_window {
+	background: none;
 }
 
 #tileedit_window input{
-	height: 10vmax;
-	width: 10vmax;
+	height: 7.5vmax;
+	width: 7.5vmax;
 	padding: 0;
 	margin: 0;
 	border: none;
 	background: none;
+	outline: none;
 }
 
 #dice_window {
@@ -81,6 +120,23 @@
 	min-width: 15vmax;
 	max-width: 15vmax;
 	width: 15vmax;
+}
+
+#initiative_window button {
+	background: none;
+	border: none;
+	padding: 0;
+}
+
+#initiative_list {
+	list-style-type: none;
+	padding: 0;
+	margin-top: 0;
+	margin-bottom: 0.5em;
+}
+
+#initiative_list li span {
+	margin-right: 0.3em;
 }
 
 .noselect {
@@ -128,11 +184,14 @@
 
 #effects_window div a {
 	cursor: pointer;
+	padding-left: .1em;
 }
 
 #effects_window div input {
 	padding: 0;
+	padding-left: .1em;
 	border: none;
 	background: none;
 	width: 1em;
+	height: 1em;
 }

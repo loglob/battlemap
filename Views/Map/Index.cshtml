@@ -55,8 +55,8 @@
 	<div id="settings_window" class="hidden fixed br window">
 		<a href="clone?token=@Model.token">Clone Map</a>
 		<br/>
-		√2 = <input id="setting_sqrt2_num" value="@map.Sqrt2Numerator" type="number" min="1">/
-		<input id="setting_sqrt2_denom" value="@map.Sqrt2Denominator" type="number" min="1">
+		√2 = <input id="setting_sqrt2_num" value="@map.Sqrt2Numerator" type="number" size="3" min="1">/
+		<input id="setting_sqrt2_denom" value="@map.Sqrt2Denominator" type="number" size="3" min="1">
 		<br/>
 		<button onclick="toolbox.tools.settings.save()">Save</button>
 	</div>
@@ -64,18 +64,18 @@
 	<div id="resize_window" class="hidden fixed br window">
 		<div class="ralign">
 			Left:
-			<input id="resize_left" value="0" type="number" oninput="toolbox.tools.resize.onInput('left')">
+			<input id="resize_left" size="4" value="0" type="number" oninput="toolbox.tools.resize.onInput('left')">
 			<br/>
 			Right:
-			<input id="resize_right" value="0" type="number" oninput="toolbox.tools.resize.onInput('right')">
+			<input id="resize_right" size="4" value="0" type="number" oninput="toolbox.tools.resize.onInput('right')">
 			<br/>
 			Up:
-			<input id="resize_up" value="0" type="number" oninput="toolbox.tools.resize.onInput('up')">
+			<input id="resize_up" size="4" value="0" type="number" oninput="toolbox.tools.resize.onInput('up')">
 			<br/>
 			Down:
-			<input id="resize_down" value="0" type="number" oninput="toolbox.tools.resize.onInput('down')">
+			<input id="resize_down" size="4" value="0" type="number" oninput="toolbox.tools.resize.onInput('down')">
 		</div>
-		<b id="resize_error" class="hidden error"></b>
+		<p id="resize_error" class="hidden error"></p>
 		<br/>
 		<button id="resize_savebutton" onclick="toolbox.tools.resize.save()">Save</button>
 	</div>
@@ -85,7 +85,7 @@
 	</div>
 
 	<div id="initiative_window" class="malign hidden fixed br window">
-		<ul id="initiative_list" class="malign"></ul>
+		<ul id="initiative_list" class="ralign"></ul>
 		<label for="initiative_mod">Init. Mod:</label>
 		<input type="number" class="slimInput" id="initiative_mod" size="1" min="-5" max="10" value="0">
 		<br/>

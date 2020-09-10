@@ -2,17 +2,15 @@
 for details on configuring this project to bundle and minify static web assets. */
 
 /* Provide sufficient contrast against white background */
-a {
-  color: #0366d6;
-}
+
 
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
-  font-size: 2vh;
   text-align: center;
   align-content: center;
   font-family: "sans-serif";
+  font-size: 1.1vmax;
 }
 
 .box-shadow {

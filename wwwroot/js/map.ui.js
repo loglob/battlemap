@@ -552,6 +552,7 @@ const toolbox = {
 			},
 			next: function() {
 				this.setCur(this.cur?.nextSibling ?? this.list.firstChild)
+				cookie.data.initiative = this.store()
 			},
 			update: function(li) {
 				li.initCount = parseInt(li.lastChild.value);
@@ -575,6 +576,7 @@ const toolbox = {
 				num.type = "number";
 				num.max = 99;
 				num.min = -99;
+				num.size = 3;
 				num.oninput = function(ev) {
 					toolbox.tools.initiative.update(li, ev);
 				}
@@ -603,6 +605,8 @@ const toolbox = {
 					this.list.removeChild(li);
 				else
 					this.setCur(li);
+
+				cookie.data.initiative = this.store()
 			},
 			onMouseDown: function(evnt) {
 				const tk = tokenAt(tile(evnt.pageX), tile(evnt.pageY))
