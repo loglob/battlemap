@@ -1,16 +1,30 @@
-﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
+﻿:root
+{
+	--bg-light: #333;
+	--bg-medium: #252526;
+	--bg-dark: #1E1E1E;
+	--fg-bright: #fff;
+	--fg-medium: #ccc; 
+}
 
-/* Provide sufficient contrast against white background */
+a {
+	color: #9CDCF0;
+}
 
-
-/* Sticky footer styles
--------------------------------------------------- */
 html {
   text-align: center;
   align-content: center;
   font-family: "sans-serif";
   font-size: 1.1vmax;
+}
+
+.faq {
+	background-color: var(--bg-medium);
+	color: var(--fg-medium);
+}
+
+.faq h1, .faq h2, .faq h3 {
+	color: var(--fg-bright);
 }
 
 .box-shadow {

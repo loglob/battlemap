@@ -1,18 +1,3 @@
-:root
-{
-	--bg-light: #333;
-	--bg-medium: #252526;
-	--bg-dark: #1E1E1E;
-	--fg-bright: #fff;
-	--fg-medium: #ccc; 
-}
-
-a {
-	color: #9CDCF0;
-}
-
-
-
 .hidden
 {
 	display: none;
