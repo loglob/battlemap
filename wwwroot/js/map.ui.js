@@ -11,25 +11,6 @@ const initpls = "_initpls_";
 
 var canvasStyle = document.getElementById("canvas_stack").style;
 
-function resize(left,right,up,down,force)
-{
-	// check for deleted tokens
-	if(!force && (left < 0 || right < 0 || up < 0 || down < 0))
-	{
-		let count = 0;
-
-		for (const tk of map.tokens) {
-			if(cutByResize(tk, left, right, up, down))
-				count++;
-		}
-
-		if(count)
-			throw `Resize would delete ${count} ${count == 1 ? "Token" : "Tokens"}`
-	}
-
-	maphub.setSize(left,right,up,down)
-}
-
 /* Handles the DM toolbox */
 const toolbox = {
 	div: document.getElementById("toolbox"),
@@ -218,6 +199,24 @@ const toolbox = {
 				layers.special.draw();
 		
 			},
+			resize: function(left,right,up,down,force)
+			{
+				// check for deleted tokens
+				if(!force && (left < 0 || right < 0 || up < 0 || down < 0))
+				{
+					let count = 0;
+
+					for (const tk of map.tokens) {
+						if(cutByResize(tk, left, right, up, down))
+							count++;
+					}
+
+					if(count)
+						throw `Resize would delete ${count} ${count == 1 ? "Token" : "Tokens"}`
+				}
+
+				maphub.setSize(left,right,up,down)
+			},
 			save: function() {
 				const l = parseInt(this.left.value)
 				const r = parseInt(this.right.value)
@@ -228,7 +227,7 @@ const toolbox = {
 
 				try
 				{
-					resize(l,r,u,d, this.force);
+					this.resize(l,r,u,d, this.force);
 					this.reset()
 					this.left.value = 0
 					this.right.value = 0
@@ -512,7 +511,6 @@ const toolbox = {
 				this.save.onclick = this.onSave;
 				this.debug.onclick = this.onDebug;
 				this.resync.onclick = this.onResync;
-				
 			}
 		}
 	},

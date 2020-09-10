@@ -94,10 +94,12 @@ namespace battlemap.Hubs
 			}
 		}
 
+		#pragma warning disable 1998
 		public override async Task OnDisconnectedAsync(Exception exception)
 		{
 			ConnectionInfo.Remove(this.Context);
 		}
+		#pragma warning restore
 
 		public async Task Add(string name, int x, int y, int w, int h)
 		{
