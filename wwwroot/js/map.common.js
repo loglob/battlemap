@@ -268,7 +268,7 @@ const shape = {
 				ct.lineTo(...i);
 			
 			const b = this.bounds(s)
-			ct.fitText("x", 40, 40);
+			/*ct.fitText("x", 40, 40);
 
 			for (let x = Math.floor(b.min.x) - 5; x <= Math.ceil(b.max.x) + 5; x++) {
 				for (let y = b.min.y - 5; y <= b.max.y + 5; y++) {
@@ -277,7 +277,7 @@ const shape = {
 						ct.putText("x", x * cellSize, y * cellSize, cellSize, cellSize);
 					}
 				}
-			}
+			}*/
 		}
 	},
 
