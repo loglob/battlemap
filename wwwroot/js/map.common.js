@@ -67,18 +67,6 @@ const shape = {
 		draw: function(s, ct) {
 			const r = this.radius(s)
 			ct.arc(s.start.x * cellSize, s.start.y * cellSize, r * cellSize, 0, 2 * Math.PI);
-			
-			ct.fitText("x", 40, 40);
-
-			/*for (let x = s.start.x - r - 5; x <= s.start.x + r + 5; x++) {
-				for (let y = s.start.y - r - 5; y <= s.start.y + r + 5; y++) {
-					if(this.containsPoint(s, x, y))
-					{
-						ct.putText("x", x * cellSize, y * cellSize, cellSize, cellSize);
-					}
-				}
-				
-			}*/
 		},
 		equal: function(a, b) {
 			return this.radius(a) == this.radius(b)
@@ -124,21 +112,6 @@ const shape = {
 			ct.lineTo(a1.x, a1.y)
 			ct.lineTo(a2.x, a2.y)
 			ct.lineTo(origin.x, origin.y);
-
-
-			/*
-			const b = vbounds(s.start, s.end, rtile(a1), rtile(a2))
-
-			
-			for (let x = b.min.x - 5; x <= b.max.x + 5; x++) {
-				for (let y = b.min.y - 5; y <= b.max.y + 5; y++) {
-					if(this.containsPoint(s, x, y))
-					{
-						ct.putText("x", x * cellSize, y * cellSize, cellSize, cellSize);
-					}
-				}
-				
-			}*/
 		},
 	},
 	mask: {
@@ -210,20 +183,6 @@ const shape = {
 			ct.lineTo(...vx(vsub(end, o)))
 			ct.lineTo(...vx(vadd(end, o)))
 			ct.lineTo(...vx(vadd(start, o)))
-			
-			/*
-			const b = vbounds(s.start, s.end)
-			ct.fitText("x", 40, 40);
-
-			for (let x = b.min.x - 5; x <= b.max.x + 5; x++) {
-				for (let y = b.min.y - 5; y <= b.max.y + 5; y++) {
-					if(this.containsPoint(s, x, y))
-					{
-						ct.putText("x", x * cellSize, y * cellSize, cellSize, cellSize);
-					}
-				}
-				
-			}*/
 		}
 	},
 	cube: {
@@ -266,18 +225,6 @@ const shape = {
 			
 			for (const i of p)
 				ct.lineTo(...i);
-			
-			const b = this.bounds(s)
-			/*ct.fitText("x", 40, 40);
-
-			for (let x = Math.floor(b.min.x) - 5; x <= Math.ceil(b.max.x) + 5; x++) {
-				for (let y = b.min.y - 5; y <= b.max.y + 5; y++) {
-					if(this.containsPoint(s, x, y))
-					{
-						ct.putText("x", x * cellSize, y * cellSize, cellSize, cellSize);
-					}
-				}
-			}*/
 		}
 	},
 
