@@ -8,6 +8,9 @@
 	font-size: 5vh;
 	text-align: left;
 	
+	-webkit-text-stroke: 0.05em white;
+	font-weight: bolder;
+
 	min-height: 5vh;
 	max-height: 5vh;
 	margin: 0.5vh;
