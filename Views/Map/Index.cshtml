@@ -55,8 +55,8 @@
 	<div id="settings_window" class="hidden fixed br window">
 		<a href="clone?token=@Model.token">Clone Map</a>
 		<br/>
-		√2 = <input id="setting_sqrt2_num" value="@map.Sqrt2Numerator" type="number" size="3" min="1">/
-		<input id="setting_sqrt2_denom" value="@map.Sqrt2Denominator" type="number" size="3" min="1">
+		√2 = <input id="setting_sqrt2_num" value="@map.Settings.Sqrt2Numerator" type="number" size="3" min="1">/
+		<input id="setting_sqrt2_denom" value="@map.Settings.Sqrt2Denominator" type="number" size="3" min="1">
 		<br/>
 		<button onclick="toolbox.tools.settings.save()">Save</button>
 	</div>

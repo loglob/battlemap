@@ -23,7 +23,9 @@ namespace battlemap
 		private const string PersistentPath = "storage/";
 		private static JsonSerializer serializer = new JsonSerializer
 		{
+			#if DEBUG
 			Formatting = Formatting.Indented,
+			#endif
 		};
 
 #region  Fields

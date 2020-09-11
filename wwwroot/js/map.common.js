@@ -6,7 +6,7 @@ window.onerror = console.error
 const mapFields = {
 	size: 1,
 	tokens: 2,
-	sqrt2: 4,
+	settings: 4,
 	colors: 8,
 	effects: 16,
 	spawn: 32,
@@ -403,6 +403,18 @@ function vlensq(v)
 
 //#endregion
 
+function compareObj(a,b)
+{
+	for (const key in a) {
+		if (a.hasOwnProperty(key)) {
+			if(a[key] !== b[key])
+				return false;
+		}
+	}
+
+	return true;
+}
+
 // Turns a color number to a HTML color String
 function colorString(color)
 {
@@ -588,7 +600,7 @@ function dist(cX1, cY1, cX2, cY2)
 	const l = Math.min(dX, dY)
 	const h = Math.max(dX, dY)
 
-	const diag = Math.floor((map.sqrt2num * l) / map.sqrt2denom)
+	const diag = Math.floor((map.settings.Sqrt2Numerator * l) / map.settings.Sqrt2Denominator)
 
 	return (h - l + diag) * 5
 }

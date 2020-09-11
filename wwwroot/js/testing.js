@@ -15,8 +15,10 @@ const map = {
 	],
 	// (int Height, string Name, int Width, int X, int Y)[]
 	tokens: [ { Name: "Foo", X: 1, Y:1, Width:3, Height:3, Hidden: false } ],
-	sqrt2denom: 3,
-	sqrt2num: 2,
+	settings: {
+		Sqrt2Denominator: 3,
+		Sqrt2Numerator: 2,
+	},
 	effects: [
 		{ color:0xFF0000, kind: "circle", start: { x: 3, y: 3 }, end: { x: 5, y: 3 } },
 		{ color:0x00FF00, kind: "mask", start: { x: 1, y: 1}, end: { x: 2, y: 2 } }

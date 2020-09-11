@@ -376,18 +376,26 @@ namespace battlemap.Hubs
 
 
 		/* Sets the sqrt(2) approximation used by the map */
-		public async Task SetRoot2(int num, int den)
+		public async Task Settings(string json)
 		{
-			if(num < 1 || den < 1)
-				await fail("Bad values");
-			else if(num == Info.Map.Sqrt2Numerator && den == Info.Map.Sqrt2Denominator)
+			MapSettings settings;
+			try
+			{
+				settings = json.FromJson<MapSettings>();
+			}
+			catch
+			{
+				await fail("Not a valid mapSettings object");
+				return;
+			}
+			
+			if(Info.Map.Settings == settings)
 				await fail("No change");
 			else
 			{
 				State.Invalidated = true;
-				Info.Map.Sqrt2Denominator = den;
-				Info.Map.Sqrt2Numerator = num;
-				await Clients.Group(GroupId).SendAsync("SetRoot2", num, den);
+				Info.Map.Settings = settings;
+				await Clients.Group(GroupId).SendAsync("Settings", json);
 			}
 		}
 

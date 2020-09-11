@@ -124,6 +124,15 @@ namespace battlemap
 			}
 		}
 
+		public static T FromJson<T>(this string json)
+		{
+			using(var reader = new StringReader(json))
+			using(var jreader = new JsonTextReader(reader))
+			{
+				return new JsonSerializer().Deserialize<T>(jreader);
+			}
+		}
+
 		public static void ProcessAll<T>(this IEnumerable<T> data, Action<T> proc)
 		{
 			var t = (data.Select(d => {

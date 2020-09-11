@@ -276,19 +276,27 @@ const maphub =
 			modifies: 0,
 		},
 
-		SetRoot2: {
-			receive: function(n, d){
-				map.sqrt2denom = d
-				map.sqrt2num = n
+		Settings: {
+			receive: function(_o){
+				map.settings = JSON.parse(_o)
 			},
-			checkReceived: function(n,d) {},
-			checkSent: function(n, d){
-				if(n < 1 || d < 1)
-					return "Refusing setroot2 with illegal values";
-				else if (n == map.sqrt2num && d == map.sqrt2denom)
-					return "Refusing setroot2 without value change"
+			check: function(_o){
+				try
+				{
+					let o = JSON.parse(_o)
+
+					if(o.Sqrt2Numerator < 1 || o.Sqrt2Denominator < 1)
+						return "Refusing settings with illegal values";
+					if(compareObj(o, map.settings))
+						return "Refusing settings without change"
+				}
+				catch(ex)
+				{
+					console.log(ex)
+					return "invalid JSON";
+				}
 			},
-			modifies: mapFields.sqrt2
+			modifies: mapFields.settings
 		},
 
 		SetSize: {

@@ -8,7 +8,7 @@ namespace battlemap.Models
 	{
 		Size = 1,
 		Tokens = 2,
-		Sqrt2 = 4,
+		Settings = 4,
 		Colors = 8,
 		Effects = 16,
 		Spawn = 32,

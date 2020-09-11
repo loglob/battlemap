@@ -21,10 +21,7 @@ namespace battlemap.Models
 
 		public List<Effect> Effects;
 		
-		/* The numerator of the fraction used to approximate √2 */
-		public int Sqrt2Numerator;
-		/* The denominator of the fraction used to approximate √2 */
-		public int Sqrt2Denominator;
+		public MapSettings Settings;
 
 		/* Maps token names to texture IDs */
 		public Dictionary<string, string> Sprites;
@@ -152,11 +149,10 @@ namespace battlemap.Models
 				data["spawn"] = SpawnZone;
 				flags |= MapFields.Spawn;
 			}
-			if(fields.HasFlag(MapFields.Sqrt2))
+			if(fields.HasFlag(MapFields.Settings))
 			{
-				data["sqrt2denom"] = Sqrt2Denominator;
-				data["sqrt2num"] = Sqrt2Numerator;
-				flags |= MapFields.Sqrt2;
+				data["settings"] = Settings;
+				flags |= MapFields.Settings;
 			}
 			if(fields.HasFlag(MapFields.Colors))
 			{
@@ -200,9 +196,7 @@ namespace battlemap.Models
 			this.Colors = new int[20, 20].Fill2(0xFFFFFF);
 			this.Sprites = new Dictionary<string, string>();
 			this.Effects = new List<Effect>();
-
-			this.Sqrt2Denominator = 1;
-			this.Sqrt2Numerator = 1;
+			this.Settings = new MapSettings();
 		}
 
 		[JsonConstructor]
@@ -215,11 +209,15 @@ namespace battlemap.Models
 			int Sqrt2Numerator, int Sqrt2Denominator,
 			List<Effect> Effects,
 			Shape SpawnZone,
-			Dictionary<string, string> Sprites)
+			Dictionary<string, string> Sprites,
+			MapSettings Settings)
 		{
 			this.Colors = new int[Width, Height].Fill2(0xFFFFFF);
-			this.Sqrt2Numerator = Sqrt2Numerator;
-			this.Sqrt2Denominator = Sqrt2Denominator;
+			
+			if(Settings is null)
+				this.Settings = new MapSettings(Sqrt2Numerator, Sqrt2Denominator);
+			else
+				this.Settings = Settings;
 
 			this.Tokens = Tokens ?? new List<Token>();
 			this.Effects = Effects ?? new List<Effect>();
@@ -258,8 +256,7 @@ namespace battlemap.Models
 				.Select(s => ((string token, string img))(s.token, State.Textures.Insert(s.img, Image.TokenLength).token))
 				.ToDictionary();
 
-			this.Sqrt2Denominator = copy.Sqrt2Denominator;
-			this.Sqrt2Numerator = copy.Sqrt2Numerator;
+			this.Settings = new MapSettings(copy.Settings);
 		}
 #endregion
     }

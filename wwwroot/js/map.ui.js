@@ -458,9 +458,7 @@ const toolbox = {
 			Denom: document.getElementById("setting_sqrt2_denom"),
 			Num: document.getElementById("setting_sqrt2_num"),
 			save: function() {
-				const n = parseInt(this.Num.value)
-				const d = parseInt(this.Denom.value)
-				maphub.setRoot2(n, d)
+				maphub.settings(JSON.stringify({ Sqrt2Denominator: parseInt(this.Denom.value), Sqrt2Numerator: parseInt(this.Num.value) }))
 			}
 		},
 		spawnzone: {
@@ -1541,10 +1539,10 @@ const uiInterface = {
 
 	/* Reacts to changes in the map datastructure. Called by maphub. */
 	onMapUpdate: function(fieldIds) {
-		if((fieldIds & mapFields.sqrt2))
+		if((fieldIds & mapFields.settings))
 		{
-			toolbox.tools.settings.Denom.value = map.sqrt2denom
-			toolbox.tools.settings.Num.value = map.sqrt2num
+			toolbox.tools.settings.Denom.value = map.settings.Sqrt2Denominator
+			toolbox.tools.settings.Num.value = map.settings.Sqrt2Numerator
 		}
 		if(fieldIds & mapFields.effects)
 			effects.onEffectUpdate()
