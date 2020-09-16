@@ -503,6 +503,7 @@ const toolbox = {
 			save: initpls,
 			debug: initpls,
 			resync: initpls,
+			redraw: initpls,
 			onSave: function() {
 				maphub.connection.invoke("Save");
 			},
@@ -512,10 +513,16 @@ const toolbox = {
 			onResync: function() {
 				maphub.resync(mapFields.all);
 			},
+			onRedraw: function() {
+				for (const l in layers) {
+					layers[l].draw();
+				}
+			},
 			init: function() {
 				this.save.onclick = this.onSave;
 				this.debug.onclick = this.onDebug;
 				this.resync.onclick = this.onResync;
+				this.redraw.onclick = this.onRedraw;
 			}
 		},
 		initiative: {
