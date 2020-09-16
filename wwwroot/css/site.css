@@ -7,6 +7,10 @@
 	--fg-medium: #ccc; 
 }
 
+button {
+	cursor: pointer !important;
+}
+
 a {
 	color: #9CDCF0;
 }

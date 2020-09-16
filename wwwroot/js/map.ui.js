@@ -405,12 +405,14 @@ const toolbox = {
 					span.setAttribute("class", "spread");
 
 					const dn = document.createElement("b");
+					dn.classList.add("clickable")
 					dn.onclick = () => { toolbox.tools.dice.roll(p) }
 					dn.setAttribute("id", `dice_d${p}_name`)
 					span.appendChild(dn);
 
 					const del = document.createElement("span");
 					del.innerText = "🗑️";
+					del.classList.add("clickable")
 					del.onclick = () => { toolbox.tools.dice.del(p) }
 					span.appendChild(del);
 
@@ -422,10 +424,11 @@ const toolbox = {
 
 					const numbers = document.createElement("span");
 					numbers.setAttribute("id", `dice_d${p}_numbers`)
+					numbers.classList.add("clickable")
 					numbers.onclick = () => { toolbox.tools.dice.roll(p) }
 					die.appendChild(numbers);
 
-					die.setAttribute("class", "noselect clickable")
+					die.classList.add("noselect")
 					this.window.appendChild(die);
 				}
 
@@ -566,7 +569,7 @@ const toolbox = {
 
 				const txt = document.createElement("span");
 				txt.innerText = flatName(tk);
-				txt.style.cursor = "pointer"
+				txt.classList.add("clickable")
 				txt.onclick = function(ev) {
 					toolbox.tools.initiative.onClick(li, ev);
 				}
