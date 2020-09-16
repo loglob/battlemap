@@ -796,7 +796,7 @@ const effects = {
 			this.onEffectUpdate()
 		}
 		else
-			maphub.removeEffect(...shape.expand(effect))
+			maphub.removeEffect(effect)
 	},
 	blink: function(effect) {
 		maphub.blinkShape(...shape.expand(effect))

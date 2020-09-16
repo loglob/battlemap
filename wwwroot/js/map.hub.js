@@ -239,15 +239,14 @@ const maphub =
 		},
 
 		RemoveEffect: {
-			receive: function(k, sx, sy, ex, ey) {
-				const s = shape.from(...arguments)
+			receive: function(s) {
 				map.effects.removeAll(e => shape.equal(s, e))
 			},
-			check: function(k, sx, sy, ex, ey) {
-				const s = shape.from(...arguments)
+			check: function(s) {
 				if(!map.effects.some(e => shape.equal(e,s)))
 					return "Refusing RemoveEffect without matching effect"
 			},
+			sendsObject: true,
 			modifies: mapFields.effects
 		},
 
