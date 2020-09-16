@@ -459,6 +459,10 @@ const toolbox = {
 			Num: document.getElementById("setting_sqrt2_num"),
 			save: function() {
 				maphub.settings(JSON.stringify({ Sqrt2Denominator: parseInt(this.Denom.value), Sqrt2Numerator: parseInt(this.Num.value) }))
+			},
+			update: function() {
+				this.Denom.value = map.settings.Sqrt2Denominator
+				this.Num.value = map.settings.Sqrt2Numerator
 			}
 		},
 		spawnzone: {
@@ -1520,6 +1524,10 @@ const handlers = {
 /* Allows for hooking of map update event */
 const mapUpdateHooks = [
 	// { mask: number, callback: void(number) }
+	{ mask: mapFields.spawn, callback: function() { if(toolbox.activeTool === toolbox.tools.spawnzone) layers.special.draw() } },
+	{ mask: mapFields.settings, callback: () => toolbox.tools.settings.update() },
+	{ mask: mapFields.effects, callback: () => effects.onEffectUpdate() },
+
 ]
 
 /* Handles outside interaction with the UI */
@@ -1539,17 +1547,6 @@ const uiInterface = {
 
 	/* Reacts to changes in the map datastructure. Called by maphub. */
 	onMapUpdate: function(fieldIds) {
-		if((fieldIds & mapFields.settings))
-		{
-			toolbox.tools.settings.Denom.value = map.settings.Sqrt2Denominator
-			toolbox.tools.settings.Num.value = map.settings.Sqrt2Numerator
-		}
-		if(fieldIds & mapFields.effects)
-			effects.onEffectUpdate()
-
-		if(fieldIds & mapFields.spawn && toolbox.activeTool == toolbox.tools.spawnzone)
-			layers.special.draw()
-
 		for (const hook of mapUpdateHooks) {
 			try
 			{
