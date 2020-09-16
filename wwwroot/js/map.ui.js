@@ -1321,6 +1321,10 @@ const contextmenu = {
 			this.window.style.top =  `${event.offsetY}px`;
 		}
 	},
+	onMapUpdate: function() {
+		if(this.visible && map.tokens.indexOf(this.token) == -1)
+			this.hide();
+	},
 	buttons: {
 		delete: function(tk) { maphub.remove(tk.X, tk.Y); contextmenu.hide(); },
 		clean: function(tk) { mapInterface.uploadImage(idName(tk), null) },
@@ -1595,7 +1599,7 @@ const mapUpdateHooks = [
 	{ mask: mapFields.spawn, callback: function() { if(toolbox.activeTool === toolbox.tools.spawnzone) layers.special.draw() } },
 	{ mask: mapFields.settings, callback: () => toolbox.tools.settings.update() },
 	{ mask: mapFields.effects, callback: () => effects.onEffectUpdate() },
-
+	{ mask: mapFields.tokens, callback: () => contextmenu.onMapUpdate() }
 ]
 
 /* Handles outside interaction with the UI */
