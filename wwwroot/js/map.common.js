@@ -25,7 +25,10 @@ const mapFields = {
 
 //#region Array Extension methods
 
-/* Removes every item in the array that matches the predicate */
+/** Removes every item from the array matching a predicate
+ * @param {function} matches	The predicate
+ * @returns {number}	The amount of deleted items
+*/
 Array.prototype.removeAll = function(matches) {
 	let i = this.length
 	let c = 0
@@ -42,7 +45,10 @@ Array.prototype.removeAll = function(matches) {
 	return c
 }
 
-/* Removes the given item in-place. Returns whether or not the item was found. */
+/** Removes the given item in-place.
+ * @param item	The item
+ * @returns {boolean} Whether or not the item was found
+ */
 Array.prototype.remove = function(item) {
 	let i = this.length
 	
@@ -58,6 +64,12 @@ Array.prototype.remove = function(item) {
 	return false;
 }
 //#endregion
+
+/** @typedef {Object} shape
+ * @property {string} kind	The shape's kind/form
+ * @property {vec2}	start	The starting point
+ * @property {vec2}	end		The ending point
+ */
 
 const shape = {
 	circle: {
@@ -237,7 +249,11 @@ const shape = {
 		}
 	},
 
-	/** Determines if two shapes are the same */
+	/** Determines if two shapes are equal
+	 * @param {shape} a
+	 * @param {shape} b
+	 * @returns {boolean}
+	 */
 	equal: function(a, b) {
 		const k = a.kind.toLowerCase()
 		return k === b.kind.toLowerCase()
@@ -247,12 +263,28 @@ const shape = {
 				? shape[k].equal(a, b)
 				: (a.end.x === b.end.x && a.end.y === b.end.y))
 	},
+	/** Draws a shope onto a canvas
+	 * @param {shape} s	The shape
+	 * @param {CanvasRenderingContext2D} ct	The canvas' rendering context
+	 * @returns {void}
+	 */
 	draw: function(s, ct) {
 		shape[s.kind.toLowerCase()].draw(s, ct);
 	},
+	/** Determines if a shape contains a point
+	 * @param {shape} s		The shape
+	 * @param {number} x	The point's x
+	 * @param {number} y	The point's y
+	 * @returns {boolean}
+	 */
 	containsPoint: function(s, x, y) {
 		return shape[s.kind.toLowerCase()].containsPoint(s, x, y);
 	},
+	/** Determines if a shape contains a token
+	 * @param {shape} s		The shape
+	 * @param {token} tk	The token
+	 * @returns {boolean}
+	 */
 	containsToken: function(s, tk) {
 		const k = s.kind.toLowerCase()
 		var sh = shape[k]
@@ -279,15 +311,37 @@ const shape = {
 
 		return false
 	},
+	/** Makes a new shape object
+	 * @param {string}	kind
+	 * @param {vec2}	start
+	 * @param {vec2}	end
+	 * @returns {shape}
+	 */
 	new: function(kind, start, end) {
 		return { kind: kind, start: start, end: end }
 	},
+	/** Makes a new shape object from a split up list of properties
+	 * @param {string}	kind
+	 * @param {number}	sx		The start point's x
+	 * @param {number}	sy		The start point's y
+	 * @param {number}	ex		The end point's x
+	 * @param {number}	ey		The end point's y
+	 * @returns {shape}
+	 */
 	from: function(k, sx, sy, ex, ey) {
 		return this.new(k, { x: sx, y: sy }, { x: ex, y: ey })
 	},
+	/** Expands a shape into its properties
+	 * @param {shape} s	The shape
+	 * @returns {(string|number)[]}
+	 */
 	expand: function(s) {
 		return [ s.kind, s.start.x, s.start.y, s.end.x, s.end.y ];
 	},
+	/** Determines if a shape is empty
+	 * @param {shape} s	The shape
+	 * @returns {boolean}
+	 */
 	empty: function(s) {
 		const sh = shape[s.kind.toLowerCase()];
 
