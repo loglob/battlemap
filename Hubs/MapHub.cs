@@ -102,21 +102,29 @@ namespace battlemap.Hubs
 		}
 		#pragma warning restore
 
-		public async Task Add(string name, int x, int y, int w, int h)
+		public async Task AddToken(string tkJson)
 		{
-			name = name?.Trim();
+			Token token = tkJson.FromJson<Token>();
 
-			if(string.IsNullOrEmpty(name))
+			if(token == null)
+			{
+				await fail("Invalid JSON");
+				return;
+			}
+
+			token.Name = token.Name.Trim();
+
+			if(string.IsNullOrEmpty(token.Name))
 				await fail("Bad name");
-			else if(Info.Map.Outside(x,y,w,h))
+			else if(Info.Map.Outside(token.Hitbox))
 				await fail("Out of bounds");
-			else if(Info.Map.TokensAt(x,y,w,h).Any())
+			else if(Info.Map.TokensAt(token.Hitbox).Any())
 				await fail("Token would collide");
 			else
 			{
 				State.Invalidated = true;
-				Info.Map.Tokens.Add(new Token(name, x, y, w, h));
-				await Clients.Group(GroupId).SendAsync("Add", name, x, y, w, h);
+				Info.Map.Tokens.Add(token);
+				await Clients.Group(GroupId).SendAsync("AddToken", token.ToJson());
 			}
 		}
 
@@ -378,18 +386,11 @@ namespace battlemap.Hubs
 		/* Sets the sqrt(2) approximation used by the map */
 		public async Task Settings(string json)
 		{
-			MapSettings settings;
-			try
-			{
-				settings = json.FromJson<MapSettings>();
-			}
-			catch
-			{
-				await fail("Not a valid mapSettings object");
-				return;
-			}
+			MapSettings settings = json.FromJson<MapSettings>();
 			
-			if(Info.Map.Settings == settings)
+			if(settings == null)
+				await fail("Invalid JSON");
+			else if(Info.Map.Settings == settings)
 				await fail("No change");
 			else
 			{

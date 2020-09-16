@@ -95,14 +95,14 @@ const toolbox = {
 				else if(evnt.shiftKey)
 				{
 					let num = parseInt(this.Num.value)
-					maphub.add(this.Name.value + "\n#" + num++, tile(evnt.pageX), tile(evnt.pageY),
-						parseInt(this.Width.value), parseInt(this.Height.value))
+					maphub.addToken(JSON.stringify({ Name: this.Name.value + "\n#" + num++, X: tile(evnt.pageX), Y: tile(evnt.pageY),
+						Width: parseInt(this.Width.value), Height: parseInt(this.Height.value)}))
 					this.Num.value = num;
 				}
 				else
 				{
-					maphub.add(this.Name.value, tile(evnt.pageX), tile(evnt.pageY),
-						parseInt(this.Width.value), parseInt(this.Height.value))
+					maphub.addToken(JSON.stringify({ Name: this.Name.value, X: tile(evnt.pageX), Y: tile(evnt.pageY),
+						Width: parseInt(this.Width.value), Height: parseInt(this.Height.value)}))
 
 					//toolbox.tools.cursor.button.click();
 				}

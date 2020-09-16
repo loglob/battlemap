@@ -82,6 +82,10 @@ namespace battlemap.Models
 			=> Tokens.FirstOrDefault(t => t.X == x && t.Y == y);
 
 		/* Finds all tokens that occupy any part of the given rectangle */
+		public IEnumerable<Token> TokensAt(((int x, int y) pos, (int w, int h) size) rect)
+			=> TokensAt(rect.pos, rect.size);
+
+		/* Finds all tokens that occupy any part of the given rectangle */
 		public IEnumerable<Token> TokensAt((int x, int y) position, (int w, int h) size)
 			=> Tokens.Where(t => t.Hitbox.Intersects((position, size)));
 

@@ -129,8 +129,15 @@ namespace battlemap
 			using(var reader = new StringReader(json))
 			using(var jreader = new JsonTextReader(reader))
 			{
-				return new JsonSerializer().Deserialize<T>(jreader);
-			}
+				try
+				{
+					return new JsonSerializer().Deserialize<T>(jreader);
+				}
+				catch(Exception)
+				{
+					return default(T);
+				}
+			}		
 		}
 
 		public static void ProcessAll<T>(this IEnumerable<T> data, Action<T> proc)

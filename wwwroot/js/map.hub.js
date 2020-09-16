@@ -28,16 +28,17 @@ const maphub =
 		modifies indicates the mapFields that are invalidated when this command is
 			received, fails or indicates a desync */
 	commands: {
-		Add: {
-			receive: function(name, x, y, w, h) {
-				map.tokens.push({ Name: name, Height: h, Width: w, X: x, Y: y })
+		AddToken: {
+			receive: function(tk) {
+				map.tokens.push(JSON.parse(tk))
 			},
-			check: function(name, x, y, w, h) {
-				if(name == null || name.trim() == "")
+			check: function(_tk) {
+				const tk = JSON.parse(_tk);
+				if(tk.Name == null || tk.Name.trim() == "")
 					return "Refusing add with illegal Name value"
-				else if(outOfBounds(x,y,w,h))
+				else if(outOfBounds(tk.X,tk.Y,tk.Width,tk.Height))
 					return oob("Refusing add out of bounds")
-				else if(anyTokensAt(x,y,w,h))
+				else if(anyTokensAt(tk.X,tk.Y,tk.Width,tk.Height))
 					return "Refusing add that would collide"
 			},
 			modifies: mapFields.tokens
