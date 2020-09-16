@@ -493,7 +493,7 @@ function colorString(color)
 }
 
 /** Turns a color string of the form #XXXXXX into a number
- * @param {string} color - A hex color code
+ * @param {string} color	A hex color code
  * @returns {number}
  */
 function parseColor(color)
@@ -587,18 +587,6 @@ function inCircle(tX, tY, x, y, r)
 	return r*r >= Math.pow(tX + 0.5 - x, 2) + Math.pow(tY + 0.5 - y, 2)
 }
 
-/** Determines if a token intersects a circle
- * @param {token} tk	The token
- * @param {number} x	The circle's x
- * @param {number} y	The circle's y
- * @param {number} r	The circle's radius
- * @returns {boolean}
- */
-function tokenInCircle(tk, x, y, r)
-{
-	return inCircle(nearest(tk.X, tk.Width, x), nearest(tk.Y, tk.Height, y), x, y, r);
-}
-
 /** Finds the token that occupies a point, or null, if there is none.
  * @param {number} x	The point's x
  * @param {number} y	The point's y
@@ -606,14 +594,7 @@ function tokenInCircle(tk, x, y, r)
 */
 function tokenAt(x,y)
 {
-	for (let i = 0; i < map.tokens.length; i++) {
-		const e = map.tokens[i];
-	
-		if(tokenIsAt(e, x, y))
-			return e;
-	}
-
-	return null;
+	return map.tokens.find(tk => tokenIsAt(tk, x, y)) ?? null
 }
 
 /** Finds the token that has its origin at a point, or null, if there is none.
@@ -623,14 +604,7 @@ function tokenAt(x,y)
 */
 function tokenAtExact(x,y)
 {
-	for (let i = 0; i < map.tokens.length; i++) {
-		const e = map.tokens[i];
-	
-		if(e.X == x && e.Y == y)
-			return e;
-	}
-
-	return null;
+	return map.tokens.find(tk => tk.X == x && tk.Y == y) ?? null
 }
 
 /** Finds all tokens intersecting a rectangle.
@@ -641,15 +615,7 @@ function tokenAtExact(x,y)
  * @returns {token[]} */
 function tokensAt(x,y,w,h)
 {
-	var arr = []
-
-	for(let tk of map.tokens)
-	{
-		if(tokenIn(tk, x, y, w, h))
-			arr.push(tk)
-	}
-
-	return arr;
+	return map.tokens.filter(tk => tokenIn(tk, x, y, w, h));
 }
 
 /** Makes the token's name printable, in case it has a number
@@ -678,13 +644,7 @@ function idName(token)
  * @returns {boolean} */
 function anyTokensAt(x,y,w,h)
 {
-	for(let tk of map.tokens)
-	{
-		if(tokenIn(tk, x, y, w, h))
-			return true;
-	}
-
-	return false;
+	return map.tokens.some(tk => tokenIn(tk, x, y, w, h));
 }
 
 /** Determines if a token would collide with existing tokens when placed at a point

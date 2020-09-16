@@ -1000,8 +1000,7 @@ const selection = {
 		},
 		isSelected: function(tk) {
 			return this.circ != null
-				&& shape.containsToken(this.circ, tk)	
-			//&& tokenInCircle(tk, this.circ.x, this.circ.y, this.circ.r);
+				&& shape.containsToken(this.circ, tk)
 		},
 		getCursor: function() {
 			return this.circ ? "grabbing" : "default";
