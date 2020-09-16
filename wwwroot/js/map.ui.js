@@ -557,6 +557,7 @@ const toolbox = {
 			update: function(li) {
 				li.initCount = parseInt(li.lastChild.value);
 				this.sort();
+				li.lastChild.focus();
 			},
 			addLi: function(tk, count) {
 				const li = document.createElement("li");
