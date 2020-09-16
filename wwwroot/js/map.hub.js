@@ -47,13 +47,17 @@ const maphub =
 		},
 
 		AddEffect: {
-			receive: function(k, sx, sy, ex, ey, c) {
-				map.effects.push( { color: c, kind: k, start: { x: sx, y: sy }, end: { x: ex, y: ey } })
+			receive: function(e) {
+				//map.effects.push( { color: c, kind: k, start: { x: sx, y: sy }, end: { x: ex, y: ey } })
+				map.effects.push(e)
 			},
-			check: function(k, sx, sy, ex, ey, c) {
-				if(shape.empty(shape.from(...arguments)))
+			check: function(e) {
+				if(shape.empty(e))
 					return "Refusing AddEffect with empty shape"
+				if(e.color >> 24)
+					return "Refusing AddEffect with bad color"
 			},
+			sendsObject: true,
 			modifies: mapFields.effects
 		},
 

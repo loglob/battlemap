@@ -273,9 +273,12 @@ namespace battlemap.Models
 
 #region operators
 		public static bool operator ==(Shape l, Shape r)
-			=> (l is null && r is null) || (l.Kind == r.Kind && l.Start == r.Start && ((l.Kind == ShapeKind.Circle)
-				? l.diff.SquaredLength() == r.diff.SquaredLength()
-				: l.End == r.End));
+			=> (l is null && r is null)
+				|| (!(l is null) && !(r is null)
+					&& l.Kind == r.Kind && l.Start == r.Start
+					&& ((l.Kind == ShapeKind.Circle)
+					? l.diff.SquaredLength() == r.diff.SquaredLength()
+					: l.End == r.End));
 
 		public static bool operator !=(Shape l, Shape r)
 			=> !(l == r);

@@ -128,22 +128,19 @@ namespace battlemap.Hubs
 			}
 		}
 
-		public async Task AddEffect(string kind, int sx, int sy, int ex, int ey, int color)
+		public async Task AddEffect(string effectJson)
 		{
-			if(kind == null || !Enum.TryParse<ShapeKind>(kind, true, out ShapeKind k))
-				await fail("Invalid shape name");
+			var e = effectJson.FromJson<Effect>();
+			
+			if(e is null)
+				await fail("Invalid JSON");
+			else if(e.Empty)
+				await fail("Empty shape");
 			else
 			{
-				var e = new Effect(k, (sx, sy), (ex, ey), color);
-			
-				if(e.Empty)
-					await fail("Empty shape");
-				else
-				{
-					Info.Map.Effects.Add(e);
-					State.Invalidated = true;
-					await Clients.Group(GroupId).SendAsync("AddEffect", kind, sx, sy, ex, ey, color);
-				}
+				Info.Map.Effects.Add(e);
+				State.Invalidated = true;
+				await Clients.Group(GroupId).SendAsync("AddEffect", effectJson);
 			}
 		}
 

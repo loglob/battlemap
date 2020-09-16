@@ -786,7 +786,7 @@ const effects = {
 	/* Pushed a local effect to persistent */
 	save: function(effect) {
 		this.list.remove(effect)
-		maphub.addEffect(...shape.expand(effect), effect.color)
+		maphub.addEffect(effect)
 	},
 	/* Removes an effect. Handles both persistent and local effects. */
 	remove: function(effect) {
