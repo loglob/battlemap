@@ -70,10 +70,6 @@ const toolbox = {
 			},
 			getCursor: function(){
 				return (selection.current == null) ? "default" : selection.current.getCursor();
-			},
-			onContextMenu: function(event) {
-				// TODO: token manipulation menu
-				// event.preventDefault()
 			}
 		},
 		addtoken: {
@@ -772,14 +768,12 @@ const toolbox = {
 			?? (this.tools.cursor.getCursor.bind(this.tools.cursor)))();
 	},
 	onMouseDown: function(e) {
+		// ignore RMB presses
+		if(e.button === 2)
+			return;
+
 		return ((this.activeTool)?.onMouseDown?.bind(this.activeTool)
 			?? this.tools.cursor.onMouseDown.bind(this.tools.cursor))(e);
-	},
-	onContextMenu: function(e) {
-		if(this.activeTool?.onContextMenu)
-			return this.activeTool.onContextMenu(e);
-		else if(!(this.activeTool?.onMouseDown))
-			return this.tools.cursor.onContextMenu(e);
 	}
 }
 
@@ -1299,6 +1293,36 @@ const selection = {
 	}
 }
 
+// Handles the right click menu
+const contextmenu = {
+	window: document.getElementById("contextmenu"),
+	delete: document.getElementById("contextmenu_delete"),
+	pos: { x: 0, y: 0 },
+	visible: false,
+	hide: function() {
+		this.window.hide();
+		this.visible = false;
+	},
+	unhide: function() {
+		this.window.unhide();
+		this.visible = true;
+	},
+	onContextMenu: function(event) {
+		if(this.visible)
+			this.hide();
+		else
+		{
+			this.unhide();
+			this.window.style.left = `${event.offsetX}px`;
+			this.window.style.top =  `${event.offsetY}px`;
+			this.pos = tile({ x: event.offsetX, y: event.offsetY });
+		}
+	},
+	init: function() {
+		this.delete.onclick = () => { maphub.remove(...vx(contextmenu.pos)); contextmenu.hide(); }
+	}
+}
+
 // Contains the event Handlers
 const handlers = {
 	/* Redraws hovering token and ruler length display */
@@ -1318,6 +1342,15 @@ const handlers = {
 	/* Picks up a token or anchors a ruler */
 	onCanvasMouseDown: function(evnt)
 	{
+		if(event.button === 2)
+			return;
+
+		if(contextmenu.visible)
+		{
+			contextmenu.hide();
+			return;
+		}
+
 		mousepos = { x: evnt.pageX, y: evnt.pageY }
 
 		const cur = selection.current
@@ -1541,7 +1574,8 @@ const handlers = {
 		}
 	},
 	onCanvasContextMenu: function(event) {
-		return toolbox.onContextMenu(event)
+		contextmenu.onContextMenu(event);
+		event.preventDefault();
 	}
 }
 
@@ -1568,6 +1602,7 @@ const uiInterface = {
 		document.body.addEventListener("keydown", handlers.onKeyDown)
 		
 		toolbox.init();
+		contextmenu.init();
 	},
 
 	/* Reacts to changes in the map datastructure. Called by maphub. */

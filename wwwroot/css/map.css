@@ -109,7 +109,7 @@
 	width: 15vmax;
 }
 
-#initiative_window button {
+.bare {
 	background: none;
 	border: none;
 	padding: 0;
@@ -181,4 +181,9 @@
 	background: none;
 	width: 1em;
 	height: 1em;
+}
+
+#contextmenu {
+	background-color: var(--bg-light);
+	position: absolute;
 }
