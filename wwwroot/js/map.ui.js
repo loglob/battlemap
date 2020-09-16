@@ -1297,7 +1297,8 @@ const selection = {
 const contextmenu = {
 	window: document.getElementById("contextmenu"),
 	delete: document.getElementById("contextmenu_delete"),
-	pos: { x: 0, y: 0 },
+	clean: document.getElementById("contextmenu_clean"),
+	token: null,
 	visible: false,
 	hide: function() {
 		this.window.hide();
@@ -1312,14 +1313,19 @@ const contextmenu = {
 			this.hide();
 		else
 		{
+			this.token = tokenAt(...vx(tile({ x: event.offsetX, y: event.offsetY })));
+
+			if(this.token === null)
+				return;
+
 			this.unhide();
 			this.window.style.left = `${event.offsetX}px`;
 			this.window.style.top =  `${event.offsetY}px`;
-			this.pos = tile({ x: event.offsetX, y: event.offsetY });
 		}
 	},
 	init: function() {
-		this.delete.onclick = () => { maphub.remove(...vx(contextmenu.pos)); contextmenu.hide(); }
+		this.delete.onclick = (() => { maphub.remove(this.token.X, this.token.Y); this.hide(); }).bind(this);
+		this.clean.onclick = (() => { mapInterface.uploadImage(idName(this.token), null) }).bind(this);
 	}
 }
 
