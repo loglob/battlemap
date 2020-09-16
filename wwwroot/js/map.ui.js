@@ -1296,8 +1296,6 @@ const selection = {
 // Handles the right click menu
 const contextmenu = {
 	window: document.getElementById("contextmenu"),
-	delete: document.getElementById("contextmenu_delete"),
-	clean: document.getElementById("contextmenu_clean"),
 	token: null,
 	visible: false,
 	hide: function() {
@@ -1323,9 +1321,14 @@ const contextmenu = {
 			this.window.style.top =  `${event.offsetY}px`;
 		}
 	},
+	buttons: {
+		delete: function() { maphub.remove(contextmenu.token.X, contextmenu.token.Y); contextmenu.hide(); },
+		clean: function() { mapInterface.uploadImage(idName(contextmenu.token), null) },
+	},
 	init: function() {
-		this.delete.onclick = (() => { maphub.remove(this.token.X, this.token.Y); this.hide(); }).bind(this);
-		this.clean.onclick = (() => { mapInterface.uploadImage(idName(this.token), null) }).bind(this);
+		for (const b in this.buttons) {
+			document.getElementById(`contextmenu_${b}`).onclick = this.buttons[b];
+		}
 	}
 }
 
