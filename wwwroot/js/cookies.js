@@ -1,7 +1,14 @@
 /* cookies.js: Handles HTML cookies data and automatically stores data on tab close  */
 
 const cookie = {
+	/** The used cookie id
+	 * @type {string}
+	 * @constant
+	*/
 	cookiename: `mapdata_${map.id}`,
+	/** Loads and parses a cookie object from the document's cookies
+	 * @returns {void}
+	*/
 	load: function()
 	{
 		for(let line of document.cookie.split(";"))
@@ -24,6 +31,10 @@ const cookie = {
 
 		this.data = {};
 	},
+	/** Stores the cookie object.
+	 * Calls callbacks from onStoreCallbacks beforehand.
+	 * @returns {void}
+	*/
 	store: function()
 	{
 		for (const cb of this.onStoreCallbacks) {
@@ -39,7 +50,13 @@ const cookie = {
 
 		document.cookie = `${this.cookiename}=${encodeURIComponent(JSON.stringify(this.data))}; SameSite=strict; expires=${new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365).toUTCString()};`
 	},
+	/** Contains callbacks for finalizing cookie.data before it is stored.
+	 * @type {function[]}
+	 */
 	onStoreCallbacks: [],
+	/** Contains the parsed cookie data.
+	 * @type {Object}
+	 */
 	data: {},
 };
 

@@ -1,5 +1,24 @@
 "use strict";
 
+/** An error-checking report for maphub functions. undefined indicates no error.
+ * @typedef {?number|string|Object} checkReport
+ * @property {string} msg	The error message shown in console
+ * @property {number} field	The map fields affected in addition to the tool's modifies field
+*/
+
+/** @typedef command
+ * @property {number} modifies	The fields that are modified by this command, as defined by mapFields
+ * @property {boolean=} sendsObject	When set, causes its arguments to be serialized to JSON before sending
+ * @property {function} receive	Called when receiving the command with all received arguments
+ * @property {function=} checkSent Checks argument list before sending. Returns a {@link checkReport}
+ * @property {function=} checkReceived Checks received argument list for incensistencies. Returns a {@link checkReport}
+ * @property {function=} check Used as checkSent() and checkReceived(). Returns a {@link checkReport}
+ */
+
+ /** Returns a {@link checkReport} with the size field set to 1.
+  * @param {string} [msg="Out of bounds"] The error message
+  * @returns {checkReport} A check report object
+  */
 function oob(msg)
 {
 	return { field: mapFields.size, msg: msg ?? "Out of bounds" };
@@ -16,19 +35,7 @@ const blinkKind =
 
 const maphub =
 {
-	/* Contains objects with receive(), check() and modifies fields.
-		check() checks arguments and returns a value indicating their validity.
-			-undefined indicates that the arguments are valid
-			-a string indicates failure and contains a user-readable error
-			-a number indicates failure and contains the mapFields that
-				would be desynced IF the arguments come from serverside
-			-an object indicates failure and must have the fields "msg" and "field",
-				containing the same values as returning a string or number, respectively
-		receive() handles changes sent from the server
-		if sendsObject is given and trueish, the command, receive() and check() accept an object,
-			which is converted to JSON before sending to the server 
-		modifies indicates the mapFields that are invalidated when this command is
-			received, fails or indicates a desync */
+	/** @type {Object.<string,command>} */
 	commands: {
 		AddToken: {
 			receive: function(tk) {
@@ -402,7 +409,7 @@ const maphub =
 		}
 	},
 	connection: new signalR.HubConnectionBuilder().withUrl(huburl).build(),
-	/* Initializes the connection and generates the invoker functions of the form maphub.[camelCase command name] */
+	/** Initializes the connection and generates the invoker functions of the form maphub.[camelCase command name] */
 	init: function(){
 		//const connection = new signalR.HubConnectionBuilder().withUrl(huburl).build();
 		//this.connection = connection;
@@ -419,6 +426,7 @@ const maphub =
 		}
 
 		for (const command in this.commands) {
+			/** @type {command} */
 			const cmd = this.commands[command]
 			// convert command name from PascalCase to camelCase
 			const ccname = command[0].toLowerCase() + command.substring(1);

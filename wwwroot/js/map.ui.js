@@ -1,20 +1,65 @@
 "use strict";
 
-// The mouse position before the current move event.
-// (int x, int y)?
+//#region JSDoc typedefs
+/** @typedef {Object} tool
+ * @property {boolean=}	pinnable		Indicates that shift-clicking on the tool's icon should pin its window to the upper left
+ * @property {boolean=} dontBlink		Disables token and tile blinking while the tool is active
+ * @property {function=} onMouseDown	Hooks the onmousedown event while the tool is active
+ * @property {function=} getCursor		Gets the HTML cursor the tool uses
+ * @property {function=} onSelect		Called when the tool becomes active
+ * @property {function=} onPutAway		Called when the tool becomes no longer active
+ * @property {function=} init			Called after toolbox.init
+ * @property {function=} draw			Called by uiInterface.draw if the tool is active or pinned
+ * @property {?HTMLElement}	button		The HTML button used to activate this tool. null if the tool isn't loaded
+ * @property {?HTMLElement}	window		The window for this tool. Automatically unhidden if it is extant and the tool is selected
+ */
+
+
+/** @typedef {Object} effect
+ * @property {string} kind		The effect's kind/form
+ * @property {vec2}	start		The starting point
+ * @property {vec2}	end			The ending point
+ * @property {number} color		The effect's color
+ * @property {?boolean} local	Whether or not the effect is local or persistent
+ */
+
+ /** @typedef {Object} selection
+  * @property {?boolean} hasRuler	Determines if the ruler is shown while the selection is active
+  * @property {!function} draw		Called by uiInterface.draw while the selection is active
+  * @property {function=} onPickup	Called when the selection becomes active
+  * @property {!function} onDrop		Called when the selection becomes no longer active
+  * @property {!function} getCursor	Returns the cursor shown while using the selection
+  * @property {function=} drawOutline	Called by uiInterface.draw if the selection is the last one used
+  * @property {function=} isSelected	Determines if a token is selected by the selection. If defined, tokenColor must be defined too
+  * @property {string=} tokenColor		The color for selected tokens (as determined by isSelected)  
+  * @property {function=} specialRuler	Implements a special distance function for the ruler
+  */
+//#endregion
+
+/** The mouse position before the current move event
+ * @type {?vec2}
+ */
 var oldmousepos;
-// (int x, int y)?
+/** The mouse position after the current move event
+ * @type {?vec2}
+ */
 var mousepos;
 
-// automagically initializes fields to document elements with the id toolname_fieldname
+/** Used as placeholder in toolbox.tools, automatically replaced by toolbox.init
+ * @constant
+*/
 const initpls = "_initpls_";
 
 var canvasStyle = document.getElementById("canvas_stack").style;
 
-/* Handles the DM toolbox */
+/** Handles the toolbox
+ * @constant
+ */
 const toolbox = {
 	div: document.getElementById("toolbox"),
 	pinned: null,
+	/** Contains the tools
+	 * @type {Object.<string, tool>}  */
 	tools : {
 		cursor: {
 			pinnable: true,
@@ -690,6 +735,9 @@ const toolbox = {
 			}
 		}
 	},
+	/** The currently selected tool
+	 * @type {tool}
+	 */
 	activeTool: null,
 	init: function(){
 		this.activeTool = this.tools.cursor
@@ -762,11 +810,13 @@ const toolbox = {
 				tool.init();
 		}
 	},
+	/** Gets the cursor of the current tool */
 	getCursor: function(tool) {
 		const _tool = tool ?? this.activeTool
 		return ((_tool?.getCursor?.bind(_tool))
 			?? (this.tools.cursor.getCursor.bind(this.tools.cursor)))();
 	},
+	/** Passes a mouseDown event to the relevant tool handler */
 	onMouseDown: function(e) {
 		// ignore RMB presses
 		if(e.button === 2)
@@ -777,18 +827,28 @@ const toolbox = {
 	}
 }
 
-/* Handles visual effects */
+/** Handles visual effects */
 const effects = {
-	// { color, kind, start: { x, y }, end: { x, y }, local }
+	/** List of local effects
+	 * @type {effect[]}
+	 */
 	list : [],
 	preview: null,
+	/** The effect tool
+	 * @constant {tool}
+	 */
 	tool: toolbox.tools.effects,
-	/* Pushed a local effect to persistent */
+	/** Pushed a local effect to persistent
+	 * @returns {void}
+	*/
 	save: function(effect) {
 		this.list.remove(effect)
 		maphub.addEffect(effect)
 	},
-	/* Removes an effect. Handles both persistent and local effects. */
+	/** Removes an effect. Handles both persistent and local effects.
+	 * @param {effect} effect	The effect
+	 * @returns {void}
+	*/
 	remove: function(effect) {
 		if(effect.local)
 		{
@@ -798,9 +858,17 @@ const effects = {
 		else
 			maphub.removeEffect(effect)
 	},
+	/** Blinks an effect.
+	 * @param {effect} effect	The effect
+	 * @returns {void}
+	*/
 	blink: function(effect) {
 		maphub.blinkShape(...shape.expand(effect))
 	},
+	/** Reacts to a blinkShape() command.
+	 * @param {shape} s	The shape
+	 * @returns {void}
+	*/
 	onBlinkShape: function(s) {
 		if(this.list.some(e => shape.equal(e,s)))
 			return;
@@ -808,18 +876,31 @@ const effects = {
 		this.list.push({ color:0, kind: s.kind, start: s.start, end: s.end, local: true });
 		this.onEffectUpdate()
 	},
+	/** Reacts to updates of map.effects
+	 * @returns {void}
+	*/
 	onEffectUpdate: function() {
 		if(this.tool.window)
 			this.tool.onUpdate()
 	}
 }
 
-/* Handles a ruler at the bottom left of the ui */
+/** Handles a ruler at the bottom left of the ui */
 const rulerDisplay = {
+	/** The element that displays measured distance
+	 * @constant
+	 * @type {HTMLElement}
+	 */
 	div: document.getElementById("distance"),
+	/** Shows the ruler
+	 * @returns {void}
+	 */
 	enable : function(){
 		this.div.unhide()
 	},
+	/** Reacts to updates in measures distance
+	 * @returns {void}
+	 */
 	update : function(){
 		let d = undefined;
 		if(selection.current && selection.current.specialRuler)
@@ -829,12 +910,15 @@ const rulerDisplay = {
 
 		this.div.innerText = `📏 ${d}'`
 	},
+	/** Hides the ruler
+	 * @returns {void}
+	 */
 	disable : function(){
 		this.div.hide()
 	}
 }
 
-/* Contains the selection tools that are used with the mouse */
+/** Contains the selection tools that are used with the mouse */
 const selection = {
 	current: null,
 	last: null,
@@ -1340,7 +1424,10 @@ const contextmenu = {
 
 // Contains the event Handlers
 const handlers = {
-	/* Redraws hovering token and ruler length display */
+	/** Redraws hovering token and ruler length display 
+	 * @param {MouseEvent} evnt
+	 * @returns {void} nothing
+	 */
 	onMouseMove : function(evnt)
 	{
 		if(toolbox.activeTool == toolbox.tools.tileedit &&
@@ -1354,7 +1441,10 @@ const handlers = {
 		if(selection.current.hasRuler)
 			rulerDisplay.update();
 	},
-	/* Picks up a token or anchors a ruler */
+	/** Picks up a token or anchors a ruler 
+	 * @param {MouseEvent} evnt
+	 * @returns {void} nothing
+	 */
 	onCanvasMouseDown: function(evnt)
 	{
 		if(event.button === 2)
@@ -1397,7 +1487,10 @@ const handlers = {
 		}
 		
 	},
-	/* Moves the held token or removes the ruler */
+	/** Moves the held token or removes the ruler 
+	 * @param {MouseEvent} evnt
+	 * @returns {void} nothing
+	 */
 	onCanvasMouseUp: function(evnt)
 	{
 		const sel = selection.current;
@@ -1415,7 +1508,10 @@ const handlers = {
 
 		canvasStyle.cursor = toolbox.getCursor();
 	},
-	/* Blinks a token */
+	/** Blinks a token
+	 * @param {MouseEvent} evnt
+	 * @returns {void} nothing
+	 */
 	onCanvasDoubleClick: function(evnt)
 	{
 		const cX = tile(evnt.pageX)
@@ -1429,6 +1525,10 @@ const handlers = {
 		else
 			maphub.blink(blinkKind.tile, cX, cY);
 	},
+	/** Handles drag and drop onto the canvas
+	 * @param {DragEvent} ev
+	 * @returns {void} nothing
+	 */
 	onCanvasDrop: function(ev)
 	{
 		function getfile(callback)
@@ -1535,11 +1635,19 @@ const handlers = {
 		});
 	
 	},
+	/** Handles drag sans drop over the canvas. Prevents the browser from opening the file.
+	 * @param {DragEvent} evnt
+	 * @returns {void} nothing
+	 */
 	onCanvasDragover: function(evnt)
 	{
 		// Prevent opening the file
 		evnt.preventDefault();
 	},
+	/** Handles keyboard keys.
+	 * @param {KeyboardEvent} evnt
+	 * @returns {void} nothing
+	 */
 	onKeyDown: function(evnt)
 	{
 		switch(evnt.code)
@@ -1588,15 +1696,20 @@ const handlers = {
 			break
 		}
 	},
+	/** Opens the custom context menu
+	 * @param {MouseEvent} event
+	 * @returns {void} nothing
+	 */
 	onCanvasContextMenu: function(event) {
 		contextmenu.onContextMenu(event);
 		event.preventDefault();
 	}
 }
 
-/* Allows for hooking of map update event */
+/** Allows for hooking of map update event
+ * @type {{ mask : number, callback: function }[]}
+*/
 const mapUpdateHooks = [
-	// { mask: number, callback: void(number) }
 	{ mask: mapFields.spawn, callback: function() { if(toolbox.activeTool === toolbox.tools.spawnzone) layers.special.draw() } },
 	{ mask: mapFields.settings, callback: () => toolbox.tools.settings.update() },
 	{ mask: mapFields.effects, callback: () => effects.onEffectUpdate() },
@@ -1605,6 +1718,9 @@ const mapUpdateHooks = [
 
 /* Handles outside interaction with the UI */
 const uiInterface = {
+	/** Initializes the UI
+	 * @returns {void} nothing
+	*/
 	init: function() {
 		const s = document.getElementById("canvas_stack");
 		s.addEventListener("mousedown", handlers.onCanvasMouseDown);
@@ -1620,7 +1736,10 @@ const uiInterface = {
 		contextmenu.init();
 	},
 
-	/* Reacts to changes in the map datastructure. Called by maphub. */
+	/** Reacts to changes in the map data structure. Called by maphub.
+	 * @param {number} fieldIds	The changed field IDs, following the mapFields definition
+	 * @returns {void} nothing
+	 */
 	onMapUpdate: function(fieldIds) {
 		for (const hook of mapUpdateHooks) {
 			try
@@ -1635,12 +1754,18 @@ const uiInterface = {
 		}
 	},
 
-	/* Reacts to highlighed shape. Called by maphub. */
+	/** Reacts to highlighed shape. Called by maphub.
+	 * @param {shape} s	The blinked shape
+	 * @returns {void} nothing
+	 */
 	onBlinkShape: function(s) {
 		effects.onBlinkShape(s);
 	},
 
-	/* Returns the text and border color for the given token. Called from the token layer. */
+	/** Returns the text and border color for the given token. Called from the layers.token.draw().
+	 * @param {token} token	The token
+	 * @returns {string} Its color
+	 */
 	getTokenColor: function(token) {
 		if(selection.current?.isSelected && selection.current.isSelected(token))
 			return selection.current.tokenColor;
@@ -1648,6 +1773,10 @@ const uiInterface = {
 		return "black"
 	},
 
+	/** Draws the UI to the given canvas. Called from layers.special.draw().
+	 * @param {CanvasRenderingContext2D} ct	The canvas' context
+	 * @returns {void} nothing 
+	 */
 	draw: function(ct) {
 		ct.clear();
 
