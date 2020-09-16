@@ -70,6 +70,10 @@ const toolbox = {
 			},
 			getCursor: function(){
 				return (selection.current == null) ? "default" : selection.current.getCursor();
+			},
+			onContextMenu: function(event) {
+				// TODO: token manipulation menu
+				// event.preventDefault()
 			}
 		},
 		addtoken: {
@@ -760,6 +764,12 @@ const toolbox = {
 		return ((this.activeTool)?.onMouseDown?.bind(this.activeTool)
 			?? this.tools.cursor.onMouseDown.bind(this.tools.cursor))(e);
 	},
+	onContextMenu: function(e) {
+		if(this.activeTool?.onContextMenu)
+			return this.activeTool.onContextMenu(e);
+		else if(!(this.activeTool?.onMouseDown))
+			return this.tools.cursor.onContextMenu(e);
+	}
 }
 
 /* Handles visual effects */
@@ -1518,6 +1528,9 @@ const handlers = {
 			}
 			break
 		}
+	},
+	onCanvasContextMenu: function(event) {
+		return toolbox.onContextMenu(event)
 	}
 }
 
@@ -1539,6 +1552,7 @@ const uiInterface = {
 		s.addEventListener("dblclick", handlers.onCanvasDoubleClick);
 		s.addEventListener("drop", handlers.onCanvasDrop);
 		s.addEventListener("dragover", handlers.onCanvasDragover);
+		s.addEventListener("contextmenu", handlers.onCanvasContextMenu);
 	
 		document.body.addEventListener("keydown", handlers.onKeyDown)
 		
