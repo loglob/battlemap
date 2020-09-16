@@ -95,14 +95,14 @@ const toolbox = {
 				else if(evnt.shiftKey)
 				{
 					let num = parseInt(this.Num.value)
-					maphub.addToken(JSON.stringify({ Name: this.Name.value + "\n#" + num++, X: tile(evnt.pageX), Y: tile(evnt.pageY),
-						Width: parseInt(this.Width.value), Height: parseInt(this.Height.value)}))
+					maphub.addToken({ Name: this.Name.value + "\n#" + num++, X: tile(evnt.pageX), Y: tile(evnt.pageY),
+						Width: parseInt(this.Width.value), Height: parseInt(this.Height.value)})
 					this.Num.value = num;
 				}
 				else
 				{
-					maphub.addToken(JSON.stringify({ Name: this.Name.value, X: tile(evnt.pageX), Y: tile(evnt.pageY),
-						Width: parseInt(this.Width.value), Height: parseInt(this.Height.value)}))
+					maphub.addToken({ Name: this.Name.value, X: tile(evnt.pageX), Y: tile(evnt.pageY),
+						Width: parseInt(this.Width.value), Height: parseInt(this.Height.value)})
 
 					//toolbox.tools.cursor.button.click();
 				}
@@ -461,7 +461,7 @@ const toolbox = {
 			Denom: document.getElementById("setting_sqrt2_denom"),
 			Num: document.getElementById("setting_sqrt2_num"),
 			save: function() {
-				maphub.settings(JSON.stringify({ Sqrt2Denominator: parseInt(this.Denom.value), Sqrt2Numerator: parseInt(this.Num.value) }))
+				maphub.settings({ Sqrt2Denominator: parseInt(this.Denom.value), Sqrt2Numerator: parseInt(this.Num.value) })
 			},
 			update: function() {
 				this.Denom.value = map.settings.Sqrt2Denominator

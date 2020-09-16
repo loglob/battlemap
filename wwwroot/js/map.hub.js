@@ -25,15 +25,16 @@ const maphub =
 			-an object indicates failure and must have the fields "msg" and "field",
 				containing the same values as returning a string or number, respectively
 		receive() handles changes sent from the server
+		if sendsObject is given and trueish, the command, receive() and check() accept an object,
+			which is converted to JSON before sending to the server 
 		modifies indicates the mapFields that are invalidated when this command is
 			received, fails or indicates a desync */
 	commands: {
 		AddToken: {
 			receive: function(tk) {
-				map.tokens.push(JSON.parse(tk))
+				map.tokens.push(tk)
 			},
-			check: function(_tk) {
-				const tk = JSON.parse(_tk);
+			check: function(tk) {
 				if(tk.Name == null || tk.Name.trim() == "")
 					return "Refusing add with illegal Name value"
 				else if(outOfBounds(tk.X,tk.Y,tk.Width,tk.Height))
@@ -41,6 +42,7 @@ const maphub =
 				else if(anyTokensAt(tk.X,tk.Y,tk.Width,tk.Height))
 					return "Refusing add that would collide"
 			},
+			sendsObject: true,
 			modifies: mapFields.tokens
 		},
 
@@ -278,25 +280,16 @@ const maphub =
 		},
 
 		Settings: {
-			receive: function(_o){
-				map.settings = JSON.parse(_o)
+			receive: function(o){
+				map.settings = o
 			},
-			check: function(_o){
-				try
-				{
-					let o = JSON.parse(_o)
-
-					if(o.Sqrt2Numerator < 1 || o.Sqrt2Denominator < 1)
-						return "Refusing settings with illegal values";
-					if(compareObj(o, map.settings))
-						return "Refusing settings without change"
-				}
-				catch(ex)
-				{
-					console.log(ex)
-					return "invalid JSON";
-				}
+			check: function(o){
+				if(o.Sqrt2Numerator < 1 || o.Sqrt2Denominator < 1)
+					return "Refusing settings with illegal values";
+				if(compareObj(o, map.settings))
+					return "Refusing settings without change"
 			},
+			sendsObject: true,
 			modifies: mapFields.settings
 		},
 
@@ -433,12 +426,13 @@ const maphub =
 			this.connection.on(command, function() {
 				try
 				{
-					const ck = cmd.checkReceived ?  cmd.checkReceived(...arguments) : cmd.check(...arguments)
+					const args = cmd.sendsObject ? Array.from(arguments).map(JSON.parse) : arguments
+					const ck = cmd.checkReceived ?  cmd.checkReceived(...args) : cmd.check(...args)
 					
 					switch(typeof ck)
 					{
 						case "undefined":
-							cmd.receive(...arguments)
+							cmd.receive(...args)
 							mapInterface.onMapUpdate(cmd.modifies)
 						break;
 
@@ -467,7 +461,8 @@ const maphub =
 				switch(typeof ck)
 				{
 					case "undefined":
-						this.connection.invoke(command, ...arguments).catch(e => {
+						const args = cmd.sendsObject ? Array.from(arguments).map(JSON.stringify) : arguments;
+						this.connection.invoke(command, ...args).catch(e => {
 							console.error(e.toString());
 							throw e;
 						});
