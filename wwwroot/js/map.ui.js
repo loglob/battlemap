@@ -1319,7 +1319,7 @@ const contextmenu = {
 			
 			this.visible = true;
 			this.window.style.left = `${(event.offsetX + view.left + w >= view.width) ? event.offsetX - w : event.offsetX}px`;
-			this.window.style.top = `${(event.offsetY + view.top + h >= view.height) ? event.offsetY - h : event.offsetY}px`;
+			this.window.style.top = `${(event.offsetY > h) ? event.offsetY - h : event.offsetY}px`;
 			this.window.style.visibility = "visible";
 		}
 	},
