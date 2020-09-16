@@ -1,5 +1,4 @@
 /* cookies.js: Handles HTML cookies data and automatically stores data on tab close  */
-// Currently unused
 
 const cookie = {
 	cookiename: `mapdata_${map.id}`,
