@@ -1322,12 +1322,13 @@ const contextmenu = {
 		}
 	},
 	buttons: {
-		delete: function() { maphub.remove(contextmenu.token.X, contextmenu.token.Y); contextmenu.hide(); },
-		clean: function() { mapInterface.uploadImage(idName(contextmenu.token), null) },
+		delete: function(tk) { maphub.remove(tk.X, tk.Y); contextmenu.hide(); },
+		clean: function(tk) { mapInterface.uploadImage(idName(tk), null) },
+		hide: function(tk) { maphub.setHidden(tk.X, tk.Y, !tk.Hidden) }
 	},
 	init: function() {
 		for (const b in this.buttons) {
-			document.getElementById(`contextmenu_${b}`).onclick = this.buttons[b];
+			document.getElementById(`contextmenu_${b}`).onclick = () => contextmenu.buttons[b](contextmenu.token);
 		}
 	}
 }
