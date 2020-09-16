@@ -296,24 +296,20 @@ namespace battlemap.Hubs
 				await fail("No token given");
 		}
 
-		public async Task RemoveAll(string kind, int sx, int sy, int ex, int ey)
+		public async Task RemoveAll(string shapeJson)
 		{
-			if(kind == null || !Enum.TryParse<ShapeKind>(kind, true, out ShapeKind k))
-			{
+			var shape = shapeJson.FromJson<Shape>();
+
+			if(shape is null)
+				await fail("Invalid JSON");
+			else if(!Enum.IsDefined(typeof(ShapeKind), shape.Kind))
 				await fail("Invalid shape name");
-				return;	
-			}
-
-			var shape = new Shape(k, (sx, sy), (ex, ey));
-
-			if(shape.Empty)
-			{
+			else if(shape.Empty)
 				await fail("Empty shape");
-			}
 			else if(Info.Map.Tokens.RemoveAll(shape.Contains) > 0)
 			{
 				State.Invalidated = true;
-				await Clients.Group(GroupId).SendAsync("RemoveAll", kind, sx, sy, ex, ey);
+				await Clients.Group(GroupId).SendAsync("RemoveAll", shapeJson);
 			}
 			else
 				await fail("No tokens given");

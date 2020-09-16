@@ -225,16 +225,14 @@ const maphub =
 			modifies: mapFields.tokens
 		},
 		RemoveAll: {
-			receive: function(k, sx, sy, ex, ey){
-				const s = shape.from(...arguments)
+			receive: function(s){
 				map.tokens.removeAll(tk => shape.containsToken(s, tk))
 			},
-			check: function(k, sx, sy, ex, ey) {
-				const s = shape.from(...arguments)
-
+			check: function(s) {
 				if(!map.tokens.some(tk => shape.containsToken(s, tk)))
 					return "Refusing removeAll without any tokens";
 			},
+			sendsObject: true,
 			modifies: mapFields.tokens
 		},
 

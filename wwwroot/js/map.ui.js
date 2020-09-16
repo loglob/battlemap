@@ -987,7 +987,7 @@ const selection = {
 		},
 		delete: function() {
 			if(this.rect)
-				maphub.removeAll(...shape.expand(this.rect))
+				maphub.removeAll(this.rect)
 		},
 		tokenColor: "blue"
 	},
@@ -1566,7 +1566,7 @@ const handlers = {
 					const s = selection.getShape()
 
 					if(s)
-						maphub.removeAll(...shape.expand(s))
+						maphub.removeAll(s)
 				}
 			break;
 
