@@ -1299,12 +1299,9 @@ const contextmenu = {
 	token: null,
 	visible: false,
 	hide: function() {
-		this.window.hide();
+		// Can't use .hide() because we still need the width & height
+		this.window.style.visibility = "hidden";
 		this.visible = false;
-	},
-	unhide: function() {
-		this.window.unhide();
-		this.visible = true;
 	},
 	onContextMenu: function(event) {
 		if(this.visible)
@@ -1316,9 +1313,14 @@ const contextmenu = {
 			if(this.token === null)
 				return;
 
-			this.unhide();
-			this.window.style.left = `${event.offsetX}px`;
-			this.window.style.top =  `${event.offsetY}px`;
+			const view = document.getElementsByTagName("html")[0].getBoundingClientRect()
+			const w = this.window.offsetWidth;
+			const h = this.window.offsetHeight;
+			
+			this.visible = true;
+			this.window.style.left = `${(event.offsetX + view.left + w >= view.width) ? event.offsetX - w : event.offsetX}px`;
+			this.window.style.top = `${(event.offsetY + view.top + h >= view.height) ? event.offsetY - h : event.offsetY}px`;
+			this.window.style.visibility = "visible";
 		}
 	},
 	onMapUpdate: function() {

@@ -126,6 +126,10 @@
 	margin-right: 0.3em;
 }
 
+#contextmenu {
+	margin: 0;
+}
+
 .noselect {
 	-webkit-touch-callout: none; /* iOS Safari */
 	-webkit-user-select: none; /* Safari */
