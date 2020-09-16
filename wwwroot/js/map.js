@@ -542,7 +542,7 @@ const textures = {
 			})
 	},
 	delete : function(token) {
-		fetch(`/image/delete?map=${map.id}&token=${encodeURIComponent(token)}`)
+		fetch(`/image/remove?map=${map.id}&token=${encodeURIComponent(token)}`)
 			.then(response => {
 				if(!response.ok)
 				{
