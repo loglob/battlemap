@@ -140,7 +140,7 @@ namespace battlemap.Hubs
 			{
 				Info.Map.Effects.Add(e);
 				State.Invalidated = true;
-				await Clients.Group(GroupId).SendAsync("AddEffect", effectJson);
+				await Clients.Group(GroupId).SendAsync("AddEffect", e.ToJson());
 			}
 		}
 
@@ -309,7 +309,7 @@ namespace battlemap.Hubs
 			else if(Info.Map.Tokens.RemoveAll(shape.Contains) > 0)
 			{
 				State.Invalidated = true;
-				await Clients.Group(GroupId).SendAsync("RemoveAll", shapeJson);
+				await Clients.Group(GroupId).SendAsync("RemoveAll", shape.ToJson());
 			}
 			else
 				await fail("No tokens given");
@@ -328,7 +328,7 @@ namespace battlemap.Hubs
 			else if(Info.Map.Effects.RemoveAll(e => e.Shape == shape) > 0)
 			{
 				State.Invalidated = true;
-				await Clients.Group(GroupId).SendAsync("RemoveEffect", shapeJson);
+				await Clients.Group(GroupId).SendAsync("RemoveEffect", shape.ToJson());
 			}
 			else
 				await fail("No such effect");
@@ -387,7 +387,7 @@ namespace battlemap.Hubs
 			{
 				State.Invalidated = true;
 				Info.Map.Settings = settings;
-				await Clients.Group(GroupId).SendAsync("Settings", json);
+				await Clients.Group(GroupId).SendAsync("Settings", settings.ToJson());
 			}
 		}
 
