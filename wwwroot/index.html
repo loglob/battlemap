@@ -5,184 +5,166 @@
 	</head>
 	<body class="faq">
 		<h1>FAQ</h1>
-		<h2>Was ist das?</h2>
+		<h2>What is this?</h2>
 		<p>
-			Eine online Battlemap.
+			An online battlemap.
 			<br/>
-			Es gibt bewegbare Tokens, eine einfärbbare Karte etc.
+			You can add, move and remove tokens, color the map grid, etc.
 		</p>
-		<h2>Wie funktioniert das?</h2>
+		<h2>How does it work?</h2>
 		<p>
-			ASP.NET Core in C# unter .NET core fürs Backend,
+			ASP.NET Core in C# under .NET core,
 			<br/>
-			SignalR für real time bidirectional RPC,
+			SignalR for real time bidirectional RPC,
 			<br/>
-			Mehrere HTML5 Canvases zum Rendern &
+			layered HTML5 canvases for rendering,
 			<br/>
-			janky vanilla JS für den Rest
+			all joined with janky vanilla JS
 			<br/>
-			<a href="https://github.com/loglob/battlemap">Hier</a> gibts den Quelltext.
+			The code is available <a href="https://github.com/loglob/battlemap">here.</a>
 		</p>
-		<h2 id="players">Wie benuzte ich das? (Für Spieler)</h2>
+		<h2 id="players">How do I use it? (for players)</h2>
 		<p>
 			<ul>
-				<li>Der DM schickt euch einen Link, unter dem ihr die Karte sehen könnt</li>
-				<li>Click & Drag um Tokens zu verschieben</li>
-				<li>Doppelt clicken um Tokens/Felder zu markieren (Für alle sichtbar)</li>
-				<li>Shift click & drag um Distanzen zu messen</li>
-				<li>Control click & drag um kreisförmige AoEs zu setzen</li>
-				<li>'H' nach dem Setzen drücken, um eine AoE zu markieren.</li>
-				<li>Ich empfehle, zumindest ein Bisschen rauszuzoomen</li>
-				<li>
-					Manchmal kommt es zu Desyncs, sodass Tokens lokal falsch positioniert sind.
-					<br/>
-					Wenn sowas auffält bitte Seite neu laden. Falls das nicht hilft, mir bitte Bescheid sagen
-					<br/>
-					(Ihr könnt mir beim Debuggen helfen, wenn ihr bei Desyncs den Inhalt der Konsole (F12) kopiert)
-				</li>
+				<li>Your DM sends you a link, which you click on</li>
+				<li>Zoom out a bit to see the full map</li>
+				<li>Use the cursor or shape tool to mark a shape, then press 'H' to highlight it</li>
 			</ul>
 		</p>
-		<h2 id="dm">Wie benutze ich das? (Für DMs)</h2>
+		<h2 id="dm">How do I use it? (for DMs)</h2>
 		<p>
 			<ul>
-				<li><a href="/map">Dieser Link</a> führt zu einer neuen, leeren Map</li>
-				<li>Eine Map kann unter dem selben Link immer wieder erreicht werden</li>
-				<li>An die URL "&dm=true" anhängen, um die DM toolbox freizuschalten</li>
+				<li><a href="/map">This link</a> always leads to a new, empty map</li>
+				<li>The same link will always lead to the same map.</li>
+				<li>The "&dm=true" query argument determines if the DM toolbox is available</li>
 				<li>
-					Indem man Bilder auf ein Token zieht, wird das Token mit diesem Bild gezeichnet.
+					Drag and drop an image onto a token to set its sprite.
 					<br/>
-					Dabei gilt:
+					However:
 					<ul>
-						<li>Lokale Dateien müssen unter 1MiB groß sein</li>
-						<li>Bilder von anderen Websites werden nicht immer korrekt erkannt (Am besten funktioniert ein reiner Bild Link)</li>
-						<li>Manche Websites verbieten Cross Origin Resource Sharing und Links zu deren Bildern können nicht genutzt werden</li>
-						<li>Manche Links unterliegen auch der 1MiB Beschränkung</li>
-						<li>In der Konsole (F12) steht generell, warum ein Bild nicht angenommen wird</li>
+						<li>Local files must be below 1MiB</li>
+						<li><i>Some</i> online images are accepted (limited due to CORS and data URLs)</li>
+						<li>Check the console (F12) for a semi-helpful error message</li>
 					</ul>
 				</li>
 			</ul>
 		</p>
 		<p>
-			Manche Toolfenster können durch Shift-Klick auf ihr Icon oben links angepinnt werden.
+			Shift-click lets you pin some tool windows to the upper-right corner.
 		</p>
-		<h3 id="dmtools">Die Tools:</h3>
+		<h3 id="tools">The tools:</h3>
 		<h3>Cursor (🖰)</h3>
 		<p>
-			Siehe Spielerbeschreibung.
+			Click & drag to move tokens
 			<br/>
-			Außerdem können durch markieren & Entf-Key mehrere Tokens auf einmal gelöscht werden.
+			double click to highlight a token/space (visible for everyone)
 			<br/>
-			(Esc ist ein Shortcut zum Cursor)
+			Shift click and drag to measure distance
+			<br/>
+			Control click & drag to create circular mask
+			<br/>
+			Press DEL to delete marked tokens
+			<br/>
+			(Use ESC as a shortcut to the cursor)
 		</p>
 		<h3>Add Token (+)</h3>
 		<p>
-			Im Fenster unten rechts kann das Token angepasst werden.
+			Set token properties in the bottom-right window.
 			<br/>
-			Shift-click um automatisch numerierte Tokens zu generieren.
+			Shift-click to automatically number created tokens.
 			<br/>
-			Control-click um Namen und Nummer eines Tokens zu kopieren.
+			Control-click to copy a token's properties.
 		</p>
 		<h3>Remove Token (-)</h3>
 		<p>
-			Löscht tokens.
+			Removes tokens.
 			<br/>
-			Shift click entfernt sprites von tokens
+			Shift click removes only a token's sprite
 		</p>
 		<h3>Tile edit (🖌️)</h3>
 		<p>
-			Setzt die Hintergrundfarbe.
+			Colors in the map grid.
 			<br/>
-			Im Fenster unten rechts kann die Farbe ausgewählt werden.
+			Select a color on the bottom-right.
 			<br/>
-			Shift-click um die Farbe eines Tiles zu kopieren.
+			Shift-click to copy a space's color.
 		</p>
 		<h3>Resize Map (🗺️)</h3>
 		<p>
-			Ändert die Kartengröße.
+			Changes the map size.
 			<br/>
-			Im Fenster unten rechts werden die Änderungen für die einzelnen Seiten eingegeben.
+			Set the size change for every side in the bottom-right window.
 			<br/>
-			Wenn durch Verkleinerung Tokens abgeschnitten werden, muss die Größenänderung bestätigt werden.
-			<br/>
-			Abgeschnittene Tokens werden entfernt.
+			If shrinking the map would remove tokens, the resize needs to be confirmed.
 		</p>
 		<h3>Effects (🔥)</h3>
 		<p>
-			Listet alle markierten und permanent gesetzten Shapes. 
+			Keeps track of all highlighted and permanent Shapes.
 			<br/>
-			💾 Nimmt den Effekt mit der ausgewählten Farbe in die permanente Liste auf
+			💾 Makes a shape permanent
 			<br/>
-			👁️ Highlightet den Effekt
+			👁️ Highlights the shape
 			<br/>
-			🗑️ Löscht den Effekt
+			🗑️ Deletes the shape
 		</p>
 		<h3>Hiding (👁️)</h3>
 		<p>
-			Versteckt Tokens.
+			Hides tokens.
 			<br/>
-			Versteckte Tokens sind für DMs durchsichtig & haben ein 👁️-Symbol in der Ecke.
-			<br/>
-			Für Spieler sind sie komplett unsichtbar.
+			Hidden tokens are only visible for DMs and are marked with a 👁️.
 		</p>
 		<h3>Spawn Zone (🏥)</h3>
 		<p>
-			Setzt eine Spawnzone, in der neue Tokens eingefügt werden.
+			Sets the spawn zone, in which new tokens are added.
 			<br/>
-			Wenn ein Spieler auf die Karte joined, wird er nach seinem Tokennamen gefragt.
+			If a player joins the map, they're asked for the name of their token.
 			<br/>
-			Falls das Token nicht existiert, wird es in der Spawn Zone erstellt.
+			If it doesn't exist already, a 1x1 token is created in the spawnzone for them.
 			<br/>
-			Durch DEL wird die Spawnzone wieder entfernt.
+			Pressing DEL removes the spawnzone.
 		</p>
 		<h3>Initiative Tracker (⏱️)</h3>
 		<p>
-			Klicken, um tokens in die Initiative-Ordnung aufzunehmen. Ihre Position wird dabei als 1d20 + angegebener modifier berechnet.
+			Click to add tokens to the list. Their position is calculated as 1d20 + the given modifier.
 			<br/>
-			Natural 20s werden dabei zu +99 und natural 1s zu -99.
+			Natural 20s turn to +99, natural 1s to -99.
 			<br/>
-			Shift-Click, um Tokens ohne automatischen Initiative-Wert aufzunehmen.
+			Shift-click to add tokens without generating values.
 			<br/>
-			Auf einen Namen in der Liste klicken, um das Token als momentan am Zug zu markieren.
+			Click on a token to mark it as the current token.
 			<br/>
-			Mit dem ▶️ Knopf das nächste Token auswählen.
+			Press ▶️ to mark the next token.
 			<br/>
-			(⚠️ Die Liste wird lokal und nicht auf dem Server gespeichert)
+			(⚠️ The list is stored locally, not on the server)
 		</p>
-		<h3>Einstellungen (⚙️)</h3>
+		<h3>Setings (⚙️)</h3>
 		<p>
-			Verwaltet Map-Einstellungen.
+			Configures map settings.
 			<br/>
-			Die Karte kann geklont werden.
-			<br/>
-			Die genutze √2 Approximation kann geändert werden.
+			The given √2 Approximation is used to calculate distance.
 		</p>
 		<h3>Shapes (⬡)</h3>
 		<p>
-			Zeichnet Shapes auf der Map.
+			Draws shapes on the map.
 			<br/>
-			Im Fenster unten rechts wird die Form ausgewählt.
+			Select the shape on the bottom right.
 			<br/>
-			Durch drücken von H kann die Form jedem gezeigt werden.
+			Pressing H highlights the shape.
 			<br/>
-			Alle markierte Tokens können auf einmal bewegt werden.
+			All marked tokens can be moved at once.
 		</p>
 		<h3>Dice (🎲)</h3>
 		<p>
-			Würfel würfeln.
+			Rolls dice.
 			<br/>
-			Im Fenster unten rechts sind d2 bis d100 verfügbar.
-			<br/>
-			Die 🗑️ erlauben es, die Werte einzelner/aller Würfel zu löschen.
-		</p>
-		<p id="secret">
-			peasant() um die Debug Commoner zu erhalten. 
+			The 🗑️ delete the values of some/all dice.
 		</p>
 		<h1 id="todo">TODO</h1>
 		<ul>
 			<li>Effect Sprites</li>
 			<li>Effect Ordering</li>
 			<li>Sprite caching</li>
-			<li>(Voller) Mobile Support (villeicht)</li>
+			<li>(Full) Mobile Support (maybe)</li>
 		</ul>
 		<h2>Known Bugs</h2>
 		<ul>
