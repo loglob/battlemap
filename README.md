@@ -2,9 +2,11 @@
 An online battlemap for TTRPGs
 
 ## Usage
-The path `/map/` always creates and redirects to a new, empty map.
-Append or remove `&dm=true` to/from the URL to toggle DM view.
-Check the `wwroot/index.en.html` file for tool descriptions.
+To start the server, simply run `dotnet run`.
+By default, the server listens on port 8000/8001 in debug, and 5000/5001 in release mode.
+Check the index page for usage notes.
+
+Run `make index` to swap the english index page for the german one and vice versa.
 
 ## install
 A SystemD service file (`battlemap.service`) is included.
