@@ -863,7 +863,7 @@ const effects = {
 	 * @returns {void}
 	*/
 	blink: function(effect) {
-		maphub.blinkShape(...shape.expand(effect))
+		maphub.blinkShape(effect)
 	},
 	/** Reacts to a blinkShape() command.
 	 * @param {shape} s	The shape
@@ -1682,7 +1682,7 @@ const handlers = {
 				const s = selection.getShape()
 
 				if(s)
-					maphub.blinkShape(...shape.expand(s))
+					maphub.blinkShape(s)
 			}
 			break;
 

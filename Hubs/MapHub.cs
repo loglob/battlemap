@@ -167,14 +167,18 @@ namespace battlemap.Hubs
 				await Clients.Group(GroupId).SendAsync("BlinkToken", tk.X, tk.Y);
 		}
 
-		public async Task BlinkShape(string kind, int sx, int sy, int ex, int ey)
+		public async Task BlinkShape(string shapeJson)
 		{
-			if(kind == null || !Enum.TryParse<ShapeKind>(kind, true, out ShapeKind k))
-				await Clients.Caller.SendAsync("Fail", "AddEffect", "Invalid kind");
-			else if(new Shape(k, (sx, sy), (ex, ey)).Empty)
-				await Clients.Caller.SendAsync("Fail", "AddEffect", "Empty shape");
+			var shape = shapeJson.FromJson<Shape>();
+
+			if(shape is null)
+				await fail("Invalid JSON");
+			else if(!Enum.IsDefined(typeof(ShapeKind), shape.Kind))
+				await fail("Invalid shape name");
+			else if(shape.Empty)
+				await fail("Empty shape");
 			else
-				await Clients.Group(GroupId).SendAsync("BlinkShape", kind, sx, sy, ex, ey);
+				await Clients.Group(GroupId).SendAsync("BlinkShape", shape.ToJson());
 		}
 
 		public async Task Color(int x, int y, int color)

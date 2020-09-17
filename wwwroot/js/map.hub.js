@@ -82,10 +82,11 @@ const maphub =
 		},
 
 		BlinkShape: {
-			receive: function() { 
-				mapInterface.blinkShape(shape.from(...arguments))
+			receive: function(s) { 
+				mapInterface.blinkShape(s)
 			},
 			check: function(){ },
+			sendsObject: true,
 			modifies: 0
 		},
 
