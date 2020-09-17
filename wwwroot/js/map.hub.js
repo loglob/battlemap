@@ -168,30 +168,35 @@ const maphub =
 			modifies: mapFields.tokens
 		},
 		MoveAll: {
-			receive: function(k, sx, sy, ex, ey, offx, offy) {
-				var s = shape.from(...arguments)
-
+			/**@param {shape} s		The shape
+			 * @param {vec2} off	Move offset
+			 * @returns {void} nothing
+			 */
+			receive: function(s, off) {
 				for (let tk of map.tokens) {
 					if(shape.containsToken(s, tk))
 					{
-						tk.X += offx
-						tk.Y += offy
+						tk.X += off.x
+						tk.Y += off.y
 					}
 				}
 			},
-			check: function(k, sx, sy, ex, ey, offx, offy) {
-				if(offx === 0 && offy === 0)
+			/**@param {shape} s		The shape
+			 * @param {vec2} off	Move offset
+			 * @returns {checkReport}
+			 */
+			check: function(s, off) {
+				if(off.x === 0 && off.y === 0)
 					return "Refusing moveall without change";
 				
-				var s = shape.from(...arguments)
 				let moved = 0
 
 				for (let tk of map.tokens) {
 					if(shape.containsToken(s, tk))
 					{
 						moved++
-						const nX = tk.X + offx
-						const nY = tk.Y + offy
+						const nX = tk.X + off.x
+						const nY = tk.Y + off.y
 					
 						if(outOfBounds(nX, nY, tk.Width, tk.Height))
 							return oob(`Refusing moveall that would put ${flatName(tk)} out of bounds`);
@@ -207,6 +212,7 @@ const maphub =
 				if(moved == 0)
 					return "Refusing moveall without any tokens"
 			},
+			sendsObject: true,
 			modifies: mapFields.tokens
 		},
 

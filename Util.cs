@@ -140,6 +140,19 @@ namespace battlemap
 			}		
 		}
 
+		public static T FromJsonAnonymous<T>(this string json, T definition)
+		{
+			try
+			{
+				return JsonConvert.DeserializeAnonymousType<T>(json, definition);
+			}
+			catch(Exception)
+			{
+				return default(T);
+			}
+				
+		}
+
 		public static void ProcessAll<T>(this IEnumerable<T> data, Action<T> proc)
 		{
 			var t = (data.Select(d => {

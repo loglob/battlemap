@@ -229,29 +229,35 @@ namespace battlemap.Hubs
 			}
 		}
 
-		public async Task MoveAll(string kind, int sx, int sy, int ex, int ey, int offx, int offy)
+		public async Task MoveAll(string shapeJson, string offsetJson)
 		{
-			(int x, int y) offset = (offx, offy);
+			var shape = shapeJson.FromJson<Shape>();
+			var _offset = offsetJson.FromJsonAnonymous(new { x = 0, y = 0 });
+
+			if(shape is null || _offset is null)
+			{
+				await fail("Invalid JSON");
+				return;
+			}
+			if(!Enum.IsDefined(typeof(ShapeKind), shape.Kind))
+			{
+				await fail("Invalid shape name");
+				return;
+			}
+
+			(int x, int y) offset = (_offset.x, _offset.y);
 
 			if(offset == (0,0))
 			{
 				await fail("No movement");
 				return;
 			}
-			if(kind == null || !Enum.TryParse<ShapeKind>(kind, true, out ShapeKind k))
-			{
-				await fail("Invalid shape name");
-				return;	
-			}
-
-			var shape = new Shape(k, (sx, sy), (ex, ey));
-
 			if(shape.Empty)
 			{
 				await fail("Empty shape");
-				return;		
+				return;
 			}
-
+			
 			var tokens = Info.Map.Tokens.Where(shape.Contains);
 
 			if(!tokens.Any())
@@ -277,13 +283,10 @@ namespace battlemap.Hubs
 			}
 
 			foreach (var tk in tokens)
-			{
-				tk.X += offx;
-				tk.Y += offy;
-			}
+				tk.Position = tk.Position.Add(offset);
 			
 			State.Invalidated = true;
-			await Clients.Group(GroupId).SendAsync("MoveAll", kind, sx, sy, ex, ey, offx, offy);
+			await Clients.Group(GroupId).SendAsync("MoveAll", shape.ToJson(), _offset.ToJson());
 		}
 
 		public async Task Remove(int x, int y)

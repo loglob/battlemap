@@ -1042,7 +1042,7 @@ const selection = {
 			if(this.rect != null)
 			{
 				const off =  vsub(tile(mousepos), tile(selection.pos))
-				maphub.moveAll(...shape.expand(this.rect), off.x, off.y);
+				maphub.moveAll(this.rect, off);
 				this.reset();
 			}
 			else if(selection.pos.x != mousepos.x || selection.pos.y != mousepos.y)
@@ -1138,7 +1138,7 @@ const selection = {
 			if(this.circ != null)
 			{
 				const off =  vsub(tile(mousepos), tile(selection.pos))
-				maphub.moveAll(...shape.expand(this.circ), off.x, off.y);
+				maphub.moveAll(this.circ, off);
 
 				this.reset();
 			}
@@ -1252,7 +1252,7 @@ const selection = {
 			if(this.shape)
 			{
 				const off =  vsub(tile(mousepos), tile(selection.pos))
-				maphub.moveAll(...shape.expand(this.shape), off.x, off.y);
+				maphub.moveAll(this.shape, off);
 				this.reset();
 			}
 			else if(selection.pos.x != mousepos.x || selection.pos.y != mousepos.y)
@@ -1343,7 +1343,7 @@ const selection = {
 			if(this.shape)
 			{
 				const off =  vsub(tile(mousepos), tile(selection.pos))
-				maphub.moveAll(...shape.expand(this.shape), off.x, off.y);
+				maphub.moveAll(this.shape, off);
 				this.reset();
 			}
 			else if(selection.pos.x != mousepos.x || selection.pos.y != mousepos.y)
