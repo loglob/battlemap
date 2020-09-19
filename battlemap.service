@@ -4,7 +4,6 @@
 	Wants=network-online.target
 
 [Service]
-	User=loglob
 	Type=simple
 	ExecStart=/srv/battlemap/battlemap
 	WorkingDirectory=/srv/battlemap/
