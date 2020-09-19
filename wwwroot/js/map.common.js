@@ -71,29 +71,57 @@ Array.prototype.remove = function(item) {
  * @property {vec2}	end		The ending point
  */
 
+/** @typedef {Object} shapeKindInterface
+ * @property {function} draw Draws the shape onto a canvas.
+ * @property {function} containsPoint Determines if a point is within the shape.
+ * @property {function=} containsToken Determines if a token is within the shape. If not given, implemented via containsPoint().
+ * @property {function=} equal Determines if two shapes are equal. If not given, implemented via memberwise compare.
+ * @property {function=} empty Determines if a shape is empty. If not given, implemented by comparing start and end vectors. 
+*/
+
 const shape = {
+	/** @type {shapeKindInterface} */
 	circle: {
 		vertexCentered: true,
+		/**@param {shape} s
+		 * @returns {number} */
 		radius: function(s) {
 			return Math.floor(Math.sqrt(Math.pow(s.start.x - s.end.x, 2) + Math.pow(s.start.y - s.end.y, 2)))
 		},
+		/**@param {shape} s 
+		 * @param {number} x 
+		 * @param {number} y
+		 * @returns {boolean} */
 		containsPoint: function(s, x, y) {
 			const r = this.radius(s)
 			return r*r >= Math.pow(x + 0.5 - s.start.x, 2) + Math.pow(y + 0.5 - s.start.y, 2)
 		},
+		/**@param {shape} s 
+		 * @param {token} tk
+		 * @returns {boolean} */
 		containsToken: function(s, tk) {
-//			console.log("r: ", this.radius(s))
 			return this.containsPoint(s, nearest(tk.X, tk.Width, s.start.x), nearest(tk.Y, tk.Height, s.start.y))
 		},
+		/**@param {shape} s 
+		 * @param {CanvasRenderingContext2D} ct 
+		 * @returns {void} */
 		draw: function(s, ct) {
 			const r = this.radius(s)
 			ct.arc(s.start.x * cellSize, s.start.y * cellSize, r * cellSize, 0, 2 * Math.PI);
 		},
+		/**@param {shape} a 
+		 * @param {shape} b
+		 * @returns {boolean} */
 		equal: function(a, b) {
 			return this.radius(a) == this.radius(b)
 		}
 	},
+	/** @type {shapeKindInterface} */
 	cone: {
+		/**@param {shape} s 
+		 * @param {number} x 
+		 * @param {number} y
+		 * @returns {boolean} */
 		containsPoint: function(s, x, y) {
 			x += 0.5
 			y += 0.5
@@ -119,6 +147,9 @@ const shape = {
 
 			return 0 <= a && a <= 1 && 0 <= b && b <= 1 && 0 <= c && c <= 1;
 		},
+		/**@param {shape} s 
+		 * @param {CanvasRenderingContext2D} ct 
+		 * @returns {void} */
 		draw: function(s, ct) {
 			const origin = vmul(vadd(s.start, 0.5), cellSize);
 
@@ -135,38 +166,47 @@ const shape = {
 			ct.lineTo(origin.x, origin.y);
 		},
 	},
+	/** @type {shapeKindInterface} */
 	mask: {
-		getRect: function (s) {
-			return {	
-					r: Math.max(s.start.x, s.end.x), 
-					l: Math.min(s.start.x, s.end.x),
-					t: Math.max(s.start.y, s.end.y),
-					b: Math.min(s.start.y, s.end.y) }
-		},
+		/**@param {shape} s 
+		 * @param {number} x 
+		 * @param {number} y
+		 * @returns {boolean} */
 		containsPoint: function(s, x, y) {
-			const r = this.getRect(s)
-			return x >= r.l && x <= r.r && y >= r.b && y <= r.t;
+			const b = vbounds(s.start, s.end);
+			return x >= b.min.x && x <= b.max.x && y >= b.min.y && y <= b.max.y
 		},
+		/**@param {shape} s 
+		 * @param {token} tk
+		 * @returns {boolean} */
 		containsToken: function(s, tk) {
-			const r = this.getRect(s)
-			return (tk.X <= r.r) && (r.l < tk.X + tk.Width) && (tk.Y <= r.t) && (r.b < tk.Y + tk.Height)
+			const b = vbounds(s.start, s.end);
+			return (tk.X <= b.max.x) && (b.min.x < tk.X + tk.Width) && (tk.Y <= b.max.y) && (b.min.y < tk.Y + tk.Height)
 		},
+		/**@param {shape} s 
+		 * @param {CanvasRenderingContext2D} ct 
+		 * @returns {void} */
 		draw: function(s, ct) {
-			const r = this.getRect(s)
-			const rr = r.r + 1
-			const rt = r.t + 1
+			const b = vbounds(s.start, s.end)
+			b.max = vmul(vadd(b.max,1), cellSize)
+			b.min = vmul(b.min, cellSize)
 
-			ct.moveTo(r.l * cellSize, rt * cellSize)
-			ct.lineTo(r.l * cellSize, r.b * cellSize)
-			ct.lineTo(rr * cellSize, r.b * cellSize)
-			ct.lineTo(rr * cellSize, rt * cellSize)
-			ct.lineTo(r.l * cellSize, rt * cellSize)
+			ct.moveTo(b.min.x, b.max.y)
+			ct.lineTo(b.min.x, b.min.y)
+			ct.lineTo(b.max.x, b.min.y)
+			ct.lineTo(b.max.x, b.max.y)
+			ct.lineTo(b.min.x, b.max.y)
 		},
 		empty: function() {
 			return false;
 		}
 	},
+	/** @type {shapeKindInterface} */
 	line: {
+		/**@param {shape} s 
+		 * @param {number} x 
+		 * @param {number} y
+		 * @returns {boolean} */
 		containsPoint: function(s, x, y) {
 			if(s.start.x === s.end.x && s.start.y === s.end.y)
 				return false;
@@ -176,24 +216,24 @@ const shape = {
 			const p = vadd(s.start, 0.5)
 			const q = vadd(s.end, 0.5)
 			const v = vsub(s.end, s.start);
-			const vl = vlen(v);
 			
-			const d = (v.y * x - v.x * y + q.x * p.y - q.y * p.x) / vl;
+			const d = (v.y * x - v.x * y + q.x * p.y - q.y * p.x) / vlen(v);
 
 			if(d > 0.5 || d < -0.5)
 				return false;
 
-			//const b = vsub({ x: x, y:y}, vmul(orth(v), d))
-			//const l = vdiv(vsub(b, p), v)
-			const l = vdiv(vsub(vsub({ x: x, y:y}, vmul(orth(v), d)), p), v)
+			const l = vdiv(vsub(vsub(v(x,y), vmul(orth(v), d)), p), v)
 
 			return l > 0 && l <= 1;
-
-			//const l = vsub({ x: x, y:y}, vmul(orth(v), d))
 		},
+		/**@param {shape} s 
+		 * @returns {{ min:vec2, max:vec2 }} */
 		bounds: function(s) {
 			return vbounds(s.start, s.end);
 		},
+		/**@param {shape} s 
+		 * @param {CanvasRenderingContext2D} ct 
+		 * @returns {void} */
 		draw: function(s, ct) {
 			const o = vmul(orth(vsub(s.end, s.start)), 0.5 * cellSize)
 			const end = vmul(vadd(s.end, 0.5), cellSize)
@@ -206,7 +246,10 @@ const shape = {
 			ct.lineTo(...vx(vadd(start, o)))
 		}
 	},
+	/** @type {shapeKindInterface} */
 	cube: {
+		/**@param {shape} s 
+		 * @returns {vec2[]} The cube's vertices */
 		getPoints: function(s) {
 			const v = vsub(s.end, s.start);
 			const o = vmul(orth(v), 0.5 * vlen(v))
@@ -215,10 +258,16 @@ const shape = {
 
 			return [ vadd(start, o), vsub(start, o), vsub(end, o), vadd(end, o) ]
 		},
+		/**@param {shape} s 
+		 * @returns {{ min:vec2, max:vec2 }} */
 		bounds: function(s) {
 			let p = this.getPoints(s)
 			return vbounds(...p.map(v => vmap(v, Math.floor)), ...p.map(v => vmap(v, Math.ceil)))
 		},
+		/**@param {shape} s 
+		 * @param {number} x 
+		 * @param {number} y
+		 * @returns {boolean} */
 		containsPoint: function(s, x, y) {
 			if(s.start.x === s.end.x && s.start.y === s.end.y)
 				return false;
@@ -239,6 +288,9 @@ const shape = {
 			
 			return l >= 0 && l <= 1
 		},
+		/**@param {shape} s 
+		 * @param {CanvasRenderingContext2D} ct 
+		 * @returns {void} */
 		draw: function(s, ct) {
 			const p = this.getPoints(s).map(v => vx(vmul(v, cellSize)))
 			
@@ -263,7 +315,7 @@ const shape = {
 				? shape[k].equal(a, b)
 				: (a.end.x === b.end.x && a.end.y === b.end.y))
 	},
-	/** Draws a shope onto a canvas
+	/** Draws a shape onto a canvas
 	 * @param {shape} s	The shape
 	 * @param {CanvasRenderingContext2D} ct	The canvas' rendering context
 	 * @returns {void}
