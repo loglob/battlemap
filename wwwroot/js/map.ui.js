@@ -1707,7 +1707,7 @@ const handlers = {
 }
 
 /** Allows for hooking of map update event
- * @type {{ mask : number, callback: function }[]}
+ * @type {Array.<{ mask : number, callback: function }>}
 */
 const mapUpdateHooks = [
 	{ mask: mapFields.spawn, callback: function() { if(toolbox.activeTool === toolbox.tools.spawnzone) layers.special.draw() } },

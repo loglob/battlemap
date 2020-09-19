@@ -333,7 +333,7 @@ const shape = {
 	},
 	/** Expands a shape into its properties
 	 * @param {shape} s	The shape
-	 * @returns {(string|number)[]}
+	 * @returns {Array.<(string|number)>}
 	 */
 	expand: function(s) {
 		return [ s.kind, s.start.x, s.start.y, s.end.x, s.end.y ];
