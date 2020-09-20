@@ -59,10 +59,14 @@ const toolbox = {
 	div: document.getElementById("toolbox"),
 	pinned: null,
 	/** Contains the tools
-	 * @type {Object.<string, tool>}  */
+	 * @constant {Object.<string, tool>}  */
 	tools : {
+		/**@constant {tool} */
 		cursor: {
 			pinnable: true,
+			/**@param {MouseEvent} evnt
+			 * @returns {void} nothing
+			 */
 			onMouseDown:function(evnt) {
 				const cX = tile(evnt.pageX)
 				const cY = tile(evnt.pageY)
@@ -117,14 +121,22 @@ const toolbox = {
 				return (selection.current == null) ? "default" : selection.current.getCursor();
 			}
 		},
+		/**@constant {tool} */
 		addtoken: {
+			/**@type {HTMLElement} */
 			Name: initpls,
+			/**@type {HTMLElement} */
 			Width: initpls,
+			/**@type {HTMLElement} */
 			Height: initpls,
+			/**@type {HTMLElement} */
 			Num: initpls,
 			name: "",
 			num: 1,
 			dontBlink: true,
+			/**@param {MouseEvent} evnt
+			 * @returns {void} nothing
+			 */
 			onMouseDown: function(evnt) {
 				const tk = tokenAt(tile(evnt.pageX), tile(evnt.pageY))
 				
@@ -155,15 +167,13 @@ const toolbox = {
 			getCursor: function() {
 				return "copy";
 			},
-			onSelect: function() {
-//				selection.current = selection.newToken
-			},
-			onPutAway: function() {
-//				selection.current = null;
-			}
 		},
+		/**@constant {tool} */
 		removetoken: {
 			dontBlink: true,
+			/**@param {MouseEvent} evnt
+			 * @returns {void} nothing
+			 */
 			onMouseDown: function(evnt) {
 				const cx = tile(evnt.pageX)
 				const cy = tile(evnt.pageY)
@@ -185,9 +195,14 @@ const toolbox = {
 				return "crosshair";
 			}
 		},
+		/**@constant {tool} */
 		tileedit: {
 			dontBlink: true,
+			/**@type {HTMLElement} */
 			Color: initpls,
+			/**@param {MouseEvent} evnt
+			 * @returns {void} nothing
+			 */
 			onMouseDown: function(evnt) {
 				if(evnt.shiftKey || evnt.ctrlKey)
 				{
@@ -212,15 +227,26 @@ const toolbox = {
 				return "default";
 			}
 		},
+		/**@constant {tool} */
 		resize: {
 			pinnable: true,
+			/**@type {HTMLElement} */
 			left: initpls,
+			/**@type {HTMLElement} */
 			right: initpls,
+			/**@type {HTMLElement} */
 			up: initpls,
+			/**@type {HTMLElement} */
 			down: initpls,
+			/**@type {HTMLElement} */
 			error: initpls,
+			/**@type {HTMLElement} */
 			savebutton: initpls,
 			force: false,
+			/** Called on number input, checks for invalid values and resets them.
+			 * @param {'left'|'right'|'up'|down} dir 
+			 * @returns {void} nothing
+			 */
 			onInput: function(dir) {	
 				if(((dir == "left" || dir == "right") && parseInt(this.left.value) + parseInt(this.right.value) < -map.width)
 					|| ((dir == "up" || dir == "down") && parseInt(this.up.value) + parseInt(this.down.value) < -map.height))
@@ -237,6 +263,14 @@ const toolbox = {
 				this.savebutton.innerText = "Save"
 				layers.special.draw();
 			},
+			/** Enacts a map resize. 
+			 * @throws {string} If the resize would cut off tokens
+			 * @param {number} left
+			 * @param {number} right 
+			 * @param {number} up 
+			 * @param {number} down 
+			 * @param {boolean} force 
+			 */
 			resize: function(left,right,up,down,force)
 			{
 				// check for deleted tokens
@@ -289,6 +323,9 @@ const toolbox = {
 				layers.special.draw();
 				this.reset()
 			},
+			/**@param {CanvasRenderingContext2D} ct
+			 * @returns {void} nothing 
+			 */
 			draw: function(ct) {
 				ct.globalAlpha = 0.5
 				ct.fillStyle = "red"
@@ -309,8 +346,13 @@ const toolbox = {
 				return 1;
 			}
 		},
+		/**@constant {tool} */
 		effects: {
 			pinnable: true,
+			/** Generates a HTML element representing an effect
+			 * @param {effect} item The effect
+			 * @returns {HTMLElement}
+			 */
 			genDiv: function(item) {
 				let div = document.createElement("div");
 				let name = document.createElement("span")
@@ -350,6 +392,9 @@ const toolbox = {
 
 				return div
 			},
+			/** Rebuilds the effects window
+			 * @returns {void} nothing
+			 */
 			genWindow: function() {
 				this.window.innerHTML = ""
 
@@ -367,8 +412,13 @@ const toolbox = {
 				this.genWindow()
 			},
 		},
+		/**@constant {tool} */
 		shapes: {
+			/**@type {HTMLElement} */
 			selection: initpls,
+			/**@param {MouseEvent} e
+			 * @returns {void} nothing
+			 */
 			onMouseDown: function(e) {
 				const tk = tokenAt(tile(e.pageX), tile(e.pageY))
 
@@ -391,9 +441,14 @@ const toolbox = {
 				}
 			},
 		},
+		/**@constant {tool} */
 		dice: {
 			pinnable: true,
 			pips: [ 2, 4, 6, 8, 10, 12, 20, 100 ],
+			/** Rolls the given die and updates the window's list and totals
+			 * @param {number} p The die's pips
+			 * @returns {void} nothing 
+			 */
 			roll : function(p) {
 				let roll = Math.floor(Math.random() * p) + 1;
 				
@@ -412,9 +467,11 @@ const toolbox = {
 				const st = document.getElementById("dice_total")
 				let supertotal = parseInt(st.innerText.match(totalMatch)[0]) + roll
 				st.innerText = `Supertotal: ${supertotal}`
-
-				return false;
 			},
+			/** Deletes the rolls of the given fice and updates totals
+			 * @param {number} p The die's pips
+			 * @returns {void} nothing
+			 */
 			del: function(p) {
 				document.getElementById(`dice_d${p}_numbers`).innerText = "";
 				document.getElementById(`dice_d${p}_name`).innerText = `0d${p}`;
@@ -430,6 +487,9 @@ const toolbox = {
 				let supertotal = parseInt(st.innerText.match(totalMatch)[0]) - total
 				st.innerText = `Supertotal: ${supertotal}`;
 			},
+			/** Deletes all rolls.
+			 * @returns {void} nothing
+			 */
 			deleteAll: function() {
 				for (const p of this.pips) {
 					document.getElementById(`dice_d${p}_numbers`).innerText = "";
@@ -491,8 +551,12 @@ const toolbox = {
 				this.deleteAll();
 			}
 		},
+		/**@constant {tool} */
 		hide: {
 			dontBlink: true,
+			/**@param {MouseEvent} evnt
+			 * @returns {void} nothing
+			 */
 			onMouseDown: function(evnt) {
 				const tk = tokenAt(tile(evnt.pageX), tile(evnt.pageY))
 
@@ -501,10 +565,12 @@ const toolbox = {
 			},
 			getCursor: function() { return "help" },
 		},
+		/**@constant {tool} */
 		settings: {
 			pinnable: true,
 			Denom: document.getElementById("setting_sqrt2_denom"),
 			Num: document.getElementById("setting_sqrt2_num"),
+			/** Sends the current settings to the server */
 			save: function() {
 				maphub.settings({ Sqrt2Denominator: parseInt(this.Denom.value), Sqrt2Numerator: parseInt(this.Num.value) })
 			},
@@ -513,14 +579,18 @@ const toolbox = {
 				this.Num.value = map.settings.Sqrt2Numerator
 			}
 		},
+		/**@constant {tool} */
 		spawnzone: {
 			dontBlink: true,
 			onSelect: function() {
 				layers.special.draw();
 			},
-			onMouseDown: function(evnt) {
+			onMouseDown: function() {
 				selection.current = selection.spawnzone;
 			},
+			/**@param {CanvasRenderingContext2D} ct
+			 * @returns {void} nothing
+			 */
 			draw: function(ct) {
 				if(map.spawn)
 				{
@@ -539,11 +609,16 @@ const toolbox = {
 			},
 			getCursor: function() { return "copy" },
 		},
+		/**@constant {tool} */
 		debug: {
 			pinnable: true,
+			/**@type {HTMLElement} */
 			save: initpls,
+			/**@type {HTMLElement} */
 			debug: initpls,
+			/**@type {HTMLElement} */
 			resync: initpls,
+			/**@type {HTMLElement} */
 			redraw: initpls,
 			onSave: function() {
 				maphub.connection.invoke("Save");
@@ -566,13 +641,28 @@ const toolbox = {
 				this.redraw.onclick = this.onRedraw;
 			}
 		},
+		/**@constant {tool} */
 		initiative: {
+			/**@typedef {HTMLElement & initEntryData_t} initEntry_t
+			 * @typedef {Object} initEntryData_t
+			 * @property {number} initCount	The initiative count for the entry
+			 * @property {token} token	The token
+			*/
+			
+			/**@type {HTMLElement} */
 			list: initpls,
+			/**@type {HTMLElement} */
 			mod: initpls,
+			/**@type {HTMLElement} */
 			nextbutton: initpls,
 			pinnable: true,
+			/**@type {initEntry_t?} */
 			cur: null,
+			/** Sorts the initiative list.
+			 * @returns {void} nothing
+			*/
 			sort: function() {
+				/**@type {initEntry_t[]} */
 				let ls = [];
 				
 				while(this.list.hasChildNodes())
@@ -588,6 +678,10 @@ const toolbox = {
 					this.list.appendChild(i);
 				}
 			},
+			/** Sets the current token
+			 * @param {initEntry_t} li 
+			 * @param {*} dontblink 
+			 */
 			setCur: function(li, dontblink) {
 				if(this.cur)
 					this.cur.style.fontWeight = "inherit"
@@ -602,14 +696,21 @@ const toolbox = {
 						maphub.blink(blinkKind.initiative, li.token.X, li.token.Y);
 				}
 			},
+			/** Advances to next token */
 			next: function() {
 				this.setCur(this.cur?.nextSibling ?? this.list.firstChild)
 			},
+			/** Called on update of initiative entry
+			 * @param {initEntry_t} li */
 			update: function(li) {
 				li.initCount = parseInt(li.lastChild.value);
 				this.sort();
 				li.lastChild.focus();
 			},
+			/** Adds a token to the initiative list
+			 * @param {token} tk The token
+			 * @param {number} count Its initiative count
+			 */
 			addLi: function(tk, count) {
 				const li = document.createElement("li");
 				li.token = tk;
@@ -641,6 +742,10 @@ const toolbox = {
 				li.appendChild(num);
 				this.list.appendChild(li);
 			},
+			/** Inserts a token, optionally rolling its initiative automatically.
+			 * @param {token} tk The token
+			 * @param {boolean} genIc Whether or not to roll its initiative
+			 */
 			insert: function(tk, genIc) {
 				for (const c of this.list.children) {
 					if(c.token === tk)
@@ -652,12 +757,16 @@ const toolbox = {
 				this.addLi(tk, count)
 				this.sort();
 			},
+			/** Handles clicks on list entries
+			 * @param {initEntry_t} li 
+			 * @param {MouseEvent} ev */
 			onClick: function(li, ev) {
 				if(ev.shiftKey) // Remove item
 					this.list.removeChild(li);
 				else
 					this.setCur(li);
 			},
+			/** @param {MouseEvent} evnt */
 			onMouseDown: function(evnt) {
 				const tk = tokenAt(tile(evnt.pageX), tile(evnt.pageY))
 
@@ -686,6 +795,9 @@ const toolbox = {
 					console.error("Failed loading initiative order from ", cookie.data.initiative, ex);
 				}
 			},
+			/** Loads cookie data at page load
+			 * @param {initEntry_t[]} obj The cookie's initiative field
+			 */
 			load: function(obj) {
 				const _tokens = map.tokens.map(JSON.stringify);
 
@@ -718,6 +830,7 @@ const toolbox = {
 
 				this.sort();
 			},
+			/** Stores cookie data, called before tab close. */
 			onStore: function() {
 				let data  = []
 
@@ -736,8 +849,7 @@ const toolbox = {
 		}
 	},
 	/** The currently selected tool
-	 * @type {tool}
-	 */
+	 * @type {tool} */
 	activeTool: null,
 	init: function(){
 		this.activeTool = this.tools.cursor
