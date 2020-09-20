@@ -1,7 +1,8 @@
 "use strict";
 
 /** An error-checking report for maphub functions. undefined indicates no error.
- * @typedef {?number|string|Object} checkReport
+ * @typedef {number|string|undefined|longCheckReport} checkReport
+ * @typedef longCheckReport
  * @property {string} msg	The error message shown in console
  * @property {number} field	The map fields affected in addition to the tool's modifies field
 */
@@ -13,6 +14,7 @@
  * @property {function=} checkSent Checks argument list before sending. Returns a {@link checkReport}
  * @property {function=} checkReceived Checks received argument list for incensistencies. Returns a {@link checkReport}
  * @property {function=} check Used as checkSent() and checkReceived(). Returns a {@link checkReport}
+ * @property {function=} onFail Called when the method fails via fail command.
  */
 
  /** Returns a {@link checkReport} with the size field set to 1.
@@ -38,9 +40,14 @@ const maphub =
 	/** @type {Object.<string,command>} */
 	commands: {
 		AddToken: {
+			/**@param {token} tk 
+			 * @returns {void} nothing
+			 */
 			receive: function(tk) {
 				map.tokens.push(tk)
 			},
+			/**@param {token} tk 
+			 * @returns {checkReport} */
 			check: function(tk) {
 				if(tk.Name == null || tk.Name.trim() == "")
 					return "Refusing add with illegal Name value"
@@ -54,10 +61,14 @@ const maphub =
 		},
 
 		AddEffect: {
+			/**@param {effect} e
+			 * @returns {void} nothing
+			 */
 			receive: function(e) {
-				//map.effects.push( { color: c, kind: k, start: { x: sx, y: sy }, end: { x: ex, y: ey } })
 				map.effects.push(e)
 			},
+			/**@param {effect} e
+			 * @returns {checkReport} */
 			check: function(e) {
 				if(shape.empty(e))
 					return "Refusing AddEffect with empty shape"
@@ -70,6 +81,12 @@ const maphub =
 
 		Blink: {
 			receive: mapInterface.blink,
+			/**
+			 * 
+			 * @param {number} kind The blink kind, as defined in blinkKind
+			 * @param {number} x	The tile or token's x 
+			 * @param {number} y	The tile or token's y
+			 * @returns {checkReport} */
 			check: function(kind,x,y){
 				if(outOfBounds(x,y))
 					return oob("Refusing blink out of bounds")
@@ -82,6 +99,9 @@ const maphub =
 		},
 
 		BlinkShape: {
+			/**@param {shape} s
+			 * @returns {void} nothing 
+			 */
 			receive: function(s) { 
 				mapInterface.blinkShape(s)
 			},
@@ -91,9 +111,17 @@ const maphub =
 		},
 
 		Color: {
+			/**@param {number} x The tile's x
+			 * @param {number} y The tile's y
+			 * @param {number} c The new color
+			 */
 			receive: function(x, y, c) {
 				map.colors[x][y] = c
 			},
+			/**@param {number} x The tile's x
+			 * @param {number} y The tile's y
+			 * @param {number} c The new color
+			 * @returns {checkReport} */
 			check: function(x, y, c){
 				if(outOfBounds(x,y))
 					return oob("Refusing color out of bounds")
@@ -104,6 +132,10 @@ const maphub =
 		},
 
 		Debug: {
+			/**@param {string} conn 
+			 * @param {string} ctxt 
+			 * @returns {void} nothing
+			 */
 			receive: function(conn, ctxt) {
 				console.log(JSON.parse(conn));
 				console.log(JSON.parse(ctxt));
@@ -118,6 +150,10 @@ const maphub =
 			modifies: 0,
 		},
 		SetImage: {
+			/**@param {token} token 
+			 * @param {string} imgid
+			 * @returns {void} nothing 
+			 */
 			receive: function(token, imgid) {
 				map.sprites[token] = imgid;
 				mapInterface.gotImage(token);
@@ -125,6 +161,9 @@ const maphub =
 			checkSent: function() {
 				return "SetImage isn't allowed from Client side!";
 			},
+			/**@param {token} token 
+			 * @param {string} imgid
+			 * @returns {checkReport} */
 			checkReceived: function(token, imgid) {
 				if(imgid === null && (typeof map.sprites[token] === "undefined" || map.sprites[token] === null))
 					return "Trying to remove nonexistant texture";
@@ -133,12 +172,23 @@ const maphub =
 		},
 
 		Move: {
+			/**@param {number} oldX 
+			 * @param {number} oldY 
+			 * @param {number} newX 
+			 * @param {number} newY
+			 * @returns {void} nothing 
+			 */
 			receive: function(oldX, oldY, newX, newY){
 				const tk = tokenAtExact(oldX, oldY);
 				
 				tk.X = newX
 				tk.Y = newY
 			},
+			/**@param {number} oldX 
+			 * @param {number} oldY 
+			 * @param {number} newX 
+			 * @param {number} newY
+			 * @returns {checkReport} */
 			checkSent: function(oldX, oldY, newX, newY){
 				if(oldX == newX && oldY == newY)
 					return "Refusing move without change"
@@ -157,6 +207,11 @@ const maphub =
 				if(outOfBounds(x, y, tk.Width, tk.Height))
 					return "Refusing move out of bounds"
 			},
+			/**@param {number} oldX 
+			 * @param {number} oldY 
+			 * @param {number} newX 
+			 * @param {number} newY
+			 * @returns {checkReport} */
 			checkReceived: function(oldX, oldY, newX, newY){
 				const tk = tokenAtExact(oldX, oldY);
 				
@@ -217,6 +272,9 @@ const maphub =
 		},
 
 		Remove: {
+			/**@param {number} x The token's x
+			 * @param {number} y The token's y	
+			 * @returns {void} nothing */
 			receive: function(x, y){
 				for (let i in map.tokens) {
 					const e = map.tokens[i];
@@ -228,10 +286,16 @@ const maphub =
 					}
 				}
 			},
+			/**@param {number} x The token's x
+			 * @param {number} y The token's y	
+			 * @returns {checkReport} */
 			checkReceived: function(x,y){
 				if(!tokenAtExact(x, y))
 					return mapFields.tokens;
 			},
+			/**@param {number} x The token's x
+			 * @param {number} y The token's y	
+			 * @returns {checkReport} */
 			checkSent: function(x,y) {
 				if(!tokenAt(x,y))
 					return "Refusing remove without token"
@@ -239,9 +303,13 @@ const maphub =
 			modifies: mapFields.tokens
 		},
 		RemoveAll: {
+			/**@param {shape} s	The shape
+			 * @returns {void} nothing */
 			receive: function(s){
 				map.tokens.removeAll(tk => shape.containsToken(s, tk))
 			},
+			/**@param {shape} s
+			 * @returns {checkReport} */
 			check: function(s) {
 				if(!map.tokens.some(tk => shape.containsToken(s, tk)))
 					return "Refusing removeAll without any tokens";
@@ -251,9 +319,14 @@ const maphub =
 		},
 
 		RemoveEffect: {
+			/**@param {shape} s 
+			 * @returns {void} nothing
+			 */
 			receive: function(s) {
 				map.effects.removeAll(e => shape.equal(s, e))
 			},
+			/**@param {shape} s 
+			 * @returns {checkReport} */
 			check: function(s) {
 				if(!map.effects.some(e => shape.equal(e,s)))
 					return "Refusing RemoveEffect without matching effect"
@@ -263,6 +336,9 @@ const maphub =
 		},
 
 		Resync: {
+			/**@param {number} field 
+			 * @param {string} data
+			 */
 			receive: function(field, data){
 				const d = JSON.parse(data);
 				console.log(d);
@@ -285,6 +361,8 @@ const maphub =
 				mapInterface.onMapUpdate(field);
 			},
 			checkReceived: function(field, data) {},
+			/**@param {number} field 
+			 */
 			checkSent: function(fields){
 				if(fields == 0)
 					return "Refusing Resync without fields";
@@ -295,9 +373,19 @@ const maphub =
 		},
 
 		Settings: {
+			/**@typedef {Object} settings
+			 * @property {number} Sqrt2Numerator
+			 * @property {number} Sqrt2Denominator
+			 */
+
+			/**@param {settings} o
+			 * @returns {void} nothing
+			 */
 			receive: function(o){
 				map.settings = o
 			},
+			/**@param {settings} o
+			 * @returns {checkReport} */
 			check: function(o){
 				if(o.Sqrt2Numerator < 1 || o.Sqrt2Denominator < 1)
 					return "Refusing settings with illegal values";
@@ -309,6 +397,12 @@ const maphub =
 		},
 
 		SetSize: {
+			/**@param {number} left 
+			 * @param {number} right 
+			 * @param {number} up 
+			 * @param {number} down 
+			 * @returns {void} nothing
+			 */
 			receive: function(left, right, up, down)
 			{
 				const w = map.width + left + right
@@ -351,6 +445,11 @@ const maphub =
 				map.height = h
 			},
 			checkReceived: function(){},
+			/**@param {number} left 
+			 * @param {number} right 
+			 * @param {number} up 
+			 * @param {number} down 
+			 * @returns {checkReport} */
 			checkSent: function(left,right,down,up,force) {
 				if(map.width + left + right == 0 || map.height + up + down == 0)
 					return "Refusing setsize that would make area 0";
@@ -359,9 +458,18 @@ const maphub =
 		},
 
 		SetHidden: {
+			/**@param {number} x 
+			 * @param {number} y 
+			 * @param {boolean} h 
+			 * @returns {void} nothing
+			 */
 			receive: function(x, y, h) {
 				tokenAt(x, y).Hidden = h
 			},
+			/**@param {number} x 
+			 * @param {number} y 
+			 * @param {boolean} h 
+			 * @returns {checkReport} */
 			check: function(x, y, h) {
 				if(tokenAt(x, y) === null)
 					return "Refusing SetHidden without token"
@@ -370,12 +478,23 @@ const maphub =
 		},
 
 		SetSpawnZone: {
+			/**@param {number} sx Start x 
+			 * @param {number} sy Start y
+			 * @param {number} ex End x
+			 * @param {number} ey End y
+			 * @returns {void} nothing
+			 */
 			receive: function(sx, sy, ex, ey) {
 				if(sx == sy && sy == ex && ex == ey && ey == -1)
 					map.spawn = null;
 				else
 					map.spawn = shape.new("mask", v(sx, sy), v(ex, ey));
 			},
+			/**@param {number} sx Start x 
+			 * @param {number} sy Start y
+			 * @param {number} ex End x
+			 * @param {number} ey End y
+			 * @returns {checkReport} */
 			check: function(sx, sy, ex, ey) {
 				if(sx == sy && sy == ex && ex == ey && ey == -1)
 				{
@@ -399,6 +518,10 @@ const maphub =
 		},
 
 		Fail: {
+			/**@param {string} method 
+			 * @param {string} reason 
+			 * @returns {void} nothing
+			 */
 			receive: function(method, reason) {
 				const cmd = maphub.commands[method]
 				console.error(`${method} failed because: ${reason}`);
@@ -443,6 +566,7 @@ const maphub =
 				try
 				{
 					const args = cmd.sendsObject ? Array.from(arguments).map(JSON.parse) : arguments
+					/** @type {checkReport} */
 					const ck = cmd.checkReceived ?  cmd.checkReceived(...args) : cmd.check(...args)
 					
 					switch(typeof ck)
@@ -472,6 +596,7 @@ const maphub =
 			})
 			
 			this[ccname] = function() {
+				/** @type {checkReport} */
 				const ck = cmd.checkSent ?  cmd.checkSent(...arguments) : cmd.check(...arguments)
 
 				switch(typeof ck)
