@@ -1499,6 +1499,8 @@ const contextmenu = {
 		this.visible = false;
 	},
 	onContextMenu: function(event) {
+		if(!isDM)
+			return;
 		if(this.visible)
 			this.hide();
 		else
