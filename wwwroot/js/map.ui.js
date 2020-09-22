@@ -1525,13 +1525,19 @@ const contextmenu = {
 			this.hide();
 	},
 	buttons: {
+		/**@param {token} tk */
 		delete: function(tk) { maphub.remove(tk.X, tk.Y); contextmenu.hide(); },
+		/**@param {token} tk */
 		clean: function(tk) { mapInterface.uploadImage(idName(tk), null) },
-		hide: function(tk) { maphub.setHidden(tk.X, tk.Y, !tk.Hidden) }
+		/**@param {token} tk */
+		hide: function(tk) { maphub.setHidden(tk.X, tk.Y, !tk.Hidden) },
+		/**@param {token} tk
+		 * @param {MouseEvent} ev */
+		initiative: function(tk, ev) { toolbox.tools.initiative.insert(tk, !ev.shiftKey); }
 	},
 	init: function() {
 		for (const b in this.buttons) {
-			document.getElementById(`contextmenu_${b}`).onclick = () => contextmenu.buttons[b](contextmenu.token);
+			document.getElementById(`contextmenu_${b}`).onclick = (ev) => contextmenu.buttons[b](contextmenu.token, ev);
 		}
 	}
 }
