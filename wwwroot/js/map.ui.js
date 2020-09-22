@@ -1507,6 +1507,18 @@ const contextmenu = {
 			/**@param {token} tk
 			 * @param {MouseEvent} ev */
 			initiative: function(tk, ev) { toolbox.tools.initiative.insert(tk, !ev.shiftKey); },
+		},
+		effect: {
+			/**@param {number} x 
+			 * @param {number} y */
+			condition: function(x, y) {
+				return map.effects.find(e => shape.containsPoint(e, x / cellSize, y / cellSize));
+			},
+			onMapUpdate: function() { if(map.effects.indexOf(contextmenu.data) == -1) contextmenu.hide() },
+			updateMask: mapFields.effects,
+
+			/**@param {effect} e */
+			delete: function(e) { maphub.removeEffect(e); contextmenu.hide(); },
 		}
 	},
 	data: null,
