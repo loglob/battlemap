@@ -1490,14 +1490,35 @@ const selection = {
 
 // Handles the right click menu
 const contextmenu = {
-	window: document.getElementById("contextmenu"),
-	token: null,
-	visible: false,
+	menus: {
+		token: {
+			/**@param {number} x 
+			 * @param {number} y */
+			condition: function(x, y) { return tokenAt(...vx(tile(v(x,y)))) },
+			onMapUpdate: function() { if(map.tokens.indexOf(contextmenu.data) == -1) contextmenu.hide() },
+			updateMask: mapFields.tokens,
+
+			/**@param {token} tk */
+			delete: function(tk) { maphub.remove(tk.X, tk.Y); contextmenu.hide(); },
+			/**@param {token} tk */
+			clean: function(tk) { mapInterface.uploadImage(idName(tk), null) },
+			/**@param {token} tk */
+			hide: function(tk) { maphub.setHidden(tk.X, tk.Y, !tk.Hidden) },
+			/**@param {token} tk
+			 * @param {MouseEvent} ev */
+			initiative: function(tk, ev) { toolbox.tools.initiative.insert(tk, !ev.shiftKey); },
+		}
+	},
+	data: null,
+	visible: null,
+	hook: { mask: 0, callback: function(){ if(contextmenu.visible?.onMapUpdate) contextmenu.visible.onMapUpdate(); } },
 	hide: function() {
 		// Can't use .hide() because we still need the width & height
-		this.window.style.visibility = "hidden";
-		this.visible = false;
+		this.visible.window.style.visibility = "hidden";
+		this.hook.mask = 0;
+		this.visible = null;
 	},
+	/**@param {MouseEvent} event */
 	onContextMenu: function(event) {
 		if(!isDM)
 			return;
@@ -1505,40 +1526,56 @@ const contextmenu = {
 			this.hide();
 		else
 		{
-			this.token = tokenAt(...vx(tile({ x: event.offsetX, y: event.offsetY })));
+			var menu;
 
-			if(this.token === null)
+			for (const mn in this.menus) {
+				const m = this.menus[mn];
+
+				if(this.data = m.condition(event.offsetX, event.offsetY))
+				{
+					menu = m;
+					break;
+				}
+			}
+
+			if(!menu)
 				return;
 
+			/**@type {HTMLElement} */
+			const win = menu.window;
+
+			//this.token = tokenAt(...vx(tile({ x: , y: event.offsetY })));
 			const view = document.getElementsByTagName("html")[0].getBoundingClientRect()
-			const w = this.window.offsetWidth;
-			const h = this.window.offsetHeight;
+			const w = win.offsetWidth;
+			const h = win.offsetHeight;
 			
-			this.visible = true;
-			this.window.style.left = `${(event.offsetX + view.left + w >= view.width) ? event.offsetX - w : event.offsetX}px`;
-			this.window.style.top = `${(event.offsetY > h) ? event.offsetY - h : event.offsetY}px`;
-			this.window.style.visibility = "visible";
+			this.visible = menu;
+			this.hook.mask = menu.updateMask ?? 0;
+			win.style.left = `${(event.offsetX + view.left + w >= view.width) ? event.offsetX - w : event.offsetX}px`;
+			win.style.top = `${(event.offsetY > h) ? event.offsetY - h : event.offsetY}px`;
+			win.style.visibility = "visible";
 		}
 	},
-	onMapUpdate: function() {
-		if(this.visible && map.tokens.indexOf(this.token) == -1)
-			this.hide();
-	},
-	buttons: {
-		/**@param {token} tk */
-		delete: function(tk) { maphub.remove(tk.X, tk.Y); contextmenu.hide(); },
-		/**@param {token} tk */
-		clean: function(tk) { mapInterface.uploadImage(idName(tk), null) },
-		/**@param {token} tk */
-		hide: function(tk) { maphub.setHidden(tk.X, tk.Y, !tk.Hidden) },
-		/**@param {token} tk
-		 * @param {MouseEvent} ev */
-		initiative: function(tk, ev) { toolbox.tools.initiative.insert(tk, !ev.shiftKey); }
+	onMapUpdate: function(flags) {
+		if(this.visible?.onMapUpdate)
+			this.visible.onMapUpdate(flags);
 	},
 	init: function() {
-		for (const b in this.buttons) {
-			document.getElementById(`contextmenu_${b}`).onclick = (ev) => contextmenu.buttons[b](contextmenu.token, ev);
+		for (const menuname in this.menus)
+		{
+			const menu = this.menus[menuname];
+
+			for (const button in menu)
+			{
+				if(button !== "condition" && button !== "onMapUpdate" && button != "updateMask")
+					document.getElementById(`${menuname}menu_${button}`).onclick =
+						function(ev) { menu[button](contextmenu.data, ev); }
+			}
+
+			menu.window = document.getElementById(`${menuname}menu`);
 		}
+
+		mapUpdateHooks.push(this.hook);
 	}
 }
 
@@ -1832,8 +1869,7 @@ const handlers = {
 const mapUpdateHooks = [
 	{ mask: mapFields.spawn, callback: function() { if(toolbox.activeTool === toolbox.tools.spawnzone) layers.special.draw() } },
 	{ mask: mapFields.settings, callback: () => toolbox.tools.settings.update() },
-	{ mask: mapFields.effects, callback: () => effects.onEffectUpdate() },
-	{ mask: mapFields.tokens, callback: () => contextmenu.onMapUpdate() }
+	{ mask: mapFields.effects, callback: () => effects.onEffectUpdate() }
 ]
 
 /* Handles outside interaction with the UI */
@@ -1864,7 +1900,7 @@ const uiInterface = {
 		for (const hook of mapUpdateHooks) {
 			try
 			{
-				if((hook.mask & fieldIds) === hook.mask)
+				if(hook.mask & fieldIds)
 					hook.callback(fieldIds);
 			}
 			catch(ex)
