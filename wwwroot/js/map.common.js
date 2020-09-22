@@ -215,14 +215,14 @@ const shape = {
 			y += 0.5;
 			const p = vadd(s.start, 0.5)
 			const q = vadd(s.end, 0.5)
-			const v = vsub(s.end, s.start);
+			const ve = vsub(s.end, s.start);
 			
-			const d = (v.y * x - v.x * y + q.x * p.y - q.y * p.x) / vlen(v);
+			const d = (ve.y * x - ve.x * y + q.x * p.y - q.y * p.x) / vlen(ve);
 
 			if(d > 0.5 || d < -0.5)
 				return false;
 
-			const l = vdiv(vsub(vsub(v(x,y), vmul(orth(v), d)), p), v)
+			const l = vdiv(vsub(vsub(v(x,y), vmul(orth(ve), d)), p), ve)
 
 			return l > 0 && l <= 1;
 		},
