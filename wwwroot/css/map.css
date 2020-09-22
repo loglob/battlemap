@@ -32,26 +32,10 @@
 	max-width:	3vmax;
 	min-height:	3vmax;
 	max-height:	3vmax;
-	padding: 0;
 	font-size: 2vmax;
 	text-align: center;
-	align-content: center;
-	align-items: center;
 	
-	background: none;
-	border: none;
-	outline: none;
 	color: var(--fg-bright);
-}
-
-#toolbox button span
-{
-	display: block;
-	font-size: 100%;
-	text-align: center;
-	line-height: 1vmax;
-	align-content: center;
-	align-items: center;
 }
 
 .window

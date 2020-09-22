@@ -17,24 +17,24 @@
 }
 
 <div id="toolbox" class="fixed tr">
-	<button id="cursor_button"><span>🖰</span></button>
+	<button id="cursor_button" class="bare">🖰</button>
 @if(ViewBag.LoadDmTools)
 {
-	<button id="addtoken_button"><span>+</span></button>
-	<button id="removetoken_button"><span>–</span></button>
-	<button id="tileedit_button"><span>🖌</span></button>
-	<button id="resize_button"><span>🗺️</span></button>
-	<button id="effects_button"><span>🔥</span></button>
-	<button id="hide_button"><span>👁️</span></button>
-	<button id="spawnzone_button"><span>🏥</span></button>
-	<button id="initiative_button"><span>⏱️</span></button>
-	<button id="settings_button"><span>⚙️</span></button>
+	<button id="addtoken_button" class="bare">+</button>
+	<button id="removetoken_button" class="bare">–</button>
+	<button id="tileedit_button" class="bare">🖌</button>
+	<button id="resize_button" class="bare">🗺️</button>
+	<button id="effects_button" class="bare">🔥</button>
+	<button id="hide_button" class="bare">👁️</button>
+	<button id="spawnzone_button" class="bare">🏥</button>
+	<button id="initiative_button" class="bare">⏱️</button>
+	<button id="settings_button" class="bare">⚙️</button>
 }
-	<button id="shapes_button"><span>⬡</span></button>
-	<button id="dice_button"><span>🎲</span></button>
+	<button id="shapes_button" class="bare">⬡</button>
+	<button id="dice_button" class="bare">🎲</button>
 
 @if(ViewBag.LoadDevTools) {
-	<button id="debug_button"><span>💻</span></button>
+	<button id="debug_button" class="bare">💻</button>
 }
 </div>
 
@@ -81,7 +81,6 @@
 	</div>
 
 	<div id="effects_window" class="ralign hidden fixed br window">
-		<div>Foo <a>👁️</a> <a>🗑️</a></div>
 	</div>
 
 	<div id="initiative_window" class="malign hidden fixed br window">
