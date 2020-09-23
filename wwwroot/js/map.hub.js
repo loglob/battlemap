@@ -143,12 +143,7 @@ const maphub =
 			check: function() { },
 			modified: 0,
 		},
-
-		GotImage: {
-			receive: mapInterface.gotImage,
-			check: function(img){},
-			modifies: 0,
-		},
+		
 		SetImage: {
 			/**@param {token} token 
 			 * @param {string} imgid
