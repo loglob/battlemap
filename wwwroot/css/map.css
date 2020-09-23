@@ -140,7 +140,7 @@
 	text-align: left;
 }
 
-.fixed *
+.fixed *, .menu *
 {
 	font-size: 100%;
 }
@@ -171,7 +171,10 @@
 	height: 1em;
 }
 
-#contextmenu {
+.menu {
 	background-color: var(--bg-light);
-	position: absolute;
+	position: absolute !important;
+	overflow: hidden;
+	white-space: nowrap;
+	margin: 0;
 }
