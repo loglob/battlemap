@@ -1519,6 +1519,10 @@ const contextmenu = {
 
 			/**@param {effect} e */
 			delete: function(e) { maphub.removeEffect(e); contextmenu.hide(); },
+			/**@param {effect} e */
+			destroy: function(e) { maphub.removeAll(e); },
+			/**@param {effect} e */
+			blink: function(e) { maphub.blinkShape(e); },
 		}
 	},
 	data: null,
