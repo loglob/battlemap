@@ -1031,7 +1031,9 @@ const rulerDisplay = {
 const selection = {
 	current: null,
 	last: null,
-	// copy of mousepos at time of creation
+	/** copy of mousepos at time of creation.
+	 * @type {vec2}	In screen coordinates
+	*/
 	pos: null,
 	getShape: function() {
 		return this.mask.rect ?? this.circle.circ ?? this.select.shape ?? this.shape.shape;
@@ -1039,8 +1041,12 @@ const selection = {
 	token: {
 		hasRuler: true,
 		token: null,
+		/** A canvas holding a copy of the token
+		 * @type {HTMLCanvasElement}
+		 */
 		tkCanvas: null,
 		offset: { x: 0, y: 0 },
+		/**@param {CanvasRenderingContext2D} ctx */
 		draw: function(ctx) {
 			/*ctx.clearRect(
 				oldmousepos.x + this.offset.x, oldmousepos.y + this.offset.y,
@@ -1073,7 +1079,8 @@ const selection = {
 			this.tkCanvas = c;
 		},
 		onDrop: function(x,y) {
-			maphub.move(tile(selection.pos.x), tile(selection.pos.y), tile(x), tile(y))
+			const p0 = tile(selection.pos)
+			maphub.moveAll(shape.point(p0), vsub(tile(v(x,y)), p0))
 			this.tkCanvas = null;
 		},
 		getCursor: function() {

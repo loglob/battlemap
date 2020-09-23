@@ -201,34 +201,7 @@ namespace battlemap.Hubs
 			await Clients.Caller.SendAsync("Debug", ConnectionInfo.GetDebugInfo(this.Context), Context.ConnectionId.ToJson());
 		}
 		#endif
-		public async Task Move(int xFrom, int yFrom, int xTo, int yTo)
-		{
-			var t = Info.Map.TokenAt(xFrom, yFrom);
-
-			if(t == null)
-				await fail("No token given");
-			else
-			{
-				/* translate coordinates for larger than (1,1) Tokens
-					where (xFrom, yFrom) may no be equal to the token position*/
-				(int x, int y) to = (xTo - (xFrom - t.X), yTo - (yFrom - t.Y));
-
-				if(to.x == t.X && to.y == t.Y)
-					await fail("No movement");
-				else if(Info.Map.Outside(to, t.Size))
-					await fail("Out of bounds");
-				else if(Info.Map.TokensAt(to, t.Size).Any(tok => tok != t))
-					await fail("Token would collide");
-				else
-				{
-					State.Invalidated = true;
-					await Clients.Group(GroupId).SendAsync("Move", t.X, t.Y, to.x, to.y);
-					t.Position = to;
-				}
-
-			}
-		}
-
+		
 		public async Task MoveAll(string shapeJson, string offsetJson)
 		{
 			var shape = shapeJson.FromJson<Shape>();

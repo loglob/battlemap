@@ -166,57 +166,6 @@ const maphub =
 			modifies: mapFields.sprites
 		},
 
-		Move: {
-			/**@param {number} oldX 
-			 * @param {number} oldY 
-			 * @param {number} newX 
-			 * @param {number} newY
-			 * @returns {void} nothing 
-			 */
-			receive: function(oldX, oldY, newX, newY){
-				const tk = tokenAtExact(oldX, oldY);
-				
-				tk.X = newX
-				tk.Y = newY
-			},
-			/**@param {number} oldX 
-			 * @param {number} oldY 
-			 * @param {number} newX 
-			 * @param {number} newY
-			 * @returns {checkReport} */
-			checkSent: function(oldX, oldY, newX, newY){
-				if(oldX == newX && oldY == newY)
-					return "Refusing move without change"
-
-				const tk = tokenAt(oldX, oldY);
-				const x = newX - (oldX - tk.X)
-				const y = newY - (oldY - tk.Y)
-
-				if(tk == null)
-					return "Refusing move without token"
-				
-				const cols = tokensAt(x, y, tk.Width, tk.Height);
-
-				if(cols.length > 1 || (cols.length == 1 && cols[0] !== tk))
-					return "Refusing move that would collide"
-				if(outOfBounds(x, y, tk.Width, tk.Height))
-					return "Refusing move out of bounds"
-			},
-			/**@param {number} oldX 
-			 * @param {number} oldY 
-			 * @param {number} newX 
-			 * @param {number} newY
-			 * @returns {checkReport} */
-			checkReceived: function(oldX, oldY, newX, newY){
-				const tk = tokenAtExact(oldX, oldY);
-				
-				if(!tk || wouldCollide(tk, newX, newY))
-					return 0
-				if(outOfBounds(newX, newY, tk.Width, tk.Height))
-					return mapFields.size
-			},
-			modifies: mapFields.tokens
-		},
 		MoveAll: {
 			/**@param {shape} s		The shape
 			 * @param {vec2} off	Move offset
