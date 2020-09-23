@@ -289,20 +289,6 @@ namespace battlemap.Hubs
 			await Clients.Group(GroupId).SendAsync("MoveAll", shape.ToJson(), _offset.ToJson());
 		}
 
-		public async Task Remove(int x, int y)
-		{
-			var t = Info.Map.TokenAt(x,y);
-			
-			if(t != null)
-			{
-				State.Invalidated = true;
-				Info.Map.Tokens.Remove(t);
-				await Clients.Group(GroupId).SendAsync("Remove", t.X, t.Y);	
-			}
-			else
-				await fail("No token given");
-		}
-
 		public async Task RemoveAll(string shapeJson)
 		{
 			var shape = shapeJson.FromJson<Shape>();

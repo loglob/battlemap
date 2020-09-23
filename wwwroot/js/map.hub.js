@@ -266,37 +266,6 @@ const maphub =
 			modifies: mapFields.tokens
 		},
 
-		Remove: {
-			/**@param {number} x The token's x
-			 * @param {number} y The token's y	
-			 * @returns {void} nothing */
-			receive: function(x, y){
-				for (let i in map.tokens) {
-					const e = map.tokens[i];
-				
-					if(e.X == x && e.Y == y)
-					{
-						map.tokens.splice(i, 1)
-						return;
-					}
-				}
-			},
-			/**@param {number} x The token's x
-			 * @param {number} y The token's y	
-			 * @returns {checkReport} */
-			checkReceived: function(x,y){
-				if(!tokenAtExact(x, y))
-					return mapFields.tokens;
-			},
-			/**@param {number} x The token's x
-			 * @param {number} y The token's y	
-			 * @returns {checkReport} */
-			checkSent: function(x,y) {
-				if(!tokenAt(x,y))
-					return "Refusing remove without token"
-			},
-			modifies: mapFields.tokens
-		},
 		RemoveAll: {
 			/**@param {shape} s	The shape
 			 * @returns {void} nothing */

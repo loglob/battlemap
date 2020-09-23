@@ -186,10 +186,7 @@ const toolbox = {
 						mapInterface.uploadImage(idName(tk), null);
 				}
 				else
-					maphub.remove(tile(evnt.pageX), tile(evnt.pageY))
-
-//				if(!evnt.shiftKey)
-//					toolbox.tools.cursor.button.click();
+					maphub.removeAll(shape.point(tile(v(evnt.pageX, evnt.pageY))))
 			},
 			getCursor: function() {
 				return "crosshair";
@@ -1499,7 +1496,7 @@ const contextmenu = {
 			updateMask: mapFields.tokens,
 
 			/**@param {token} tk */
-			delete: function(tk) { maphub.remove(tk.X, tk.Y); contextmenu.hide(); },
+			delete: function(tk) { maphub.removeAll(shape.point(tk.X, tk.Y)); contextmenu.hide(); },
 			/**@param {token} tk */
 			clean: function(tk) { mapInterface.uploadImage(idName(tk), null) },
 			/**@param {token} tk */

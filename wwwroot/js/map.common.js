@@ -301,6 +301,17 @@ const shape = {
 		}
 	},
 
+	/** Creates a shape that contains only the given point or vector
+	 * @param {number|vec2} x 
+	 * @param {number=} y
+	 * @returns {shape}
+	 */
+	point: function(x,y) {
+		if(typeof x === "number")
+			x = v(x,y);
+		
+		return this.new("mask", x, x);
+	},
 	/** Determines if two shapes are equal
 	 * @param {shape} a
 	 * @param {shape} b
