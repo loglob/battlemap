@@ -558,7 +558,7 @@ const toolbox = {
 				const tk = tokenAt(tile(evnt.pageX), tile(evnt.pageY))
 
 				if(tk)
-					maphub.setHidden(tk.X, tk.Y, !tk.Hidden);
+					maphub.modifyTokens(shape.point(tk.X, tk.Y), { hidden: !tk.Hidden });
 			},
 			getCursor: function() { return "help" },
 		},
@@ -1080,7 +1080,7 @@ const selection = {
 		},
 		onDrop: function(x,y) {
 			const p0 = tile(selection.pos)
-			maphub.moveAll(shape.point(p0), vsub(tile(v(x,y)), p0))
+			maphub.modifyTokens(shape.point(p0), { move:vsub(tile(v(x,y)), p0) })
 			this.tkCanvas = null;
 		},
 		getCursor: function() {
@@ -1157,8 +1157,7 @@ const selection = {
 		onDrop: function(x,y) {
 			if(this.rect != null)
 			{
-				const off =  vsub(tile(mousepos), tile(selection.pos))
-				maphub.moveAll(this.rect, off);
+				maphub.modifyTokens(this.rect, { move: vsub(tile(mousepos), tile(selection.pos)) });
 				this.reset();
 			}
 			else if(selection.pos.x != mousepos.x || selection.pos.y != mousepos.y)
@@ -1254,7 +1253,7 @@ const selection = {
 			if(this.circ != null)
 			{
 				const off =  vsub(tile(mousepos), tile(selection.pos))
-				maphub.moveAll(this.circ, off);
+				maphub.modifyTokens(this.circ, { move: off });
 
 				this.reset();
 			}
@@ -1368,7 +1367,7 @@ const selection = {
 			if(this.shape)
 			{
 				const off =  vsub(tile(mousepos), tile(selection.pos))
-				maphub.moveAll(this.shape, off);
+				maphub.modifyTokens(this.shape, { move: off });
 				this.reset();
 			}
 			else if(selection.pos.x != mousepos.x || selection.pos.y != mousepos.y)
@@ -1459,7 +1458,7 @@ const selection = {
 			if(this.shape)
 			{
 				const off =  vsub(tile(mousepos), tile(selection.pos))
-				maphub.moveAll(this.shape, off);
+				maphub.modifyTokens(this.shape, { move: off });
 				this.reset();
 			}
 			else if(selection.pos.x != mousepos.x || selection.pos.y != mousepos.y)
@@ -1507,7 +1506,7 @@ const contextmenu = {
 			/**@param {token} tk */
 			clean: function(tk) { mapInterface.uploadImage(idName(tk), null) },
 			/**@param {token} tk */
-			hide: function(tk) { maphub.setHidden(tk.X, tk.Y, !tk.Hidden) },
+			hide: function(tk) { maphub.modifyTokens(shape.point(tk.X, tk.Y), { hidden: !tk.Hidden }) },
 			/**@param {token} tk
 			 * @param {MouseEvent} ev */
 			initiative: function(tk, ev) { toolbox.tools.initiative.insert(tk, !ev.shiftKey); },

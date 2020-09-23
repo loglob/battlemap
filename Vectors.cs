@@ -33,6 +33,10 @@ namespace battlemap
 			
 		public static (double a, double b) Add(this (double a, double b) v, (double a, double b) u)
 			=> (v.a + u.a, v.b + u.b);
+
+		public static ((int x, int y) pos, (int w, int h)siz) Add(this ((int x, int y) pos, (int w, int h)siz) rect,
+			(int x, int y) dpos)
+			=> (rect.pos.Add(dpos), rect.siz);
 #endregion
 
 #region Sub() overloads
@@ -144,6 +148,7 @@ namespace battlemap
 		public static double Length(this (int a, int b) v)
 			=> Math.Sqrt(v.a * v.a + v.b * v.b);
 #endregion
+
 
 		public static ((int x, int y) min, (int x, int y) max) Bounds((int x, int y) first, params (int x, int y)[] other)
 		{

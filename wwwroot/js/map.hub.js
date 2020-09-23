@@ -166,53 +166,62 @@ const maphub =
 			modifies: mapFields.sprites
 		},
 
-		MoveAll: {
+		ModifyTokens: {
+
 			/**@param {shape} s		The shape
-			 * @param {vec2} off	Move offset
+			 * @param {{ move: vec2?, hidden: bool? }} delta Token Change
 			 * @returns {void} nothing
 			 */
-			receive: function(s, off) {
+			receive: function(s, delta) {
 				for (let tk of map.tokens) {
 					if(shape.containsToken(s, tk))
 					{
-						tk.X += off.x
-						tk.Y += off.y
+						if(delta.move)
+						{
+							tk.X += delta.move.x
+							tk.Y += delta.move.y
+						}
+						if(typeof delta.hidden === "boolean")
+							tk.Hidden = delta.hidden;
 					}
 				}
 			},
 			/**@param {shape} s		The shape
-			 * @param {vec2} off	Move offset
-			 * @returns {checkReport}
+			 * @param {{ move: vec2?, hidden: bool? }} delta Token Change
+			 * @returns {void} nothing
 			 */
-			check: function(s, off) {
-				if(off.x === 0 && off.y === 0)
-					return "Refusing moveall without change";
+			check: function(s, delta) {
+				if((!delta.move || (!delta.move.x && !delta.move.y)) && typeof delta.hidden !== "boolean")
+					return "Refusing modifyTokens without change";
 				
-				let moved = 0
+				if(delta.move)
+				{
+					let moved = 0
 
-				for (let tk of map.tokens) {
-					if(shape.containsToken(s, tk))
-					{
-						moved++
-						const nX = tk.X + off.x
-						const nY = tk.Y + off.y
-					
-						if(outOfBounds(nX, nY, tk.Width, tk.Height))
-							return oob(`Refusing moveall that would put ${flatName(tk)} out of bounds`);
-						
-						for (const t of map.tokens)
+					for (let tk of map.tokens) {
+						if(shape.containsToken(s, tk))
 						{
-							if(tokenIn(t, nX, nY, tk.Width, tk.Height) && !shape.containsToken(s, t))
-								return `Refusing moveall that would make ${flatName(tk)} collide with ${flatName(t)}`;
+							moved++
+							const np = vadd(v(tk.X, tk.Y), delta.move)
+						
+							if(outOfBounds(np.x, np.y, tk.Width, tk.Height))
+								return oob(`Refusing modifyTokens that would put ${flatName(tk)} out of bounds`);
+							
+							for (const t of map.tokens)
+							{
+								if(tokenIn(t, np.x, np.y, tk.Width, tk.Height) && !shape.containsToken(s, t))
+									return `Refusing modifyTokens that would make ${flatName(tk)} collide with ${flatName(t)}`;
+							}
 						}
 					}
-				}
 
-				if(moved == 0)
-					return "Refusing moveall without any tokens"
+					if(moved == 0)
+						return "Refusing modifyTokens without any tokens"
+				}
 			},
 			sendsObject: true,
 			modifies: mapFields.tokens
+
 		},
 
 		RemoveAll: {
@@ -370,26 +379,6 @@ const maphub =
 			modifies: mapFields.size,
 		},
 
-		SetHidden: {
-			/**@param {number} x 
-			 * @param {number} y 
-			 * @param {boolean} h 
-			 * @returns {void} nothing
-			 */
-			receive: function(x, y, h) {
-				tokenAt(x, y).Hidden = h
-			},
-			/**@param {number} x 
-			 * @param {number} y 
-			 * @param {boolean} h 
-			 * @returns {checkReport} */
-			check: function(x, y, h) {
-				if(tokenAt(x, y) === null)
-					return "Refusing SetHidden without token"
-			},
-			modifies: mapFields.tokens
-		},
-
 		SetSpawnZone: {
 			/**@param {number} sx Start x 
 			 * @param {number} sy Start y
@@ -536,8 +525,8 @@ const maphub =
 					break;
 				}
 
-				if(command.startsWith("Move"))
-					mapInterface.onMapUpdate(mapFields.tokens);
+				//if(command.startsWith("Move"))
+				//	mapInterface.onMapUpdate(mapFields.tokens);
 			}
 		}
 

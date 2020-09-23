@@ -202,12 +202,12 @@ namespace battlemap.Hubs
 		}
 		#endif
 		
-		public async Task MoveAll(string shapeJson, string offsetJson)
+		public async Task ModifyTokens(string shapeJson, string deltaJson)
 		{
 			var shape = shapeJson.FromJson<Shape>();
-			var _offset = offsetJson.FromJsonAnonymous(new { x = 0, y = 0 });
+			var delta = deltaJson.FromJson<TokenDelta>();
 
-			if(shape is null || _offset is null)
+			if(shape is null || delta is null)
 			{
 				await fail("Invalid JSON");
 				return;
@@ -217,12 +217,9 @@ namespace battlemap.Hubs
 				await fail("Invalid shape name");
 				return;
 			}
-
-			(int x, int y) offset = (_offset.x, _offset.y);
-
-			if(offset == (0,0))
+			if(delta.IsEmpty)
 			{
-				await fail("No movement");
+				await fail("No difference");
 				return;
 			}
 			if(shape.Empty)
@@ -230,7 +227,7 @@ namespace battlemap.Hubs
 				await fail("Empty shape");
 				return;
 			}
-			
+
 			var tokens = Info.Map.Tokens.Where(shape.Contains);
 
 			if(!tokens.Any())
@@ -239,27 +236,30 @@ namespace battlemap.Hubs
 				return;
 			}
 
-			foreach (var tk in tokens)
+			if(delta.move != null)
 			{
-				(int x, int y) to = tk.Position.Add(offset);
+				foreach (var tk in tokens)
+				{
+					var hb = tk.Hitbox.Add(delta.move);
 
-				if(Info.Map.Outside(to, tk.Size))
-				{
-					await fail("Out of bounds");
-					return;
-				}
-				if(Info.Map.Tokens.Any(t => t.Hitbox.Intersects(to, tk.Size) && !shape.Contains(t)))
-				{
-					await fail("Tokens would collide");
-					return;
+					if(Info.Map.Outside(hb))
+					{
+						await fail("Out of bounds");
+						return;
+					}
+					if(Info.Map.Tokens.Any(t => t.Hitbox.Intersects(hb) && !shape.Contains(t)))
+					{
+						await fail("Tokens would collide");
+						return;
+					}
 				}
 			}
-
+		
 			foreach (var tk in tokens)
-				tk.Position = tk.Position.Add(offset);
-			
+				delta.Apply(tk);
+
 			State.Invalidated = true;
-			await Clients.Group(GroupId).SendAsync("MoveAll", shape.ToJson(), _offset.ToJson());
+			await Clients.Group(GroupId).SendAsync("ModifyTokens", shape.ToJson(), delta.ToJson());
 		}
 
 		public async Task RemoveAll(string shapeJson)
@@ -311,20 +311,6 @@ namespace battlemap.Hubs
 
 				State.Invalidated = true;
 				await Clients.Group(GroupId).SendAsync("RemoveSprite", img);
-			}
-		}
-		
-		public async Task SetHidden(int x, int y, bool hidden)
-		{
-			var tk = Info.Map.TokenAt(x, y);
-
-			if(tk == null)
-				await fail("No token given");
-			else
-			{
-				tk.Hidden = hidden;
-				State.Invalidated = true;
-				await Clients.All.SendAsync("SetHidden", x, y, hidden);
 			}
 		}
 
