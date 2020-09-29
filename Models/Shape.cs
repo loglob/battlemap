@@ -8,32 +8,15 @@ using battlemap.Util;
 
 namespace battlemap.Models
 {
-	public struct Point
-	{
-		[JsonProperty("x")]
-		public int X;
-
-		[JsonProperty("y")]
-		public int Y;
-
-		public Point(int x, int y)
-		{
-			this.X = x;
-			this.Y = y;
-		}
-	}
-
-	#pragma warning disable CS0660
-	#pragma warning disable CS0661
 	// Doesn't use polymorphism because it'd need a custom JSON parser function
 	public class Shape
 	{
 #region Fields
 		[JsonProperty("start")]
-		public Point StartPoint;
+		public Vec2<int> Start;
 		
 		[JsonProperty("end")]
-		public Point EndPoint;
+		public Vec2<int> End;
 
 		[JsonConverter(typeof(StringEnumConverter), true)]
 		[JsonProperty("kind")]
@@ -42,32 +25,12 @@ namespace battlemap.Models
 
 #region Properties
 		[JsonIgnore]
-		public (int x, int y) Start
-		{
-			get
-				=> (StartPoint.X, StartPoint.Y);
-
-			set
-				=> StartPoint = new Point(value.x, value.y);
-		}
-
-		[JsonIgnore]
-		public (int x, int y) End
-		{
-			get
-				=> (EndPoint.X, EndPoint.Y);
-
-			set
-				=> EndPoint = new Point(value.x, value.y);
-		}
-
-		[JsonIgnore]
 		public bool Empty
 			=> this.Kind != ShapeKind.Mask && Start == End;
 
 		[JsonIgnore]
 		private (int x, int y) diff
-			=> End.Sub(Start);
+			=> End.Tuple.Sub(Start);
 
 		[JsonIgnore]
 		public ((int x, int y) min, (int x, int y) max)? Bounds
@@ -96,8 +59,8 @@ namespace battlemap.Models
 		private bool circleContains(int x, int y)
 		{
 			var r = Math.Floor(diff.Length());
-			Console.WriteLine($"({x}, {y}) r = {r}, c = ({Start.x}, {Start.y})");
-			return r * r >= Math.Pow(x + 0.5 - Start.x, 2) + Math.Pow(y + 0.5 - Start.y, 2);
+			return r * r >= (x,y).Add(0.5).Sub(Start).SquaredLength();
+			//return r * r >= Math.Pow(x + 0.5 - Start.x, 2) + Math.Pow(y + 0.5 - Start.y, 2);
 		}
 
 		private bool circleContains(int x, int y, int w, int h)
@@ -110,15 +73,14 @@ namespace battlemap.Models
 			double x = _x + 0.5;
 			double y = _y + 0.5;
 
-			(double x, double y) a1 = Start.Add(0.5);
+			(double x, double y) a1 = Start.Tuple.Add(0.5);
 			
-			var end = End.Add(0.5);
-			var v = a1.Sub(end);
+			var end = End.Tuple.Add(0.5);
 
-			if(v.a == 0 && v.b == 0)
+			if(diff == (0,0))
 				return false;
 
-			var ov = v.Orth().Norm().Mul(v.Length() / 2);
+			var ov = diff.Orth().Norm().Mul(diff.Length() / 2);
 
 			(double x, double y) a2 = end.Add(ov);
 			(double x, double y) a3 = end.Sub(ov);
@@ -159,8 +121,8 @@ namespace battlemap.Models
 			double x = _x + 0.5;
 			double y = _y + 0.5;
 
-			(double x, double y) p = Start.Add(0.5),
-								 q = End.Add(0.5);
+			(double x, double y) p = Start.Tuple.Add(0.5),
+								 q = End.Tuple.Add(0.5);
 
 			var vl = diff.Length();
 			var d = (diff.y * x - diff.x * y + q.x * p.y - q.y * p.x) / vl;
@@ -185,8 +147,8 @@ namespace battlemap.Models
 			double x = _x + 0.5;
 			double y = _y + 0.5;
 
-			(double x, double y) p = Start.Add(0.5),
-								 q = End.Add(0.5);
+			(double x, double y) p = Start.Tuple.Add(0.5),
+								 q = End.Tuple.Add(0.5);
 
 			var vl = diff.Length();
 			var d = (diff.y * x - diff.x * y + q.x * p.y - q.y * p.x) / (vl * vl);
@@ -270,7 +232,20 @@ namespace battlemap.Models
 
 		public bool Contains(Token tk)
 			=> Contains(tk.Hitbox);
-#endregion
+
+		public override bool Equals(object obj)
+		{
+			return obj is Shape shape &&
+				   Start.Equals(shape.Start) &&
+				   End.Equals(shape.End) &&
+				   Kind == shape.Kind;
+		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(Start, End, Kind);
+		}
+		#endregion
 
 #region operators
 		public static bool operator ==(Shape l, Shape r)
@@ -298,8 +273,8 @@ namespace battlemap.Models
 
 		public Shape(Shape clone)
 		{
-			this.StartPoint = clone.StartPoint;
-			this.EndPoint = clone.EndPoint;
+			this.Start = clone.Start;
+			this.End = clone.End;
 			this.Kind = clone.Kind;
 		}
 	}
