@@ -105,8 +105,9 @@ namespace battlemap.Models
 					if(relevant.Any(tk => tk.Hitbox.Intersects(x, y, 1, 1)))
 						continue;
 
-					Tokens.Add(new Token(name, x, y, 1, 1));
-					await Startup.MapHubContext.Clients.Group(id).SendCoreAsync("Add", new object[]{ name, x, y, 1, 1 });
+					Token tk = new Token(name, x, y, 1, 1);
+					Tokens.Add(tk);
+					await Startup.MapHubContext.Clients.Group(id).SendCoreAsync("AddToken", new object[]{ tk.ToJson() });
 
 					return true;
 				}
