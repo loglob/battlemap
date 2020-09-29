@@ -1,6 +1,6 @@
 using System;
 
-namespace battlemap
+namespace battlemap.Util
 {
     public struct Optional<T>
     {

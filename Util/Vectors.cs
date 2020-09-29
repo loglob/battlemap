@@ -1,7 +1,7 @@
 
 using System;
 
-namespace battlemap
+namespace battlemap.Util
 {
 	/* Implements Vector Arithmetic with tuples for int and double types */
     public static class Vectors

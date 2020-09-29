@@ -8,9 +8,9 @@ using System.Xml.Linq;
 using Microsoft.AspNetCore.Html;
 using Newtonsoft.Json;
 
-namespace battlemap
+namespace battlemap.Util
 {
-	public static class Util
+	public static class Extensions
     {
 		/* Turns an IEnumerable into an HTML list, including a footer */
 		public static XElement Listify<T>(this IEnumerable<T> ls, XElement footer, bool ordered = false)
