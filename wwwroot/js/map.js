@@ -834,11 +834,19 @@ const mapInterface = {
 	 */
 	init: function()
 	{
+		var stack = document.getElementById("canvas_stack");
+
 		for(let name in layers)
 		{
 			var l = layers[name]
 			l.id = name + "_layer";
-			l.canvas = document.getElementById(l.id)
+			l.canvas = document.createElement("canvas")
+			l.canvas.width = w
+			l.canvas.id = l.id
+			l.canvas.height = h
+
+			stack.appendChild(l.canvas);
+
 			l.context = l.canvas.getContext("2d")
 			l.draw();
 		}
