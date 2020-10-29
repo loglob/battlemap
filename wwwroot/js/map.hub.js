@@ -199,22 +199,31 @@ const maphub =
 				if(delta.move)
 				{
 					let moved = 0
+					const points = new Set();
 
 					for (let tk of map.tokens) {
+						let hb = { x: tk.X, y: tk.Y, w: tk.Width, h: tk.Height }
+
 						if(shape.containsToken(s, tk))
 						{
+							hb.x += delta.move.x
+							hb.y += delta.move.y
 							moved++
-							const np = vadd(v(tk.X, tk.Y), delta.move)
-						
-							if(outOfBounds(np.x, np.y, tk.Width, tk.Height))
-								return oob(`Refusing modifyTokens that would put ${flatName(tk)} out of bounds`);
-							
-							for (const t of map.tokens)
-							{
-								if(tokenIn(t, np.x, np.y, tk.Width, tk.Height) && !shape.containsToken(s, t))
-									return `Refusing modifyTokens that would make ${flatName(tk)} collide with ${flatName(t)}`;
-							}
 						}
+						
+						if(outOfBounds(hb.x, hb.y, hb.w, hb.h))
+							return oob(`Refusing modifyTokens that would put ${flatName(tk)} out of bounds`);
+						
+						for (let dx = 0; dx < hb.w; dx++) {	
+							for (let dy = 0; dy < hb.h; dy++) {
+								let i = (hb.x + dx) + (hb.y + dy) * map.width
+
+								if(points.has(i))
+									return `Refusing modifyTokens that would make ${flatName(tk)} collide`;
+								
+								points.add(i);
+							}	
+						}					
 					}
 
 					if(moved == 0)
