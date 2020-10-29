@@ -183,6 +183,12 @@ const maphub =
 							tk.X += delta.move.x
 							tk.Y += delta.move.y
 						}
+						if(delta.turn)
+						{
+							const w = tk.Width
+							tk.Width = tk.Height
+							tk.Height = w
+						}
 						if(typeof delta.hidden === "boolean")
 							tk.Hidden = delta.hidden;
 					}
@@ -193,10 +199,10 @@ const maphub =
 			 * @returns {void} nothing
 			 */
 			check: function(s, delta) {
-				if((!delta.move || (!delta.move.x && !delta.move.y)) && typeof delta.hidden !== "boolean")
+				if((!delta.move || (!delta.move.x && !delta.move.y)) && typeof delta.hidden !== "boolean" && !delta.turn)
 					return "Refusing modifyTokens without change";
 				
-				if(delta.move)
+				if(delta.move || delta.turn)
 				{
 					let moved = 0
 					const points = new Set();
@@ -206,9 +212,20 @@ const maphub =
 
 						if(shape.containsToken(s, tk))
 						{
-							hb.x += delta.move.x
-							hb.y += delta.move.y
 							moved++
+							
+							if(delta.move)
+							{
+								hb.x += delta.move.x
+								hb.y += delta.move.y
+							}
+
+							if(delta.turn)
+							{
+								const w = hb.w
+								hb.w = hb.h
+								hb.h = w
+							}
 						}
 						
 						if(outOfBounds(hb.x, hb.y, hb.w, hb.h))

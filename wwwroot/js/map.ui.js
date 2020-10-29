@@ -1510,6 +1510,8 @@ const contextmenu = {
 			/**@param {token} tk
 			 * @param {MouseEvent} ev */
 			initiative: function(tk, ev) { toolbox.tools.initiative.insert(tk, !ev.shiftKey); },
+			/**@param {token} tk */
+			turn: function(tk) { maphub.modifyTokens(shape.point(tk.X, tk.Y), { turn: true }) },
 		},
 		effect: {
 			/**@param {number} x 
@@ -1870,6 +1872,15 @@ const handlers = {
 					effects.onBlinkShape(s)
 			}
 			break
+
+			case "KeyT":
+			{
+				const s = selection.getShape()
+
+				if(s)
+					maphub.modifyTokens(s, { turn: true })
+			}
+			break;
 		}
 	},
 	/** Opens the custom context menu

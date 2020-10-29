@@ -49,8 +49,17 @@ namespace battlemap.Models
 
 
 		[JsonIgnore]
-		public ((int X, int Y), (int Width, int Height)) Hitbox
-			=> (Position, Size);
+		public ((int X, int Y) pos, (int Width, int Height) siz) Hitbox
+		{
+			get
+				=> (Position, Size);
+
+			set
+			{
+				Position = value.pos;
+				Size = value.siz;
+			}
+		}
 
 #endregion
 

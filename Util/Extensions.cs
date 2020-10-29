@@ -250,5 +250,8 @@ namespace battlemap.Util
 		
 		public static double RoundAwayFrom(this double x, double other)
 			=> (x < other) ? Math.Floor(x) : Math.Ceiling(x);
+
+		public static (T b, T a) Swap<T>(this (T a, T b) t)
+			=> (t.b, t.a);
 	}
 }
