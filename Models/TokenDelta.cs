@@ -19,6 +19,9 @@ namespace battlemap.Models
 				tk.Hidden = hidden.Value;
 		}
 
+		public ((int x, int y) pos, (int w, int h) siz) Apply(((int x, int y) pos, (int w, int h) siz) r)
+			=> (r.pos.Add(move), r.siz);
+
 		[JsonIgnore]
 		public bool IsEmpty
 			=> move == (0, 0) && !hidden.HasValue;

@@ -228,36 +228,15 @@ namespace battlemap.Hubs
 				return;
 			}
 
-			var tokens = Info.Map.Tokens.Where(shape.Contains);
+			string emsg = Info.Map.CanApply(shape, delta);
 
-			if(!tokens.Any())
+			if(emsg != null)
 			{
-				await fail("No tokens given");
+				await fail(emsg);
 				return;
 			}
 
-			if(delta.move != null)
-			{
-				foreach (var tk in tokens)
-				{
-					var hb = tk.Hitbox.Add(delta.move);
-
-					if(Info.Map.Outside(hb))
-					{
-						await fail("Out of bounds");
-						return;
-					}
-					if(Info.Map.Tokens.Any(t => t.Hitbox.Intersects(hb) && !shape.Contains(t)))
-					{
-						await fail("Tokens would collide");
-						return;
-					}
-				}
-			}
-		
-			foreach (var tk in tokens)
-				delta.Apply(tk);
-
+			Info.Map.Apply(shape, delta);
 			State.Invalidated = true;
 			await Clients.Group(GroupId).SendAsync("ModifyTokens", shape.ToJson(), delta.ToJson());
 		}

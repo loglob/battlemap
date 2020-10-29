@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using battlemap.Util;
+using System.Collections;
 
 namespace battlemap.Models
 {
@@ -173,6 +174,46 @@ namespace battlemap.Models
 
 			return (flags, data.ToJson());
 		}
+
+		public string CanApply(Shape shape, TokenDelta delta)
+		{
+			BitArray covered = new BitArray(Width * Height);
+
+			foreach (var tk in Tokens)
+			{
+				var hb = tk.Hitbox;
+
+				if(shape.Contains(hb))
+					hb = delta.Apply(hb);
+
+				foreach (var p in hb.GetRectPoints())
+				{
+					int i = p.x + p.y * Width;
+
+					if(Outside(p))
+						return "Out of bounds";
+					if(covered[i])
+						return "Tokens would collide";
+					
+					covered[i] = true;
+				}
+			}
+
+			if(covered.Cast<bool>().All(x => !x))
+				return "No tokens given";
+
+			return null;
+		}
+
+		public void Apply(Shape shape, TokenDelta delta)
+		{
+			foreach (var tk in Tokens)
+			{
+				if(shape.Contains(tk))
+					delta.Apply(tk);
+			}
+		}
+
 #region Outside Overloads
 		/* Determines if any part of the rectangle is outside of the map */
 		public bool Outside((int x, int y) position, (int w, int h) size)

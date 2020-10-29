@@ -186,7 +186,11 @@ namespace battlemap.Util
 			=> (bounds.min.Max(lim.min), bounds.max.Min(lim.max));
 
 		public static IEnumerable<(int x, int y)> GetRectPoints(this ((int x, int y) pos, (int w, int h) siz) rect)
-			=> Enumerable.Range(rect.pos.x, rect.siz.w).Zip(Enumerable.Range(rect.pos.y, rect.siz.h));
+		{
+			for (int dx = 0; dx < rect.siz.w; dx++)
+				for (int dy = 0; dy < rect.siz.h; dy++)
+					yield return rect.pos.Add(dx, dy);
+		}
 
 		public static IEnumerable<(int x, int y)> GetBoundsPoints(this ((int x, int y) min, (int x, int y) max) bounds)
 		{
