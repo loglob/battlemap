@@ -178,13 +178,17 @@ namespace battlemap.Models
 		public string CanApply(Shape shape, TokenDelta delta)
 		{
 			BitArray covered = new BitArray(Width * Height);
+			bool movedAny = false;
 
 			foreach (var tk in Tokens)
 			{
 				var hb = tk.Hitbox;
 
 				if(shape.Contains(hb))
+				{
+					movedAny = true;
 					hb = delta.Apply(hb);
+				}
 
 				foreach (var p in hb.GetRectPoints())
 				{
@@ -199,7 +203,7 @@ namespace battlemap.Models
 				}
 			}
 
-			if(covered.Cast<bool>().All(x => !x))
+			if(!movedAny)
 				return "No tokens given";
 
 			return null;
