@@ -134,7 +134,7 @@ namespace battlemap.Hubs
 			
 			if(e is null)
 				await fail("Invalid JSON");
-			else if(e.Empty)
+			else if(e.Shape.IsEmpty)
 				await fail("Empty shape");
 			else
 			{
@@ -175,7 +175,7 @@ namespace battlemap.Hubs
 				await fail("Invalid JSON");
 			else if(!Enum.IsDefined(typeof(ShapeKind), shape.Kind))
 				await fail("Invalid shape name");
-			else if(shape.Empty)
+			else if(shape.IsEmpty)
 				await fail("Empty shape");
 			else
 				await Clients.Group(GroupId).SendAsync("BlinkShape", shape.ToJson());
@@ -222,7 +222,7 @@ namespace battlemap.Hubs
 				await fail("No difference");
 				return;
 			}
-			if(shape.Empty)
+			if(shape.IsEmpty)
 			{
 				await fail("Empty shape");
 				return;
@@ -270,7 +270,7 @@ namespace battlemap.Hubs
 				await fail("Invalid JSON");
 			else if(!Enum.IsDefined(typeof(ShapeKind), shape.Kind))
 				await fail("Invalid shape name");
-			else if(shape.Empty)
+			else if(shape.IsEmpty)
 				await fail("Empty shape");
 			else if(Info.Map.Tokens.RemoveAll(shape.Contains) > 0)
 			{
@@ -289,7 +289,7 @@ namespace battlemap.Hubs
 				await fail("Invalid JSON");
 			else if(!Enum.IsDefined(typeof(ShapeKind), shape.Kind))
 				await fail("Invalid shape name");
-			else if(shape.Empty)
+			else if(shape.IsEmpty)
 				await fail("Empty shape");
 			else if(Info.Map.Effects.RemoveAll(e => e.Shape == shape) > 0)
 			{
@@ -357,7 +357,7 @@ namespace battlemap.Hubs
 			}
 			else
 			{
-				Shape s = new Shape(ShapeKind.Mask, (sx, sy), (ex, ey));
+				Shape s = Shape.From(ShapeKind.Mask, (sx, sy), (ex, ey));
 
 				if(Info.Map.Outside(Math.Max(sx, ex), Math.Max(sy, ey)) ||
 					Info.Map.Outside(Math.Min(sx, ex), Math.Min(sy, ey)))

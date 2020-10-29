@@ -1,29 +1,43 @@
+using battlemap.Util;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace battlemap.Models
 {
-	public class Effect : Shape
+	public class Effect
 	{
+		[JsonIgnore]
+		public readonly Shape Shape;
 
 		[JsonProperty("color")]
-		public int Color;
+		public readonly int Color;
 
-		[JsonIgnore]
-		public Shape Shape
-			=> this;
+		[JsonProperty("kind")]
+		[JsonConverter(typeof(StringEnumConverter), true)]
+		public ShapeKind Kind
+			=> Shape.Kind;
+
+		[JsonProperty("start")]
+		public Vec2<int> Start
+			=> Shape.Start;
+
+		[JsonProperty("end")]
+		public Vec2<int> End
+			=> Shape.End;
+
+		public static implicit operator Shape(Effect e)
+			=> e.Shape;
 
 		[JsonConstructor]
-		public Effect()
-		{ }
-
-		public Effect(ShapeKind kind, (int x, int y) start, (int x, int y) end, int color) : base(kind, start, end)
+		public Effect(ShapeKind kind, Vec2<int> start, Vec2<int> end, int color)
 		{
+			this.Shape = Shape.From(kind, start, end);
 			this.Color = color;
 		}
 
-		public Effect(Effect clone) : base(clone)
+		public Effect(Effect clone)
 		{
+			this.Shape = Shape.Clone(clone.Shape);
 			this.Color = clone.Color;
 		}
 	}

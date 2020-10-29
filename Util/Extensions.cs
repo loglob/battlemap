@@ -248,6 +248,7 @@ namespace battlemap.Util
 		public static Dictionary<Tkey, Tval> ToDictionary<Tkey, Tval>(this IEnumerable<(Tkey key, Tval val)> ls)
 			=> new Dictionary<Tkey, Tval>(ls.Select(t => new KeyValuePair<Tkey, Tval>(t.key, t.val)));
 		
-
+		public static double RoundAwayFrom(this double x, double other)
+			=> (x < other) ? Math.Floor(x) : Math.Ceiling(x);
 	}
 }

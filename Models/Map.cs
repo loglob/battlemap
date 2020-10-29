@@ -97,7 +97,7 @@ namespace battlemap.Models
 		public async Task<bool> Spawn(string name, string id)
 		{
 			Token[] relevant = Tokens.Where(tk => SpawnZone.Contains(tk)).ToArray();
-			var b = SpawnZone.Bounds.Value;
+			var b = SpawnZone.Bounds;
 			
 			for (int x = b.min.x; x <= b.max.x; x++)
 			{
