@@ -37,6 +37,8 @@ const blinkKind =
 
 const maphub =
 {
+	/** @type {Boolean} */
+	skipCommandSendingChecks: false,
 	/** @type {Object.<string,command>} */
 	commands: {
 		AddToken: {
@@ -499,7 +501,7 @@ const maphub =
 			
 			this[ccname] = function() {
 				/** @type {checkReport} */
-				const ck = cmd.checkSent ?  cmd.checkSent(...arguments) : cmd.check(...arguments)
+				const ck = maphub.skipCommandSendingChecks ? undefined : cmd.checkSent ?  cmd.checkSent(...arguments) : cmd.check(...arguments)
 
 				switch(typeof ck)
 				{
