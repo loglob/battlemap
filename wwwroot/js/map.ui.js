@@ -770,14 +770,27 @@ const toolbox = {
 				if(tk)
 					this.insert(tk, !evnt.shiftKey);
 			},
-			onMapUpdate: function() {
-				for (let li = this.list.firstChild; li; li = li.nextSibling) {
-					if(map.tokens.indexOf(li.token) == -1)
-						this.list.removeChild(li);
+			clearList: function() {
+				while(this.list.hasChildNodes())
+					this.list.removeChild(this.list.firstChild)
+			},
+			onMapUpdate: function(isResync) {
+				if(isResync)
+				{
+					const data = this.cookieData();
+					this.clearList();
+					this.load(data)
+				}
+				else
+				{
+					for (let li = this.list.firstChild; li; li = li.nextSibling) {
+						if(map.tokens.indexOf(li.token) == -1)
+							this.list.removeChild(li);
+					}
 				}
 			},
 			init: function() {
-				mapUpdateHooks.push({ mask: mapFields.tokens, callback: function() { toolbox.tools.initiative.onMapUpdate() } })
+				mapUpdateHooks.push({ mask: mapFields.tokens, callback: function(f,r) { toolbox.tools.initiative.onMapUpdate(r) } })
 				cookie.onStoreCallbacks.push(this.onStore.bind(this));
 
 				this.nextbutton.onclick = this.next.bind(this);
@@ -827,8 +840,7 @@ const toolbox = {
 
 				this.sort();
 			},
-			/** Stores cookie data, called before tab close. */
-			onStore: function() {
+			cookieData: function() {
 				let data  = []
 
 				for(const c of this.list.children)
@@ -841,7 +853,11 @@ const toolbox = {
 					data.push(co);
 				}
 				
-				cookie.data.initiative = data;
+				return data
+			},
+			/** Stores cookie data, called before tab close. */
+			onStore: function() {
+				cookie.data.initiative = this.cookieData();
 			}
 		}
 	},
@@ -1924,14 +1940,15 @@ const uiInterface = {
 
 	/** Reacts to changes in the map data structure. Called by maphub.
 	 * @param {number} fieldIds	The changed field IDs, following the mapFields definition
+	 * @param {bool?} isResync	Whether or not the map update was from a resync command
 	 * @returns {void} nothing
 	 */
-	onMapUpdate: function(fieldIds) {
+	onMapUpdate: function(fieldIds, isResync) {
 		for (const hook of mapUpdateHooks) {
 			try
 			{
 				if(hook.mask & fieldIds)
-					hook.callback(fieldIds);
+					hook.callback(fieldIds, isResync);
 			}
 			catch(ex)
 			{

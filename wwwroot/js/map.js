@@ -775,9 +775,10 @@ const mapInterface = {
 	},
 	/** Handles outside changes in the map object. Called when the map datastructure updates.
 	 * @param {number} fieldIds map field flags, as defined in mapFields 
+	 * @param {bool?} isResync set to true if the map update was a resync command 
 	 * @returns {void} nothing
 	 */
-	onMapUpdate: function(fieldIds)
+	onMapUpdate: function(fieldIds, isResync)
 	{
 		if(fieldIds & mapFields.size)
 		{
@@ -802,7 +803,7 @@ const mapInterface = {
 		}
 
 		if(typeof uiInterface !== "undefined" && uiInterface)
-			uiInterface.onMapUpdate(fieldIds)
+			uiInterface.onMapUpdate(fieldIds, isResync)
 	},
 
 	/** Redraws only the given token

@@ -308,7 +308,7 @@ const maphub =
 					}
 				}
 
-				mapInterface.onMapUpdate(field);
+				mapInterface.onMapUpdate(field, true);
 			},
 			checkReceived: function(field, data) {},
 			/**@param {number} field 
