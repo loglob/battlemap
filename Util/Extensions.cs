@@ -253,5 +253,11 @@ namespace battlemap.Util
 
 		public static (T b, T a) Swap<T>(this (T a, T b) t)
 			=> (t.b, t.a);
+
+		public static void AssertRemove<Tkey, Tval>(this Dictionary<Tkey, Tval> dict, Tkey key)
+		{
+			if(!dict.Remove(key))
+				throw new KeyNotFoundException($"The key '{key}' is not present in the dictionary");
+		}
 	}
 }

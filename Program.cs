@@ -99,9 +99,7 @@ namespace battlemap
 					var orphaned = kvp.Value.Sprites.Keys.Where(k => !tokenIdnames.Contains(k)).ToList();
 
 					foreach (var k in orphaned)
-					{
 						Textures.Remove(kvp.Value, k);
-					}
 					
 					unused += orphaned.Count;
 				}
@@ -132,14 +130,14 @@ namespace battlemap
 					{
 						foreach (var sprite in map.Sprites
 							.Where(kvp => kvp.Value == tex.Key)
-							.Select(kvp => kvp.Value)
+							.Select(kvp => kvp.Key)
 							.ToList())
 						{
-							map.Sprites.Remove(sprite);
+							map.Sprites.AssertRemove(sprite);
 						}
 					}
 
-					State.Textures.Remove(tex.Key);
+					State.Textures.AssertRemove(tex.Key);
 				}
 			
 				Console.WriteLine($"\nRemoved {rm} invalid texture links.");
