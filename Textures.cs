@@ -71,6 +71,10 @@ namespace battlemap
 
 		}
 	
+		/* Ensures the static constructor has been invoked */
+		public static void Initialize()
+		{	}
+
 		public static (string token, Image image) Insert(Image img)
 		{
 			// Check if the image already exists
