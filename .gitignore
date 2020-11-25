@@ -1,6 +1,6 @@
 /bin
 /obj
-/storage
+/storage*
 /.vscode
 /wwwroot/index.html
 /wwwroot/index.de.html

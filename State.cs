@@ -76,8 +76,7 @@ namespace battlemap
 				}
 			}
 
-			BackupTask = Task.Run(Backup);
-			
+			BackupTask = Task.Run(Backup);			
 		}
 
 #region Methods

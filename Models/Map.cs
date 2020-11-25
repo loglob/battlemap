@@ -118,18 +118,6 @@ namespace battlemap.Models
 			return false;
 		}
 
-		public string SetTexture(string token, Image img)
-		{
-			if(this.Sprites.ContainsKey(token))
-				State.Textures.Remove(Sprites[token]);
-
-			var imgtk = State.Textures.Insert(img, 32).token;
-			this.Sprites[token] = imgtk;
-			State.Invalidated = true;
-
-			return imgtk;
-		}
-
 		public (MapFields flags, string json) FieldData(MapFields fields)
 		{
 			var data = new Dictionary<string, object>();
@@ -277,22 +265,6 @@ namespace battlemap.Models
 			if(CompactColors != null)
 				this.CompactColors = CompactColors;
 
-			if(CompactImages != null)
-			{
-				CompactImages
-					.Where(ci => !this.Sprites.ContainsKey(ci.Key))
-					.Select(kvp => {
-							if(kvp.Value[0] is null)
-								return (kvp.Key, new Image(kvp.Value[1].DecodeBase64()));
-							else
-								return (kvp.Key, new Image(kvp.Value[0], kvp.Value[1]));
-						})
-					.Select(i
-						=> (i.Key, State.Textures.Insert(i.Item2, Image.TokenLength).token))
-					.ForEach(i => this.Sprites.Add(i.Key, i.token));
-				State.Invalidated = true;
-			}
-
 			this.SpawnZone = SpawnZone;
 		}
 
@@ -301,12 +273,11 @@ namespace battlemap.Models
 			this.Colors = (int[,])copy.Colors.Clone();
 			this.Tokens = copy.Tokens.Select(t => new Token(t)).ToList();
 			this.Effects = copy.Effects.Select(t => new Effect(t)).ToList();
-			//this.Images = new Dictionary<string, Image>(copy.Images);
-			this.Sprites = copy.Sprites
-				.Select(s => ((string token, Image img))(s.Key, State.Textures[s.Value]))
-				.Select(s => ((string token, string img))(s.token, State.Textures.Insert(s.img, Image.TokenLength).token))
-				.ToDictionary();
-
+			
+			foreach (var img in copy.Sprites.Values)
+				State.Textures[img].ReferenceCount++;
+			
+			this.Sprites = new Dictionary<string, string>(copy.Sprites);
 			this.Settings = new MapSettings(copy.Settings);
 		}
 #endregion

@@ -1,4 +1,5 @@
 
+using System;
 using System.Buffers.Text;
 using System.Text;
 using Newtonsoft.Json;
@@ -8,6 +9,11 @@ namespace battlemap.Models
 	public class Image
     {
 #region Fields
+		[JsonIgnore]
+		private int referenceCount = 0;
+		[JsonIgnore]
+		private int? hashCode;
+
 		public const int TokenLength = 20;
 
 		[JsonIgnore]
@@ -27,6 +33,19 @@ namespace battlemap.Models
 		[JsonIgnore]
 		public bool IsRedirect
 			=> Type == null;
+
+		[JsonIgnore]
+		public int ReferenceCount
+		{
+			get => referenceCount;
+			set
+			{
+				referenceCount = value;
+
+				if(value <= 0)
+					Textures.Delete(this);
+			}
+		}
 #endregion
 
 		[JsonConstructor]
@@ -51,5 +70,51 @@ namespace battlemap.Models
 			this.Type = null;
 			this.Url = url;
 		}
+
+		private int getHashCode()
+		{
+			if(IsRedirect)
+				return Url.GetHashCode();
+			
+			int h = 0;
+
+			// Naive hashing (since the digest is so small a proper hash makes no sense)
+			for (int i = 0; i < Data.Length; i++)
+				h ^= Data[i] << 8 * (i % 4);
+			
+			return h;
+		}
+
+		public override int GetHashCode()
+		{
+			if(!hashCode.HasValue)
+				hashCode = getHashCode();
+
+			return hashCode.Value;
+		}
+
+		public static bool operator !=(Image l, Image r)
+			=> !(l == r);
+
+		public static bool operator ==(Image l, Image r)
+		{
+			if(l.Type != r.Type)
+				return false;
+			if(l.IsRedirect)
+				return l.Url == r.Url;
+			if(l.Data.Length != r.Data.Length)
+				return false;
+
+			for (int i = 0; i < l.Data.Length; i++)
+			{
+				if(l.Data[i] != r.Data[i])
+					return false;
+			}
+
+			return true;
+		}
+
+		public override bool Equals(object obj)
+			=> (obj is Image img) && this == img;
 	}
 }

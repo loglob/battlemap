@@ -278,21 +278,7 @@ namespace battlemap.Hubs
 			else
 				await fail("No such effect");
 		}
-
-		public async Task RemoveSprite(string img)
-		{
-			if(!Info.Map.Sprites.ContainsKey(img))
-				await fail("No such image");
-			else
-			{
-				State.Textures.Remove(Info.Map.Sprites[img]);
-				Info.Map.Sprites.Remove(img);
-
-				State.Invalidated = true;
-				await Clients.Group(GroupId).SendAsync("RemoveSprite", img);
-			}
-		}
-
+		
 		// Demands all data of the given fields
 		public async Task Resync(int fieldIds)
 		{

@@ -24,7 +24,7 @@ namespace battlemap.Controllers
 				return StatusCode(404);
 			if(map is null || token is null || Request.ContentType is null
 				|| !Request.ContentType.StartsWith("image/")
-				|| !State.MapJoinTokens.ContainsKey(map))
+				|| !State.MapJoinTokens.TryGetValue(map, out Map m))
 				return StatusCode(400);
 			// Reject images > 1MiB
 			if((Request.ContentLength.HasValue && Request.ContentLength.Value > 1024*1024))
@@ -41,11 +41,10 @@ namespace battlemap.Controllers
 				// Request Entity Too Large
 				return StatusCode(413);
 
-			var data = mem.ToArray();
-			string imgtk = State.MapJoinTokens[map].SetTexture(token, new Image(type, data));
-			
-			modifyTimes[imgtk] = DateTime.Now;
-			await Startup.MapHubContext.Clients.Group(map).SendCoreAsync("SetImage", new object[]{ token, imgtk });
+			var img = Textures.Set(m, token, new Image(type, mem.ToArray()));
+			modifyTimes[img.token] = DateTime.Now;
+
+			await Startup.MapHubContext.Clients.Group(map).SendCoreAsync("SetImage", new object[]{ token, img.token });
 
 			return Ok();
 		}
@@ -55,19 +54,18 @@ namespace battlemap.Controllers
 			if(map is null || token is null || url is null)
 				return StatusCode(400);
 
-			string dec = Uri.UnescapeDataString(url);
+			url = Uri.UnescapeDataString(url);
 			token = Uri.UnescapeDataString(token);
 
 			// Ensure the given url looks valid and is not a data url.
-			if(!Uri.IsWellFormedUriString(dec, UriKind.Absolute) || dec.StartsWith("data:")
+			if(!Uri.IsWellFormedUriString(url, UriKind.RelativeOrAbsolute) || url.StartsWith("data:")
 				// Ensure map key is valid
-				|| !State.MapJoinTokens.ContainsKey(map))
+				|| !State.MapJoinTokens.TryGetValue(map, out Map m))
 				return StatusCode(400);
 
-			string imgtk = State.MapJoinTokens[map].SetTexture(token, new Image(dec));
-
-			modifyTimes[imgtk] = DateTime.Now;
-			await Startup.MapHubContext.Clients.Group(map).SendCoreAsync("SetImage", new object[]{ token, imgtk });
+			var img = Textures.Set(m, token, new Image(url));
+			modifyTimes[img.token] = DateTime.Now;
+			await Startup.MapHubContext.Clients.Group(map).SendCoreAsync("SetImage", new object[]{ token, img.token });
 
 			return Ok();
 		}
@@ -76,23 +74,16 @@ namespace battlemap.Controllers
 		{
 			if(map is null || token is null)
 				return StatusCode(400);
-			if(!State.MapJoinTokens.ContainsKey(map))
+			if(!State.MapJoinTokens.TryGetValue(map, out Map m))
 				return StatusCode(404);
 
-			var m = State.MapJoinTokens[map];
 			token = Uri.UnescapeDataString(token);
 
 			if(!m.Sprites.ContainsKey(token))
 				return StatusCode(404);
 				
-
-			string imgtk = m.Sprites[token];
-
-			State.Textures.Remove(imgtk);
-			m.Sprites.Remove(token);
-			modifyTimes[imgtk] = DateTime.Now;
+			Textures.Remove(m, token);
 			await Startup.MapHubContext.Clients.Group(map).SendCoreAsync("SetImage", new object[]{ token, null });
-			State.Invalidated = true;
 
 			return Ok();
 		}
