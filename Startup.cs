@@ -29,7 +29,7 @@ namespace battlemap
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime)
 		{
 			if (env.IsDevelopment())
 			{
@@ -61,6 +61,7 @@ namespace battlemap
 			});
 
 			MapHubContext = app.ApplicationServices.GetService<IHubContext<MapHub>>();
+			lifetime.ApplicationStopping.Register(OnShutdown);
 		}
  
 		public void OnShutdown()
@@ -68,7 +69,7 @@ namespace battlemap
 			Console.WriteLine("Shutting down...");
 			State.BackUpInterval = 0;
 			long w = State.Save();
-			Console.WriteLine($"Wrote ${w.ToDataUnit()}");
+			Console.WriteLine($"Wrote {w.ToDataUnit()}");
 		}
 	}
 }
