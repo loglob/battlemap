@@ -8,6 +8,8 @@ const renderOptions = {
 	},
 };
 
+
+
 //#region TextMetrics Extension Methods
 // the height of the text
 TextMetrics.prototype.getHeight = function()
@@ -520,6 +522,15 @@ const layers =
 			}
 		},
 	},
+	/** Optional obscuremnt of the map. Controlled by the loaded RTX interface
+	 * @constant {layer_t} */
+	shadow: {
+		draw: function()
+		{
+			if(typeof rtxInterface !== "undefined")
+				rtxInterface.draw(this.context)
+		}
+	},
 	/** Interactive UI elements, like hovering tokens and the ruler. Controlled by the loaded UI
 	 * @constant {layer_t} */
 	special: {
@@ -804,6 +815,8 @@ const mapInterface = {
 
 		if(typeof uiInterface !== "undefined" && uiInterface)
 			uiInterface.onMapUpdate(fieldIds, isResync)
+		if(typeof rtxInterface !== "undefined" && rtxInterface)
+			rtxInterface.onMapUpdate(fieldIds)
 	},
 
 	/** Redraws only the given token

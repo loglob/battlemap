@@ -640,7 +640,8 @@ const toolbox = {
 		},
 		/**@constant {tool} */
 		initiative: {
-			/**@typedef {HTMLElement & initEntryData_t} initEntry_t
+			/**
+			 * @typedef {HTMLElement & initEntryData_t} initEntry_t
 			 * @typedef {Object} initEntryData_t
 			 * @property {number} initCount	The initiative count for the entry
 			 * @property {token} token	The token

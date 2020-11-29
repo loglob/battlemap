@@ -182,6 +182,7 @@ namespace battlemap
 				return;
 			}
 
+			Textures.Initialize();
 			CreateHostBuilder(args).Build().Run();
         }
 

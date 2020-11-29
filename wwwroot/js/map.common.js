@@ -835,6 +835,20 @@ function dist(cX1, cY1, cX2, cY2)
 	return (h - l + diag) * 5
 }
 
+function cc()
+{
+	return Array.from(arguments).map(i => i * cellSize)
+}
+
+function min(a,b)
+{
+	return (a < b) ? a : b
+}
+
+function max(a,b)
+{
+	return (a > b) ? a : b
+}
 
 /** Performs initialization for all map components
  * @returns {void}
@@ -847,4 +861,6 @@ function init()
 		mapInterface.init();
 	if(typeof uiInterface !== "undefined" && uiInterface)
 		uiInterface.init();
+	if(typeof rtxInterface !== "undefined" && rtxInterface)
+		rtxInterface.init();
 }
