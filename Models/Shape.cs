@@ -75,6 +75,19 @@ namespace battlemap.Models
 		public bool Contains(Token tk)
 			=> Contains(tk.X, tk.Y, tk.Width, tk.Height);
 
+		public static bool operator !=(Shape l, Shape r)
+			=> !(l == r);
+
+		public static bool operator ==(Shape l, Shape r)
+		{
+			if(l is null && r is null)
+				return true;
+			if(l is null || r is null)
+				return false;
+
+			return l.Kind == r.Kind && l.Start == r.Start && l.End == r.End;
+		}
+
 		public static Shape Clone(Shape clone)
 			=> From(clone.Kind, clone.Start, clone.End);
 
