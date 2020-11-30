@@ -20,7 +20,8 @@ const mapFields = {
 	effects: 16,
 	spawn: 32,
 	sprites: 64,
-	all: 127
+	rtxInfo: 128,
+	all: 255,
 };
 
 //#region Array Extension methods
@@ -618,6 +619,15 @@ function parseColor(color)
 	return parseInt(color.substring(1), 16);
 }
 
+/** Turns a color number into a hexadecimal color string
+ * @param {number} color A rgb color code as a number
+ * @returns {string} A color string of the form #FFFFFF
+ */
+function hexColor(color)
+{
+	return `#${color.toString(16).padStart(6, "0")}`
+}
+
 /** Determines if tk is cut by the given resize operation
  * @param {token} tk		The token
  * @param {number} left		The left side change
@@ -863,4 +873,55 @@ function init()
 		uiInterface.init();
 	if(typeof rtxInterface !== "undefined" && rtxInterface)
 		rtxInterface.init();
+}
+
+/**
+ * @typedef {HTMLElement|string} cellContent
+ */
+
+/** Generates a <tr> element with the given cell contents.
+ * @param {...cellContent} cells The cell contents.
+ *  strings are wrapped in a <td> element, HtmlElement are appended directly.
+ * @returns {HTMLTableRowElement} The generated row
+ */
+function makeRow(cells)
+{
+	const row = document.createElement("tr")
+
+	for (const arg of arguments) {
+		if(arg instanceof HTMLElement)
+			row.appendChild(arg)
+		else
+		{
+			const cell = document.createElement("td")
+			cell.innerText = arg
+			row.appendChild(cell)
+		}
+	}
+
+	return row
+}
+
+/** Adds a row to the table that can be deleted via shift-clicking 
+ * @param {HTMLTableElement} table The table to add to
+ * @param {cellContent[]} contents The contents, as with makeRow()
+ * @param {function?} removeCallback Called on deletion of the row.
+ *  Passed the contents array and the addRow() return value.
+ * 	If it is falsly or returns a falsly value, the row is deleted.
+ * @returns {HTMLTableRowElement} the added row
+ */
+function addRow(table, contents, removeCallback)
+{
+	const row = makeRow(...contents)
+
+	row.onclick = (evnt) => {
+		if(!evnt.shiftKey)
+			return;
+	
+		if(!removeCallback || !removeCallback(contents, row))
+			table.removeChild(row)
+	}
+
+	table.appendChild(row)
+	return row
 }

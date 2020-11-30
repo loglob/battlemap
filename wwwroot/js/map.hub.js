@@ -146,6 +146,21 @@ const maphub =
 			modified: 0,
 		},
 		
+		RtxUpdate: {
+			/**@param {rtxinfo} data
+			 * @returns {void} nothing
+			 */
+			receive: function(data) {
+				map.rtxInfo = data ?? { globallight: 2, sources: {}, opaque: [] }
+			},
+			check: function(data){
+				if(JSON.stringify(data) == JSON.stringify(map.rtxInfo))
+					return "Refusing StxUpdate without change"
+			},
+			sendsObject: true,
+			modifies: mapFields.rtxInfo
+		},
+
 		SetImage: {
 			/**@param {token} token 
 			 * @param {string} imgid

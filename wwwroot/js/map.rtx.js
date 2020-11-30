@@ -114,12 +114,6 @@ const rtx = {
 	swapCanvas : null,
 	dimLightAlpha : 0.4,
 	enableDimLight : true,
-	globalLightLevel: lightlevel.bright,
-	opaqueTiles: new Set(),
-	/**
-	 * @type {Object.<string, light>}
-	 */
-	tokenLights: {},
 	/** Culls rects based on distance from reference
 	 * @param {rect[]} r	All rectangles
 	 * @param {vec2} ref	The reference point
@@ -134,9 +128,9 @@ const rtx = {
 	/** Calculates all vertices of the obstructionMap
 	 * @returns {obstructionMap} The obstruction map
 	 */
-	getObsmap: function()
+	getObsmap: function(opaqueSet)
 	{
-		return map.colors.map(row => row.map(c => rtx.opaqueTiles.has(c)))
+		return map.colors.map(row => row.map(c => opaqueSet.has(c)))
 	},
 	/** Calculates the vertices of the rect's shadow.
 	 * The returned array is sorted by angle
@@ -375,12 +369,13 @@ const rtx = {
 		this.swap.fillRect(...b);
 	},
 	/**
+	 * @param {Object.<string,light>} lightDict Maps token idnames to light templates 
 	 * @returns {light[]} All light sources
 	 */
-	getLights: function()
+	getLights: function(lightDict)
 	{
 		return map.tokens
-			.map(tk => [ tk, rtx.tokenLights[idName(tk)] ])
+			.map(tk => [ tk, lightDict[idName(tk)] ])
 			.filter(e => typeof(e[1]) !== "undefined")
 			.flatMap(e => {
 				/**
@@ -412,7 +407,7 @@ const rtx = {
 	 */
 	draw: function(ctx, R, L)
 	{
-		if(rtx.globalLightLevel == lightlevel.bright)
+		if(map.rtxInfo.globallight == lightlevel.bright)
 		{
 			ctx.clear();
 			return;
@@ -420,7 +415,7 @@ const rtx = {
 
 		ctx.save();
 
-		if(this.globalLightLevel < lightlevel.dim)
+		if(map.rtxInfo.globallight < lightlevel.dim)
 		{
 			ctx.globalCompositeOperation = "copy"
 			ctx.fillRect(0, 0, w, h)
@@ -449,29 +444,41 @@ const rtx = {
 };
 
 const rtxInterface = {
-	cache: {
-		R : rtx.toRects(rtx.getObsmap()),
-		L : rtx.getLights()
-	},
+	cache: { },
+	enabled: !isDM,
 	init : function()
 	{
+		if(this.initialized)
+			return;
+
 		rtx.swapCanvas = document.createElement("canvas")
 		rtx.swapCanvas.width = w
 		rtx.swapCanvas.height = h
 		rtx.swap = rtx.swapCanvas.getContext("2d")
 		rtx.swap.fillRect(0,0,w,h)
 		layers.shadow.canvas.style.filter = "blur(10px)"
+		this.onMapUpdate(mapFields.rtxInfo)
+
+		this.initialized = true
 	},
 	/**
 	 * @param {CanvasRenderingContext2D} ctx 
 	 */
 	draw: function(ctx)
 	{
+		if(!this.initialized)
+			this.init()
+		if(!this.enabled)
+		{
+			ctx.clear();
+			return;
+		}
+
 		rtx.draw(ctx, this.cache.R, this.cache.L)
 	},
 	onMapUpdate: function(fields)
 	{
-		if(!(fields & (mapFields.colors | mapFields.tokens | mapFields.size)))
+		if((fields & (mapFields.size | mapFields.colors | mapFields.tokens | mapFields.rtxInfo)) == 0)
 			return;
 
 		if(fields & mapFields.size)
@@ -480,16 +487,15 @@ const rtxInterface = {
 			rtx.swap.canvas.height = h
 			rtx.swap.fillRect(0,0,w,h)
 		}
-		if(fields & (mapFields.colors | mapFields.size))
-		{
-			this.cache.R = rtx.toRects(rtx.getObsmap())
-		}
-		if(fields & (mapFields.tokens | mapFields.size))
-		{
-			this.cache.L = rtx.getLights()
-		}
+		if(fields & mapFields.rtxInfo)
+			this.cache.opaqueSet = new Set(map.rtxInfo.opaque)
+		if(fields & (mapFields.colors | mapFields.size | mapFields.rtxInfo))
+			this.cache.R = rtx.toRects(rtx.getObsmap(this.cache.opaqueSet))
+		if(fields & (mapFields.tokens | mapFields.size | mapFields.rtxInfo))
+			this.cache.L = rtx.getLights(map.rtxInfo.sources)
 
-		this.draw(layers.shadow.context);
+		if(this.initialized)
+			layers.shadow.draw()
 	}
 }
 

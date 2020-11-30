@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using battlemap.Util;
 using System.Collections;
+using Newtonsoft.Json.Linq;
 
 namespace battlemap.Models
 {
@@ -24,6 +25,8 @@ namespace battlemap.Models
 		public List<Effect> Effects;
 		
 		public MapSettings Settings;
+
+		public string RtxInfo = "{ globallight: 2, sources: {}, opaque: [] }";
 
 		/* Maps token names to texture IDs */
 		public Dictionary<string, string> Sprites;
@@ -159,12 +162,18 @@ namespace battlemap.Models
 				data["sprites"] = Sprites;
 				flags |= MapFields.Sprites;
 			}
+			if(fields.HasFlag(MapFields.RtxInfo))
+			{
+				data["rtxInfo"] = JObject.Parse(RtxInfo);
+				flags |= MapFields.RtxInfo;
+			}
 
 			return (flags, data.ToJson());
 		}
 
 		public string CanApply(Shape shape, TokenDelta delta)
 		{
+			// TODO: optimize
 			BitArray covered = new BitArray(Width * Height);
 			bool movedAny = false;
 
@@ -239,6 +248,7 @@ namespace battlemap.Models
 		}
 
 		[JsonConstructor]
+		// TODO: fix this mess
 		public Map(
 			List<Token> Tokens,
 			// No longer required, replaced by Sprites
@@ -249,7 +259,8 @@ namespace battlemap.Models
 			List<Effect> Effects,
 			Shape SpawnZone,
 			Dictionary<string, string> Sprites,
-			MapSettings Settings)
+			MapSettings Settings,
+			string RtxInfo)
 		{
 			this.Colors = new int[Width, Height].Fill2(0xFFFFFF);
 			
@@ -266,6 +277,9 @@ namespace battlemap.Models
 				this.CompactColors = CompactColors;
 
 			this.SpawnZone = SpawnZone;
+			
+			if(!(RtxInfo is null))
+				this.RtxInfo = RtxInfo;
 		}
 
 		public Map(Map copy)

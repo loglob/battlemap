@@ -13,6 +13,7 @@ namespace battlemap.Models
 		Effects = 16,
 		Spawn = 32,
 		Sprites = 64,
-		All = 127
+		RtxInfo = 128,
+		All = 255
 	}
 }

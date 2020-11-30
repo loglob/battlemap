@@ -290,6 +290,14 @@ namespace battlemap.Hubs
 				await Clients.Caller.SendAsync("Resync", fieldIds, rep.json);
 		}
 
+		public async Task RtxUpdate(string data)
+		{
+			if(Info.Map.RtxInfo == data)
+				await fail("No change");
+
+			info.Map.RtxInfo = data;
+			await Clients.Group(GroupId).SendAsync("RtxUpdate", data);
+		}
 
 		/* Sets the sqrt(2) approximation used by the map */
 		public async Task Settings(string json)

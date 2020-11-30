@@ -28,6 +28,7 @@
 	<button id="hide_button" class="bare">👁️</button>
 	<button id="spawnzone_button" class="bare">🏥</button>
 	<button id="initiative_button" class="bare">⏱️</button>
+	<button id="rtx_button" class="bare">💡</button>
 	<button id="settings_button" class="bare">⚙️</button>
 }
 	<button id="shapes_button" class="bare">⬡</button>
@@ -89,6 +90,33 @@
 		<input type="number" class="slimInput" id="initiative_mod" size="1" min="-5" max="10" value="0">
 		<br/>
 		<button class="bare" id="initiative_nextbutton">▶️</button>
+	</div>
+
+	<div id="rtx_window" class="hidden fixed br window">
+		<table>
+			<thead>
+				<tr><th>Token</th><th>Range</th><th>Brightness</th></tr>
+			</thead>
+			<tbody contenteditable="true" id="rtx_sources"></tbody>
+		</table>
+		<table>
+			<thead>
+				<tr><th>Hex</th><th>Color</th></tr>
+			</thead>
+			<tbody id="rtx_opaque"></tbody>
+		</table>
+		<br/>
+		Global light level:
+		<select id="rtx_globallight">
+			<option value="0">Darkness</option>
+			<option value="1">Dim Light</option>
+			<option value="2">Bright Light</option>
+		</select>
+		<br/>
+		<button id="rtx_save">Save</button>
+		<br/>
+		<input id="rtx_preview" type="checkbox" value="false">
+		Preview Shadows
 	</div>
 }
 
@@ -157,5 +185,6 @@
 	<script src="~/js/map.js"></script>
 	<script src="~/js/map.hub.js"></script>
 	<script src="~/js/map.ui.js"></script>
+	<script src="~/js/map.rtx.js"></script>
 	<!--<script src="~/js/maphub.js"></script> -->
 }

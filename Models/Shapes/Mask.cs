@@ -5,6 +5,9 @@ namespace battlemap.Models.Shapes
 {
 	class Mask : Shape
 	{
+		public bool isPoint
+			=> this.Start == this.End;
+
 		public override ShapeKind Kind
 			=> ShapeKind.Mask;
 

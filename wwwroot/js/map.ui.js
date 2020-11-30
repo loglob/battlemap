@@ -203,7 +203,7 @@ const toolbox = {
 			onMouseDown: function(evnt) {
 				if(evnt.shiftKey || evnt.ctrlKey)
 				{
-					const col = "#" + map.colors[tile(evnt.pageX)][tile(evnt.pageY)].toString(16).padStart(6, "0")
+					const col = hexColor(map.colors[tile(evnt.pageX)][tile(evnt.pageY)])
 					this.Color.value = col
 				}
 				else
@@ -859,6 +859,109 @@ const toolbox = {
 			/** Stores cookie data, called before tab close. */
 			onStore: function() {
 				cookie.data.initiative = this.cookieData();
+			}
+		},
+		/**@constant {tool} */
+		rtx: {
+			pinnable: true,
+			/** The table of light sources. Organized Token, Range, Brightness
+			 * @type {HTMLTableElement} */
+			sources: initpls,
+			/** The table of opaque tiles. Organized hex, example
+			 * @type {HTMLTableElement} */
+			opaque: initpls,
+			/** @type {HTMLSelectElement} */
+			globallight: initpls,
+			/** @type {HTMLButtonElement} */
+			save: initpls,
+			/** @type {HTMLInputElement} */
+			preview: initpls,
+			clear: function() {
+				function cleartable(t) {
+					for(;;)
+					{
+						const c = t.firstChild;
+
+						if(c == null)
+							return;
+
+						t.removeChild(c)
+					}
+				}
+				cleartable(this.sources)
+				cleartable(this.opaque)
+			},
+			makeColorRow: function(color) {
+				const ex = document.createElement("td")
+				
+				ex.innerText = "■"
+				ex.style.color = colorString(color)
+
+				addRow(this.opaque, [hexColor(color), ex], null)
+			},
+			/** Populates the tables with the given rtx info
+			 * @param {rtxinfo} data 
+			 */
+			fill: function(data) {
+				if(typeof data !== "object")
+					return;
+				
+				for (const tkid in data.sources) {
+					const e = data.sources[tkid]
+					addRow(this.sources, [tkid, e.range, e.level], null)
+				}
+				for (const color of data.opaque) {
+					this.makeColorRow(color)
+				}
+
+				this.globallight.value = data.globallight
+			},
+			getData: function() {
+				const rtxinfo = {
+					sources: {},
+					opaque: new Array(...this.opaque.childNodes)
+						.map(tr => parseColor(tr.firstChild.innerText)),
+					globallight: Number(this.globallight.value)
+				}
+
+				for (const source of this.sources.childNodes)
+				{
+					const cells = new Array(... source.childNodes).map(d => d.innerText)
+					rtxinfo.sources[cells[0]] = { range: Number(cells[1]), level: Number(cells[2]) }
+				}
+
+				return rtxinfo
+			},
+			onSave: function(evnt) {
+				maphub.rtxUpdate(toolbox.tools.rtx.getData())
+			},
+			onPreview: function() {
+				rtxInterface.enabled = toolbox.tools.rtx.preview.checked
+				layers.shadow.draw()
+			},
+			onMouseDown: function(evnt) {
+				const p = v(tile(evnt.pageX), tile(evnt.pageY))
+				const tk = tokenAt(p.x, p.y)
+
+				if(tk)
+				{
+					// TODO: properly implement this
+					addRow(this.sources, [idName(tk), 6, 2], null).contentEditable = true
+				}
+				else
+				{
+					this.makeColorRow(map.colors[p.x][p.y])
+				}
+			},
+			init: function() {
+				this.save.onclick = this.onSave
+				this.preview.onchange = this.onPreview
+				this.fill(map.rtxInfo)
+
+				mapUpdateHooks.push({ mask: mapFields.rtxInfo, callback: () => {
+					toolbox.tools.rtx.clear();
+					toolbox.tools.rtx.fill(map.rtxInfo);
+				} })
 			}
 		}
 	},
