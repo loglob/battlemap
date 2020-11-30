@@ -75,6 +75,12 @@ namespace battlemap.Models
 		public bool Contains(Token tk)
 			=> Contains(tk.X, tk.Y, tk.Width, tk.Height);
 
+		public override bool Equals(object obj)
+			=> obj is Shape s && s == this;
+
+		public override int GetHashCode()
+			=> HashCode.Combine(Start, End, Kind);
+
 		public static bool operator !=(Shape l, Shape r)
 			=> !(l == r);
 
