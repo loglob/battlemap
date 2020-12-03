@@ -872,6 +872,8 @@ const toolbox = {
 			opaque: initpls,
 			/** @type {HTMLSelectElement} */
 			globallight: initpls,
+			/** @type {HTMLInputElement} */
+			hidehidden: initpls,
 			/** @type {HTMLButtonElement} */
 			save: initpls,
 			/** @type {HTMLInputElement} */
@@ -915,13 +917,15 @@ const toolbox = {
 				}
 
 				this.globallight.value = data.globallight
+				this.hidehidden.checked = data.hideHidden ?? false
 			},
 			getData: function() {
 				const rtxinfo = {
 					sources: {},
 					opaque: new Array(...this.opaque.childNodes)
 						.map(tr => parseColor(tr.firstChild.innerText)),
-					globallight: Number(this.globallight.value)
+					globallight: Number(this.globallight.value),
+					hideHidden: this.hidehidden.checked
 				}
 
 				for (const source of this.sources.childNodes)

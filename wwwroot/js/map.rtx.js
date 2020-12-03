@@ -372,11 +372,11 @@ const rtx = {
 	 * @param {Object.<string,light>} lightDict Maps token idnames to light templates 
 	 * @returns {light[]} All light sources
 	 */
-	getLights: function(lightDict)
+	getLights: function(lightDict, hideHidden)
 	{
 		return map.tokens
 			.map(tk => [ tk, lightDict[idName(tk)] ])
-			.filter(e => typeof(e[1]) !== "undefined")
+			.filter(e => (typeof(e[1]) !== "undefined") && (!hideHidden || !e[0].Hidden))
 			.flatMap(e => {
 				/**
 				 * @type {token}
@@ -492,7 +492,7 @@ const rtxInterface = {
 		if(fields & (mapFields.colors | mapFields.size | mapFields.rtxInfo))
 			this.cache.R = rtx.toRects(rtx.getObsmap(this.cache.opaqueSet))
 		if(fields & (mapFields.tokens | mapFields.size | mapFields.rtxInfo))
-			this.cache.L = rtx.getLights(map.rtxInfo.sources)
+			this.cache.L = rtx.getLights(map.rtxInfo.sources, map.rtxInfo.hideHidden ?? false)
 
 		if(this.initialized)
 			layers.shadow.draw()

@@ -17,6 +17,7 @@
  * @property {number} globallight The global light level
  * @property {Object.<string,light>} sources The light sources (templates, so no x,y values)
  * @property {number[]} opaque The opaque tiles
+ * @property {boolean?} hideHidden Whether or not hidden tokens produce light
  */
 
  /**@type {map} */
