@@ -289,22 +289,20 @@ const rtx = {
 
 		return sel
 	},
-	/** Draws the shadow of a rectangle
+	/** Draws the shadow of a rectangle.
+	 * Does NOT fill/stroke it, only mutates path
 	 * @param {CanvasRenderingContext2D} ctx
 	 * @param {pvec[]} s The rects's shadowVertices
 	 * @param {light} L The light circle's data
 	 */
 	drawShadow: function(ctx, s, L)
 	{
-		ctx.beginPath();
 		ctx.moveTo(...vx(vmul(s[0], cellSize)))
 
 		for (let i = 1; i < s.length; i++)
 			ctx.lineTo(...vx(vmul(s[i], cellSize)))
 
 		ctx.arc(...cc(L.x, L.y, L.range), s[s.length-1].angle, s[0].angle, true)
-		ctx.fill()
-		ctx.stroke()
 	},
 	/** Renders a single light source onto the swap canvas
 	 * @param {CanvasRenderingContext2D} ctx
@@ -321,6 +319,8 @@ const rtx = {
 		let lastStartAngle = NaN
 		let lastEndAngle = NaN
 
+		ctx.beginPath();
+
 		for (const s of S) {
 			// said primitive vertex culling
 			if(s[0].angle >= lastStartAngle && s[s.length - 1].angle <= lastEndAngle)
@@ -331,6 +331,9 @@ const rtx = {
 			lastStartAngle = s[0].angle
 			lastStartAngle = s[s.length - 1].angle
 		}
+
+		ctx.fill()
+		ctx.stroke()
 	},
 	/** Renders a single light source onto the shadow canvas using the swap canvas.
 	 * @param {CanvasRenderingContext2D} ctx
@@ -339,15 +342,20 @@ const rtx = {
 	 */
 	putLight: function(ctx, L, R)
 	{
+		const b = cc(L.x - L.range, L.y - L.range, L.range * 2, L.range * 2)
+
 		// cut out a transparent circle from the swap canvas
 		this.swap.globalCompositeOperation = "destination-out";
 		this.swap.beginPath();
 		this.swap.arc(...cc(L.x, L.y, L.range), 0, 2 * Math.PI);
+		// this fill eats over 30-40ms on the first render,
+		// then about 5ms per render, and I don't know why 
 		this.swap.fill();
 		this.swap.globalCompositeOperation = "source-over"
 
 		this.drawLight(this.swap, L, R)
 
+		ctx.save()
 		// set up clipping path for shadow canvas
 		ctx.beginPath();
 		ctx.moveTo(...cc(L.x - L.range, L.y - L.range))
@@ -356,13 +364,8 @@ const rtx = {
 		ctx.lineTo(...cc(L.x - L.range, L.y + L.range))
 		ctx.lineTo(...cc(L.x - L.range, L.y - L.range))
 		
-		ctx.save()
 		ctx.clip()
-
-		const b = cc(L.x - L.range, L.y - L.range, L.range * 2, L.range * 2)
 		ctx.drawImage(this.swapCanvas,...b,...b)
-//			ctx.drawImage(this.swapCanvas,0,0,w,h)
-
 		ctx.restore();
 
 		// ensure the swap canvas is entirely black
@@ -438,6 +441,17 @@ const rtx = {
 		for (const l of L.filter(l => l.level == lightlevel.bright)) {
 			this.putLight(ctx, l, R)
 		}
+
+		// dirty hack to prevent weird light glitches
+		// that illuminate opaque blocks too far
+		ctx.globalCompositeOperation = "source-over"
+		ctx.beginPath();
+
+		for (const r of R) {
+			ctx.rect(...cc(r.X, r.Y, r.Width, r.Height))
+		}
+
+		ctx.fill();
 
 		ctx.restore()
 	}
