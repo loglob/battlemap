@@ -459,6 +459,7 @@ const rtx = {
 
 const rtxInterface = {
 	cache: { },
+	oldCache: "",
 	enabled: !isDM,
 	init : function()
 	{
@@ -508,6 +509,13 @@ const rtxInterface = {
 		if(fields & (mapFields.tokens | mapFields.size | mapFields.rtxInfo))
 			this.cache.L = rtx.getLights(map.rtxInfo.sources, map.rtxInfo.hideHidden ?? false)
 
+		const newcache = JSON.stringify(this.cache)
+		
+		// Avoid expensive redraw
+		if(newcache === this.oldCache)
+			return;
+
+		this.oldCache = newcache;
 		if(this.initialized)
 			layers.shadow.draw()
 	}
