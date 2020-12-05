@@ -512,7 +512,7 @@ const rtxInterface = {
 		const newcache = JSON.stringify(this.cache)
 		
 		// Avoid expensive redraw
-		if(newcache === this.oldCache)
+		if(!(fields & mapFields.size | mapFields.rtxInfo) && newcache === this.oldCache)
 			return;
 
 		this.oldCache = newcache;
