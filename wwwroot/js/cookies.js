@@ -20,12 +20,21 @@ const cookie = {
 
 			try
 			{
-				this.data = JSON.parse(decodeURIComponent(kvp[1]));
+				this.data = JSON.parse(unescape(atob(kvp[1])));
 				return;
 			}
 			catch
 			{
-				console.error("Failed parsing cookie data:", kvp[1]);
+				try
+				{
+					console.log("Falling back to URI component decoding")
+					this.data = JSON.parse(decodeURIComponent(kvp[1]));
+					return;
+				}
+				catch
+				{
+					console.error("Failed parsing cookie data:", kvp[1]);
+				}
 			}
 		}
 
@@ -48,7 +57,9 @@ const cookie = {
 			}
 		}
 
-		document.cookie = `${this.cookiename}=${encodeURIComponent(JSON.stringify(this.data))}; SameSite=strict; expires=${new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365).toUTCString()};`
+		// date 1 year in the future
+		const expires = new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365);
+		document.cookie = `${this.cookiename}=${btoa(escape(JSON.stringify(this.data)))}; SameSite=strict; expires=${expires.toUTCString()};`
 	},
 	/** Contains callbacks for finalizing cookie.data before it is stored.
 	 * @type {function[]}
