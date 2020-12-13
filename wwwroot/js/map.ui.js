@@ -2028,6 +2028,8 @@ const mapUpdateHooks = [
 
 /* Handles outside interaction with the UI */
 const uiInterface = {
+	player: null,
+
 	/** Initializes the UI
 	 * @returns {void} nothing
 	*/
@@ -2041,6 +2043,7 @@ const uiInterface = {
 		s.addEventListener("contextmenu", handlers.onCanvasContextMenu);
 	
 		document.body.addEventListener("keydown", handlers.onKeyDown)
+		this.player = map.tokens.find(tk => tk.Name === playerToken) ?? null;
 		
 		toolbox.init();
 		contextmenu.init();

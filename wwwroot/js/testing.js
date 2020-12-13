@@ -25,6 +25,7 @@ const map;
 
 const cellSize = 150
 const huburl = "/mapHub?token=DEBUG"
+const playerToken = null
 var w = cellSize * map.Width
 var h = cellSize * map.Height
 const isDM = true
