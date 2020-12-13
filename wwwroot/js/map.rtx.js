@@ -123,7 +123,7 @@ const rtx = {
 	distCull: function(r, ref, max)
 	{
 		const max2 = max * max
-		return r.filter(i => vlensq(vsub({ x: nearest(i.X, i.Width, ref.x), y:nearest(i.Y, i.Height, ref.y)}, ref)) < max2);
+		return r.filter(i => vlensq(vsub({ x: nearest(i.X, i.Width + 1, ref.x), y:nearest(i.Y, i.Height + 1, ref.y)}, ref)) < max2);
 	},
 	/** Calculates all vertices of the obstructionMap
 	 * @returns {obstructionMap} The obstruction map
