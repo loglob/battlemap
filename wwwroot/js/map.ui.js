@@ -967,6 +967,25 @@ const toolbox = {
 					toolbox.tools.rtx.fill(map.rtxInfo);
 				} })
 			}
+		},
+		/**@constant {tool} */
+		character: {
+			pinnable: true,
+			/** @type {HTMLInputElement} */
+			darkvision: initpls,
+			save: initpls,
+			storeCookie: function() {
+				cookie.data.character = {
+					darkvision: Number(this.darkvision.value)
+				};
+			},
+			onChange: function(evnt) {
+				this.storeCookie()
+				rtxInterface.onMapUpdate(mapFields.rtxInfo);
+			},
+			init: function() {
+				this.darkvision.onchange = this.onChange.bind(this)
+			}
 		}
 	},
 	/** The currently selected tool

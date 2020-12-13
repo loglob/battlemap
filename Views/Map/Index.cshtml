@@ -32,6 +32,10 @@
 	<button id="rtx_button" class="bare">💡</button>
 	<button id="settings_button" class="bare">⚙️</button>
 }
+else
+{
+	<button id="character_button" class="bare">👤</button>
+}
 	<button id="shapes_button" class="bare">⬡</button>
 	<button id="dice_button" class="bare">🎲</button>
 
@@ -122,6 +126,13 @@
 		<input id="rtx_preview" type="checkbox" value="false">
 		Preview Shadows
 	</div>
+}
+else
+{
+	<div id="character_window" class="hidden fixed br window">
+		Darkvision range:
+		<input id="character_darkvision" type="number" min="0" class="slimInput" max="99" size="3" >
+	</div>	
 }
 
 @if(ViewBag.LoadDevTools) {

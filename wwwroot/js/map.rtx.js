@@ -371,6 +371,19 @@ const rtx = {
 		// ensure the swap canvas is entirely black
 		this.swap.fillRect(...b);
 	},
+	/** Finds the player's darkvision light source
+	 * @returns {light[]} Either a 1-element array or an empty array
+	 */
+	getPlayerLight: function()
+	{
+		const p = uiInterface?.player
+		const dv = cookie?.data?.character?.darkvision
+
+		if(p && dv)
+			return [{ x: p.X + p.Width / 2, y: p.Y + p.Height / 2, range: dv, level: lightlevel.dim }]
+		else
+			return []
+	},
 	/**
 	 * @param {Object.<string,light>} lightDict Maps token idnames to light templates 
 	 * @returns {light[]} All light sources
@@ -398,6 +411,7 @@ const rtx = {
 				else
 					return [ { x:x, y:y, range: l.range, level: l.level } ]
 			})
+			.concat(this.getPlayerLight())
 	},
 	lightBounds: function(L)
 	{
