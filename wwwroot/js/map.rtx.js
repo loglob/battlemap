@@ -386,9 +386,9 @@ const rtx = {
 		const dv = cookie?.data?.character?.darkvision
 
 		if(p && dv)
-			return [{ x: p.X + p.Width / 2, y: p.Y + p.Height / 2, range: dv, level: lightlevel.dim }]
+			return { x: p.X + p.Width / 2, y: p.Y + p.Height / 2, range: dv, level: lightlevel.dim }
 		else
-			return []
+			return null
 	},
 	/**
 	 * @param {Object.<string,light>} lightDict Maps token idnames to light templates 
@@ -417,7 +417,6 @@ const rtx = {
 				else
 					return [ { x:x, y:y, range: l.range, level: l.level } ]
 			})
-			.concat(this.getPlayerLight())
 	},
 	lightBounds: function(L)
 	{
@@ -425,10 +424,11 @@ const rtx = {
 	},
 	/** Renders the shadow layer
 	 * @param {CanvasRenderingContext2D} ctx 
-	 * @param {rect[]} R
-	 * @param {light[]} L
+	 * @param {rect[]} R	All hitboxes
+	 * @param {light[]} L	All light sources
+	 * @param {light?} P	The player's pseudo-lightsource
 	 */
-	draw: function(ctx, R, L)
+	draw: function(ctx, R, L, P)
 	{
 		if(map.rtxInfo.globallight == lightlevel.bright)
 		{
@@ -454,7 +454,43 @@ const rtx = {
 			ctx.globalCompositeOperation = "copy"
 
 		ctx.globalAlpha = this.dimLightAlpha
-		ctx.fillRect(0,0,w,h)
+
+		if(P)
+		{
+			const pl = [...cc(P.x, P.y, P.range), 0, 2 * Math.PI ];
+			this.swap.save();
+			ctx.save();
+
+			// copy relevant area to swap canvas
+			this.swap.globalCompositeOperation = "copy"
+			this.swap.beginPath();
+			this.swap.arc(...pl);
+			this.swap.clip();
+			const a = cc(P.x - P.range, P.y - P.range, P.range * 2, P.range * 2)
+			this.swap.drawImage(ctx.canvas, ...a, ...a)
+			
+			// fill everything BUT the player's darkvision radius with the dum light color
+			ctx.beginPath()
+			ctx.arc(...pl)
+			ctx.rect(w, 0, -w, h);
+			ctx.fill();
+
+			// copy swap canvas back onto regular canvas at 50% opacity
+			ctx.globalCompositeOperation = "copy"
+			ctx.beginPath();
+			ctx.arc(...pl)
+			ctx.clip();
+			ctx.drawImage(this.swap.canvas, ...a, ...a);
+			
+			// fill swap canvas back in
+			this.swap.fillRect(...a);
+
+			ctx.restore();
+			this.swap.restore();
+		}
+		else
+			ctx.fillRect(0,0,w,h)
+	
 		ctx.globalCompositeOperation = "destination-in"
 		ctx.globalAlpha = 1
 
@@ -498,7 +534,7 @@ const rtxInterface = {
 			return;
 		}
 
-		rtx.draw(ctx, this.cache.R, this.cache.L)
+		rtx.draw(ctx, this.cache.R, this.cache.L, this.cache.P)
 	},
 	onMapUpdate: function(fields)
 	{
@@ -516,7 +552,10 @@ const rtxInterface = {
 		if(fields & (mapFields.colors | mapFields.size | mapFields.rtxInfo))
 			this.cache.R = rtx.toRects(rtx.getObsmap(this.cache.opaqueSet))
 		if(fields & (mapFields.tokens | mapFields.size | mapFields.rtxInfo))
+		{
 			this.cache.L = rtx.getLights(map.rtxInfo.sources, map.rtxInfo.hideHidden ?? false)
+			this.cache.P = rtx.getPlayerLight();
+		}
 
 		const newcache = JSON.stringify(this.cache)
 		
