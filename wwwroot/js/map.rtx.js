@@ -50,7 +50,7 @@ function toPolar(p, ref)
  * @param {vec2} B The other point on the line
  * @param {vec} C The circle center
  * @param {number} r the circle's radius
- * @returns {pvec} Both intersecting points
+ * @returns {pvec[]} Both intersecting points
  */
 function lineCircleIntersect(A, B, C, r)
 {
@@ -154,6 +154,18 @@ const rtx = {
 		{
 			return ((tau + b.angle - a.angle) % tau) <= ((tau + a.angle - b.angle) % tau)
 		}
+		/** Finds the replacement point for p if p is outside the light's radius.
+		 * Finds the point along the edge p is part of such that it is on the light's boundary and closest to p.
+		 * p must be left or right.
+		 * @param {pvec} p 
+		 * @returns {pvec} A point on the circle that replaces p
+		 */
+		function replaceOut(p)
+		{
+			const o = (p != closest) ? closest : (p == left) ? right : left;
+			const c = lineCircleIntersect(o, p, l, l.range)
+			return vlensq(vsub(c[0], p)) < vlensq(vsub(c[1],p)) ? c[0] : c[1];
+		}
 
 		const vert = [v(r.X, r.Y), v(r.X + r.Width, r.Y), v(r.X, r.Y + r.Height), v(r.X + r.Width, r.Y + r.Height)]
 			.map(p => toPolar(p, l));
@@ -177,22 +189,16 @@ const rtx = {
 		const lout = left.len2 > r2
 		const rout = right.len2 > r2
 
-		if(lout || rout)
-		{
-			const i = lineCircleIntersect(left, right, l, l.range)
-			const inv = leftof(i[1], i[0]) ? 1 : 0
-
-			if(lout)
-				left = i[inv]
-			if(rout)
-				right = i[1-inv]
-		}
+		if(lout)
+			left = replaceOut(left);
+		if(rout)
+			right = replaceOut(right);
 
 		return [
 			// project left if it wasn't moved
 			...(lout ? [] : [project(left)]),
 			left,
-			// include closest point if it is distingt from left and right
+			// include closest point if it is distinct from left and right
 			...((closest == left || closest == right) ? [] : [closest]),
 			right,
 			// project right if it wasn't moved
@@ -455,17 +461,6 @@ const rtx = {
 		for (const l of L.filter(l => l.level == lightlevel.bright)) {
 			this.putLight(ctx, l, R)
 		}
-
-		// dirty hack to prevent weird light glitches
-		// that illuminate opaque blocks too far
-		ctx.globalCompositeOperation = "source-over"
-		ctx.beginPath();
-
-		for (const r of R) {
-			ctx.rect(...cc(r.X, r.Y, r.Width, r.Height))
-		}
-
-		ctx.fill();
 
 		ctx.restore()
 	}
