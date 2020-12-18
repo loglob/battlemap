@@ -455,7 +455,7 @@ const rtx = {
 
 		ctx.globalAlpha = this.dimLightAlpha
 
-		if(P)
+		if(P?.range)
 		{
 			const pl = [...cc(P.x, P.y, P.range), 0, 2 * Math.PI ];
 			this.swap.save();
@@ -496,6 +496,16 @@ const rtx = {
 
 		for (const l of L.filter(l => l.level == lightlevel.bright)) {
 			this.putLight(ctx, l, R)
+		}
+
+		if(P)
+		{
+			ctx.globalCompositeOperation = "source-over"
+			const maxR = max(max(vlensq(P),
+					vlensq(vsub(P, v(0, map.height)))),
+				max(vlensq(vsub(P, v(map.width, 0))),
+					vlensq(vsub(P, v(map.width, map.height)))))
+			this.drawLight(ctx, { x: P.x, y: P.y, range: Math.ceil(Math.sqrt(maxR)) }, R);
 		}
 
 		ctx.restore()
