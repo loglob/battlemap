@@ -385,7 +385,7 @@ const rtx = {
 		const p = uiInterface?.player
 		const dv = cookie?.data?.character?.darkvision
 
-		if(p && dv)
+		if(p)
 			return { x: p.X + p.Width / 2, y: p.Y + p.Height / 2, range: dv, level: lightlevel.dim }
 		else
 			return null
