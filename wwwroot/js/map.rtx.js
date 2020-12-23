@@ -44,6 +44,77 @@ function toPolar(p, ref)
 	return { x:p.x, y:p.y, len2: rel.x*rel.x + rel.y * rel.y, angle: (tau + Math.atan(rel.y / rel.x) + (rel.x < 0) * Math.PI) % tau }
 }
 
+/** Determines if a is counter-clockwise from b
+ * @param {pvec} a The left point
+ * @param {pvec} b The right right
+ * @returns {boolean} a is left of b
+ */
+function leftof(a,b)
+{
+	return ((tau + b.angle - a.angle) % tau) <= ((tau + a.angle - b.angle) % tau)
+}
+
+/**
+ * 
+ * @param {vec2} la beginning of line
+ * @param {vec2} lb 'end' of line
+ * @param {vec2} p	tested point
+ * @returns {number} -1 for right, 0 for on, 1 for left
+ */
+function lineSide(la,lb,p)
+{
+	return Math.sign((lb.x - la.x) * (p.y - la.y) - (lb.y - la.y) * (p.x - la.x));
+}
+
+/** Determines if two line segments intersect and, if so, determines their intersection point.
+ * If the lines are paralell, returns the first start or end that is within bot
+ *   (prefers starts over ends and [AB] over [CD])
+ * @param {vec2} a The first line segment's start
+ * @param {vec2} b The first line segment's end
+ * @param {vec2} c The second line segment's start
+ * @param {vec2} d The second line segment's end
+ * @returns {vec2?} The intersection, if it exists
+ */
+function lineLineIntersect(a,b,c,d)
+{
+	function isin(p, la, lb)
+	{
+		const d = vdiv(vsub(p,la), vsub(lb,la))
+
+		return (d >= 0 && d <= 1);
+	}
+
+	const div = (a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x)
+
+	if(div == 0)
+	{
+/*		if(isin(a, c, d))
+			return a;
+		if(isin(c, a, b))
+			return c;
+		if(isin(b, c, d))
+			return b;
+		if(isin(d, a, b))
+			return d;*/
+		
+		return null
+	}
+
+	const t = (a.x - c.x) * (c.y - d.y) - (a.y - c.y) * (c.x - d.x)
+
+	// Point outside |AB|
+	if(Math.sign(div) != Math.sign(t) || Math.abs(t) > Math.abs(div))
+		return null;
+
+	const u = (a.y - b.y) * (a.x - c.x) - (a.x - b.x) * (a.y - c.y)
+	
+	// Point outside [CD]
+	if(Math.sign(div) != Math.sign(u) || Math.abs(u) > Math.abs(div))
+		return null;
+
+	return vadd(a, vmul(vsub(b,a), t / div))
+}
+
 /** calculates the intersection of the line from A to B and the circle with radius r and center C
  * The return isn't sorted.
  * @param {vec2} A The origin point
@@ -140,20 +211,6 @@ const rtx = {
 	*/
 	shadowVertices: function(r, l)
 	{
-		function project(p)
-		{
-			const _p = vadd(vmul(vsub(p, l), l.range / Math.sqrt(p.len2)), l)
-			return { x:_p.x, y:_p.y, angle: p.angle, len2: l.range * l.range, len: l.range }
-		}
-		/** Determines if a is counter-clockwise from b
-		 * @param {pvec} a The left point
-		 * @param {pvec} b The right right
-		 * @returns {boolean} a is left of b
-		 */
-		function leftof(a,b)
-		{
-			return ((tau + b.angle - a.angle) % tau) <= ((tau + a.angle - b.angle) % tau)
-		}
 		/** Finds the replacement point for p if p is outside the light's radius.
 		 * Finds the point along the edge p is part of such that it is on the light's boundary and closest to p.
 		 * p must be left or right.
@@ -186,23 +243,13 @@ const rtx = {
 		}
 
 		const r2 = l.range * l.range
-		const lout = left.len2 > r2
-		const rout = right.len2 > r2
 
-		if(lout)
+		if(left.len2 > r2)
 			left = replaceOut(left);
-		if(rout)
+		if(right.len2 > r2)
 			right = replaceOut(right);
 
-		return [
-			// project left if it wasn't moved
-			...(lout ? [] : [project(left)]),
-			left,
-			// include closest point if it is distinct from left and right
-			...((closest == left || closest == right) ? [] : [closest]),
-			right,
-			// project right if it wasn't moved
-			...(rout ? [] : [project(right)])]
+		return (closest == left || closest == right) ? [left, right] : [left, closest, right];
 	},
 	/**
 	 * 
@@ -310,72 +357,197 @@ const rtx = {
 
 		ctx.arc(...cc(L.x, L.y, L.range), s[s.length-1].angle, s[0].angle, true)
 	},
-	/** Renders a single light source onto the swap canvas
+	/** Renders a single light source onto the swap canvas.
+	 * Does not fill shapes, just populates the canvas path
 	 * @param {CanvasRenderingContext2D} ctx
-	 * @param {light} L 
+	 * @param {light} l
 	 * @param {rect[]} R 
 	 */
-	drawLight: function(ctx, L, R)
+	drawLight: function(ctx, l, R)
 	{
-		let S = this.distCull(R, L, L.range)
-			.map(r => this.shadowVertices(r, L))
-			// sort by starting angle to allow primitive vertex culling
-			.sort((a,b) => a[0].angle - b[0].angle)
+		/** Projects a point onto the edge of the light circle
+		 * @param {vec2} p A point
+		 * @returns {pvec} Its projection
+		 */
+		function project(p)
+		{
+			const _p = vadd(vmul(vsub(p, l), l.range / Math.sqrt(p.len2)), l)
+			return { x:_p.x, y:_p.y, angle: p.angle, len2: l.range * l.range, len: l.range }
+		}
+		/** Determines if two shadow edges overlap.
+		 * Reflexive.
+		 * @param {pvec[]} a One shadow edge
+		 * @param {pvec[]} b Another shadow edge
+		 * @returns {boolean} a and b overlap
+		 */
+		function overlap(a,b)
+		{
+			function edges(s)
+			{
+				if(leftof(s[0], s[s.length - 1]))
+					return { l: s[0], r: s[s.length - 1] }
+				else
+					return { l: s[s.length - 1], r: s[0] }
+			}
 
-		let lastStartAngle = NaN
-		let lastEndAngle = NaN
+			const ae = edges(a)
+			const be = edges(b)
 
-		ctx.beginPath();
+			return (leftof(ae.l, be.l) && leftof(be.l, ae.r)) || (leftof(be.l, ae.l) && leftof(ae.l, be.r));
+		}
+		/** Merges two overlapping shadow edges.
+		 * @param {pvec[]} a A shadow edge
+		 * @param {pvec[]} b Another shadow edge
+		 * @returns {pvec[]} Marged vertices of a and b 
+		 */
+		function merge(a,b)
+		{
+			/** A 2D line
+			 * @typedef {Object} line
+			 * @property {pvec} s The start of the line
+			 * @property {pvec} e The end of the line
+			 */
 
-		for (const s of S) {
-			// said primitive vertex culling
-			if(s[0].angle >= lastStartAngle && s[s.length - 1].angle <= lastEndAngle)
-				continue;
+			/** Determines every line of a shadow edge.
+			 * The returned array is indexed by end point index.
+			 * It includes the projected lines at [0] and [|s|]
+			 * @param {pvec[]} s The shadow edge
+			 * @returns {line[]} Its lines
+			 */
+			function lines(s)
+			{
+				let l = [ { s: project(s[0]), e: s[0] } ]
 
-			this.drawShadow(ctx, s, L)
+				for (let i = 1; i < s.length; i++) {
+					l.push({ s: s[i-1], e: s[i] })
+				}
+
+				l.push({ s: s[s.length - 1], e: project(s[s.length - 1]) })
+				return l;
+			}
+			/** Determines the leftmost intersection of the given line with the given edge
+			 * @param {line} l A line
+			 * @param {line[]} o A vertex edge
+			 * @param {number} sans Skips the given index
+			 * @param {line} sans Ignores intersects with the given line
+			 * @returns {{ i: number, l: line, p: vec2 }?} The intersecting point and line
+			 */
+			function intersection(l, o, sans)
+			{
+				for (let i = 0; i < o.length; i++) {
+					if(i == sans)
+						continue;
+
+					const p = lineLineIntersect(l.s, l.e, o[i].s, o[i].e)
+
+					if(p)
+						return { i:i, l: o[i], p: p }
+				}
+
+				return null
+			}
+
+			const la = lines(a);
+			const lb = lines(b);
+			let m = []
 			
-			lastStartAngle = s[0].angle
-			lastStartAngle = s[s.length - 1].angle
+			let curEdge = leftof(a[0], b[0]) ? a : b;
+			let cur = project(curEdge[0])
+			let next = curEdge[0]
+			// index of _next_ end point
+			let curI = 0
+			let lastLine = -1
+
+			for(;;)
+			{
+				const li = (curEdge == a) ? lb : la
+				const i = intersection({ s: cur, e: next }, li, lastLine);
+
+				if(i && i.p.angle !== cur.angle)
+				{
+					cur = toPolar(i.p, l)
+					next = i.l.e
+					lastLine = curI + 1
+					curI = i.i
+					curEdge = (curEdge == a) ? b : a;
+				}
+				else
+				{
+					cur = next
+					curI++
+
+					if(curI > curEdge.length)
+					{
+						//m.push(cur);
+						break;
+					}
+
+					next = curI < curEdge.length ? curEdge[curI] : project(curEdge[curEdge.length - 1])
+					lastLine = -1
+				}
+			
+				m.push(cur);
+			}
+
+			return m
+		}
+		function ccv(p)
+		{
+			return cc(...vx(p))
 		}
 
-		ctx.fill()
-		ctx.stroke()
-	},
-	/** Renders a single light source onto the shadow canvas using the swap canvas.
-	 * @param {CanvasRenderingContext2D} ctx
-	 * @param {light} L 
-	 * @param {rect[]} R 
-	 */
-	putLight: function(ctx, L, R)
-	{
-		const b = cc(L.x - L.range, L.y - L.range, L.range * 2, L.range * 2)
+		let S = this.distCull(R, l, l.range)
+			.map(r => this.shadowVertices(r, l))
 
-		// cut out a transparent circle from the swap canvas
-		this.swap.globalCompositeOperation = "destination-out";
-		this.swap.beginPath();
-		this.swap.arc(...cc(L.x, L.y, L.range), 0, 2 * Math.PI);
-		// this fill eats over 30-40ms on the first render,
-		// then about 5ms per render, and I don't know why 
-		this.swap.fill();
-		this.swap.globalCompositeOperation = "source-over"
 
-		this.drawLight(this.swap, L, R)
+		let mergedAny;
 
-		ctx.save()
-		// set up clipping path for shadow canvas
-		ctx.beginPath();
-		ctx.moveTo(...cc(L.x - L.range, L.y - L.range))
-		ctx.lineTo(...cc(L.x + L.range, L.y - L.range))
-		ctx.lineTo(...cc(L.x + L.range, L.y + L.range))
-		ctx.lineTo(...cc(L.x - L.range, L.y + L.range))
-		ctx.lineTo(...cc(L.x - L.range, L.y - L.range))
-		
-		ctx.clip()
-		ctx.drawImage(this.swapCanvas,...b,...b)
-		ctx.restore();
+		do
+		{
+			mergedAny = false;
 
-		// ensure the swap canvas is entirely black
-		this.swap.fillRect(...b);
+			for (let i = 0; i < S.length; i++) {
+				for (let j = i+1; j < S.length; j++) {
+					if(overlap(S[i], S[j]))
+					{
+						S[i] = merge(S[i], S[j]);
+						S.splice(j,1);
+						mergedAny = true;
+						break;
+					}
+				}
+
+				if(mergedAny)
+					break;
+			}
+		} while(mergedAny);
+
+		let lastAngle = null;
+		let firstAngle;
+		const lc = cc(l.x, l.y, l.range)
+
+		for (const s of S.sort((a,b) => a[0].angle - b[0].angle))
+		{
+			if(lastAngle === null)
+			{
+				ctx.moveTo(...ccv(s[0]))
+				firstAngle = s[0].angle;
+			}
+			else
+				ctx.arc(...lc, lastAngle, s[0].angle)
+			
+			for (const p of s)
+				ctx.lineTo(...ccv(p))
+
+			const end = s[s.length - 1]
+			ctx.lineTo(...ccv(project(end)))
+			lastAngle = end.angle;
+		}
+
+		if(lastAngle == null)
+			ctx.arc(...lc, 0, 2 * Math.PI);
+		else
+			ctx.arc(...lc, lastAngle, firstAngle)
 	},
 	/** Finds the player's darkvision light source
 	 * @returns {light[]} Either a 1-element array or an empty array
@@ -440,65 +612,47 @@ const rtx = {
 
 		if(map.rtxInfo.globallight < lightlevel.dim)
 		{
+			// draw darkness
 			ctx.globalCompositeOperation = "copy"
 			ctx.fillRect(0, 0, w, h)
-			ctx.globalCompositeOperation = "destination-in"
-
-			for (const l of L.filter(l => l.level == lightlevel.dim)) {
-				this.putLight(ctx, l, R)
-			}
 			
-			ctx.globalCompositeOperation = "destination-over"
+			ctx.globalCompositeOperation = "destination-out"
+			ctx.beginPath()
+
+			// erase all illuminated areas
+			for (const l of L.filter(l => l.level == lightlevel.dim)) {
+				this.drawLight(ctx, l, R)
+			}
+
+			ctx.fill();
 		}
-		else
-			ctx.globalCompositeOperation = "copy"
 
-		ctx.globalAlpha = this.dimLightAlpha
+		ctx.globalCompositeOperation = "destination-over"
+		ctx.globalAlpha = this.dimLightAlpha;
 
+		// fill in dim light color, except around a player with darkvision
 		if(P?.range)
 		{
-			const pl = [...cc(P.x, P.y, P.range), 0, 2 * Math.PI ];
-			this.swap.save();
-			ctx.save();
-
-			// copy relevant area to swap canvas
-			this.swap.globalCompositeOperation = "copy"
-			this.swap.beginPath();
-			this.swap.arc(...pl);
-			this.swap.clip();
-			const a = cc(P.x - P.range, P.y - P.range, P.range * 2, P.range * 2)
-			this.swap.drawImage(ctx.canvas, ...a, ...a)
-			
-			// fill everything BUT the player's darkvision radius with the dum light color
 			ctx.beginPath()
-			ctx.arc(...pl)
+			this.drawLight(ctx, P, R)
 			ctx.rect(w, 0, -w, h);
 			ctx.fill();
-
-			// copy swap canvas back onto regular canvas at 50% opacity
-			ctx.globalCompositeOperation = "copy"
-			ctx.beginPath();
-			ctx.arc(...pl)
-			ctx.clip();
-			ctx.drawImage(this.swap.canvas, ...a, ...a);
-			
-			// fill swap canvas back in
-			this.swap.fillRect(...a);
-
-			ctx.restore();
-			this.swap.restore();
 		}
 		else
-			ctx.fillRect(0,0,w,h)
-	
-		ctx.globalCompositeOperation = "destination-in"
-		ctx.globalAlpha = 1
+			ctx.fillRect(0, 0, w, h)
+		
+		ctx.globalCompositeOperation = "destination-out"
+		ctx.globalAlpha = 1.0;
+		ctx.beginPath()
 
+		// erase all areas in bright light
 		for (const l of L.filter(l => l.level == lightlevel.bright)) {
-			this.putLight(ctx, l, R)
+			this.drawLight(ctx, l, R)
 		}
 
-		if(P)
+		ctx.fill();
+
+/*		if(P)
 		{
 			ctx.globalCompositeOperation = "source-over"
 			const maxR = max(max(vlensq(P),
@@ -506,7 +660,7 @@ const rtx = {
 				max(vlensq(vsub(P, v(map.width, 0))),
 					vlensq(vsub(P, v(map.width, map.height)))))
 			this.drawLight(ctx, { x: P.x, y: P.y, range: Math.ceil(Math.sqrt(maxR)) }, R);
-		}
+		}*/
 
 		ctx.restore()
 	}

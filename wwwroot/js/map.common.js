@@ -471,7 +471,7 @@ function vmap(v, f)
 
 /** Multiplies vector v with scalar k
  * @param {vec2} v - The vector
- * @param {number} f - The scalar
+ * @param {number} k - The scalar
  * @returns {vec2} 
 */
 function vmul(v, k)
