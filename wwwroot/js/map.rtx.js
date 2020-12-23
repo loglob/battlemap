@@ -54,18 +54,6 @@ function leftof(a,b)
 	return ((tau + b.angle - a.angle) % tau) <= ((tau + a.angle - b.angle) % tau)
 }
 
-/**
- * 
- * @param {vec2} la beginning of line
- * @param {vec2} lb 'end' of line
- * @param {vec2} p	tested point
- * @returns {number} -1 for right, 0 for on, 1 for left
- */
-function lineSide(la,lb,p)
-{
-	return Math.sign((lb.x - la.x) * (p.y - la.y) - (lb.y - la.y) * (p.x - la.x));
-}
-
 /** Determines if two line segments intersect and, if so, determines their intersection point.
  * If the lines are paralell, returns the first start or end that is within bot
  *   (prefers starts over ends and [AB] over [CD])
@@ -147,25 +135,6 @@ function lineCircleIntersect(A, B, C, r)
 			y: (yl - yr) / r2,
 		}
 	].map(u => toPolar(vadd(u, C), C))
-}
-
-function derect(R, w, h)
-{
-	let m = new Array(w);
-
-	for (let i = 0; i < w; i++) {
-		m[i] = new Array(h).fill(0)
-	}
-
-	for (const r of R) {
-		for (let x = r.X; x < r.X + r.Width; x++) {
-			for (let y = r.Y; y < r.Y + r.Height; y++) {	
-				m[x][y] = 1
-			}
-		}
-	}
-
-	return m
 }
 
 const lightlevel = {
@@ -341,21 +310,6 @@ const rtx = {
 		}
 
 		return sel
-	},
-	/** Draws the shadow of a rectangle.
-	 * Does NOT fill/stroke it, only mutates path
-	 * @param {CanvasRenderingContext2D} ctx
-	 * @param {pvec[]} s The rects's shadowVertices
-	 * @param {light} L The light circle's data
-	 */
-	drawShadow: function(ctx, s, L)
-	{
-		ctx.moveTo(...vx(vmul(s[0], cellSize)))
-
-		for (let i = 1; i < s.length; i++)
-			ctx.lineTo(...vx(vmul(s[i], cellSize)))
-
-		ctx.arc(...cc(L.x, L.y, L.range), s[s.length-1].angle, s[0].angle, true)
 	},
 	/** Renders a single light source onto the swap canvas.
 	 * Does not fill shapes, just populates the canvas path
@@ -591,10 +545,6 @@ const rtx = {
 				else
 					return [ { x:x, y:y, range: l.range, level: l.level } ]
 			})
-	},
-	lightBounds: function(L)
-	{
-		return [ L.x - L.range, L.y - L.range, L.range * 2, L.range * 2 ].map(x => x * cellSize)
 	},
 	/** Renders the shadow layer
 	 * @param {CanvasRenderingContext2D} ctx 
