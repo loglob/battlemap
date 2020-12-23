@@ -18,6 +18,7 @@
  * @property {Object.<string,light>} sources The light sources (templates, so no x,y values)
  * @property {number[]} opaque The opaque tiles
  * @property {boolean?} hideHidden Whether or not hidden tokens produce light
+ * @property {boolean?} lineOfSight Whether or not players cast line-of-sight
  */
 
  /**@type {map} */

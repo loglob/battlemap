@@ -874,6 +874,8 @@ const toolbox = {
 			globallight: initpls,
 			/** @type {HTMLInputElement} */
 			hidehidden: initpls,
+			/** @type {HTMLInputElement} */
+			lineofsight: initpls,
 			/** @type {HTMLButtonElement} */
 			save: initpls,
 			/** @type {HTMLInputElement} */
@@ -918,6 +920,7 @@ const toolbox = {
 
 				this.globallight.value = data.globallight
 				this.hidehidden.checked = data.hideHidden ?? false
+				this.lineofsight.checked = data.lineOfSight ?? false
 			},
 			getData: function() {
 				const rtxinfo = {
@@ -925,7 +928,8 @@ const toolbox = {
 					opaque: new Array(...this.opaque.childNodes)
 						.map(tr => parseColor(tr.firstChild.innerText)),
 					globallight: Number(this.globallight.value),
-					hideHidden: this.hidehidden.checked
+					hideHidden: this.hidehidden.checked,
+					lineOfSight: this.lineofsight.checked,
 				}
 
 				for (const source of this.sources.childNodes)

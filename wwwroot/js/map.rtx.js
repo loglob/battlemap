@@ -619,15 +619,19 @@ const rtx = {
 
 		ctx.fill();
 
-/*		if(P)
+		if(P && map.rtxInfo.lineOfSight)
 		{
 			ctx.globalCompositeOperation = "source-over"
 			const maxR = max(max(vlensq(P),
 					vlensq(vsub(P, v(0, map.height)))),
 				max(vlensq(vsub(P, v(map.width, 0))),
 					vlensq(vsub(P, v(map.width, map.height)))))
+			
+			ctx.beginPath();
 			this.drawLight(ctx, { x: P.x, y: P.y, range: Math.ceil(Math.sqrt(maxR)) }, R);
-		}*/
+			ctx.rect(w, 0, -w, h);
+			ctx.fill();
+		}
 
 		ctx.restore()
 	}
