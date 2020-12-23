@@ -486,7 +486,9 @@ const rtx = {
 					lastLine = -1
 				}
 			
-				m.push(cur);
+				// don't push duplicate points
+				if(m.length == 0 || cur.x != m[m.length - 1].x || cur.y != m[m.length - 1].y)
+					m.push(cur);
 			}
 
 			return m
@@ -612,9 +614,24 @@ const rtx = {
 
 		if(map.rtxInfo.globallight < lightlevel.dim)
 		{
-			// draw darkness
+			// draw darkness, except around a player with darkvision
 			ctx.globalCompositeOperation = "copy"
-			ctx.fillRect(0, 0, w, h)
+
+			if(P?.range)
+			{
+				ctx.beginPath()
+				this.drawLight(ctx, P, R)
+
+				ctx.globalAlpha = this.dimLightAlpha
+				ctx.fill()
+				ctx.globalCompositeOperation = "destination-over"
+				ctx.globalAlpha = 1.0
+
+				ctx.rect(w, 0, -w, h);
+				ctx.fill();
+			}
+			else
+				ctx.fillRect(0, 0, w, h)
 			
 			ctx.globalCompositeOperation = "destination-out"
 			ctx.beginPath()
