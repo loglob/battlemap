@@ -495,13 +495,13 @@ const rtx = {
 				const x = s.s.x
 				return { x: x, y: l.y, angle: a, len2: (x - l.x) * (x - l.x) };
 			}
-			if(s.s.x == s.e.x)
+			if(s.s.x == s.e.x && s.s.x > l.x)
 			{
 				let r = null;
 
-				if (s.s.x < l.x && s.e.x > l.x)
+				if (s.s.y < l.y && s.e.y > l.y)
 					r = [{ s: s.s, e:p(2 * Math.PI) }, { s: p(0), e: s.e }]
-				else if (s.s.x > l.x && s.e.x < l.x)
+				else if (s.s.y > l.y && s.e.y < l.y)
 					r = [{ s: s.s, e:p(0) }, { s: p(2 * Math.PI), e: s.e }]
 				
 				if(r && !r.some(l => approx(l.s, l.e)))
