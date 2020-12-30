@@ -44,6 +44,25 @@ function toPolar(p, ref)
 	return { x:p.x, y:p.y, len2: rel.x*rel.x + rel.y * rel.y, angle: (tau + Math.atan(rel.y / rel.x) + (rel.x < 0) * Math.PI) % tau }
 }
 
+/** Calculates dot product
+ * @param {vec2} a A vector
+ * @param {vec2} b Another vector
+ * @returns {number} a . b
+ */
+function vdot(a,b)
+{
+	return a.x * b.x + a.y * b.y
+}
+
+/**
+ * @param {vec2} p 
+ * @returns {Number[]} cc(...vx(p))
+ */
+function ccv(p)
+{
+	return cc(...vx(p))
+}
+
 /** Determines if a is counter-clockwise from b
  * @param {pvec} a The left point
  * @param {pvec} b The right right
@@ -54,8 +73,29 @@ function leftof(a,b)
 	return ((tau + b.angle - a.angle) % tau) <= ((tau + a.angle - b.angle) % tau)
 }
 
+/** Determines if two scalars or vectors are close
+ * @param {vec2|number} a 
+ * @param {vec2|number} b 
+ */
+function approx(a,b)
+{
+	if(typeof a === "number")
+		return Math.abs(a-b) < 0.00001
+	else
+		return approx(a.x, b.x) && approx(a.y, b.y)
+}
+
+/** Determines if all given values are approximately equal
+ * @param {...vec2|number} args
+ * @returns {boolean}
+ */
+function allapprox()
+{
+	return !Array.from(arguments).splice(1).some(i => !approx(i, arguments[0]));
+}
+
 /** Determines if two line segments intersect and, if so, determines their intersection point.
- * If the lines are paralell, returns the first start or end that is within bot
+ * If the lines are paralell, returns the first start or end that is within both
  *   (prefers starts over ends and [AB] over [CD])
  * @param {vec2} a The first line segment's start
  * @param {vec2} b The first line segment's end
@@ -65,25 +105,39 @@ function leftof(a,b)
  */
 function lineLineIntersect(a,b,c,d)
 {
-	function isin(p, la, lb)
-	{
-		const d = vdiv(vsub(p,la), vsub(lb,la))
-
-		return (d >= 0 && d <= 1);
-	}
-
 	const div = (a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x)
 
-	if(div == 0)
+	if(approx(div, 0))
 	{
-/*		if(isin(a, c, d))
+		const lens = [ vsub(a,b), vsub(b,c), vsub(a,c) ].map(vlen)
+
+		// Determine if lines are collinear
+		if((lens[0] + lens[1] + lens[2]) != Math.max(...lens) * 2)
+			return null;
+
+		/** Determines if a point is in a line.
+		 * Relies on the previous collinearity check.
+		 * @param {vec2} lp start of line
+		 * @param {vec2} lq end of line
+		 * @param {vec2} k a point
+		 * @returns {boolean) k in [lp;lq]
+		 */
+		function inLine(lp,lq,k)
+		{
+			const diff = vmap(vsub(lq, lp), Math.abs);
+
+			if(diff.x >= diff.y)
+				return lp.x <= k.x && k.x <= lq.x;
+			else
+				return lp.y <= k.y && k.y <= lq.y;
+		}
+		
+		if(inLine(c,d,a))
 			return a;
-		if(isin(c, a, b))
+		if(inLine(a,b,c))
 			return c;
-		if(isin(b, c, d))
+		if(inLine(c,d,b))
 			return b;
-		if(isin(d, a, b))
-			return d;*/
 		
 		return null
 	}
@@ -311,13 +365,18 @@ const rtx = {
 
 		return sel
 	},
-	/** Renders a single light source onto the swap canvas.
-	 * Does not fill shapes, just populates the canvas path
-	 * @param {CanvasRenderingContext2D} ctx
-	 * @param {light} l
-	 * @param {rect[]} R 
+	/** Represents a 2D line segment
+	 * @typedef {Object} line A 2D line segment
+	 * @property {pvec} s The starting point
+	 * @property {pvec} e The ending point
 	 */
-	drawLight: function(ctx, l, R)
+	/** Determines an isomorphic set of lines without intersections or lines crossing the 0° axis.
+	 * The return value is sorted by starting point angle.
+	 * @param {light} l The light source
+	 * @param {rect[]} R The hitboxes
+	 * @returns {line[]} Said set of lines
+	 */
+	getLines: function(l, R)
 	{
 		/** Projects a point onto the edge of the light circle
 		 * @param {vec2} p A point
@@ -328,182 +387,212 @@ const rtx = {
 			const _p = vadd(vmul(vsub(p, l), l.range / Math.sqrt(p.len2)), l)
 			return { x:_p.x, y:_p.y, angle: p.angle, len2: l.range * l.range, len: l.range }
 		}
-		/** Determines if two shadow edges overlap.
-		 * Reflexive.
-		 * @param {pvec[]} a One shadow edge
-		 * @param {pvec[]} b Another shadow edge
-		 * @returns {boolean} a and b overlap
+		
+		/** All lines
+		 * @type {line[]}
 		 */
-		function overlap(a,b)
-		{
-			function edges(s)
-			{
-				if(leftof(s[0], s[s.length - 1]))
-					return { l: s[0], r: s[s.length - 1] }
-				else
-					return { l: s[s.length - 1], r: s[0] }
-			}
-
-			const ae = edges(a)
-			const be = edges(b)
-
-			return (leftof(ae.l, be.l) && leftof(be.l, ae.r)) || (leftof(be.l, ae.l) && leftof(ae.l, be.r));
-		}
-		/** Merges two overlapping shadow edges.
-		 * @param {pvec[]} a A shadow edge
-		 * @param {pvec[]} b Another shadow edge
-		 * @returns {pvec[]} Marged vertices of a and b 
-		 */
-		function merge(a,b)
-		{
-			/** A 2D line
-			 * @typedef {Object} line
-			 * @property {pvec} s The start of the line
-			 * @property {pvec} e The end of the line
-			 */
-
-			/** Determines every line of a shadow edge.
-			 * The returned array is indexed by end point index.
-			 * It includes the projected lines at [0] and [|s|]
-			 * @param {pvec[]} s The shadow edge
-			 * @returns {line[]} Its lines
-			 */
-			function lines(s)
-			{
-				let l = [ { s: project(s[0]), e: s[0] } ]
-
-				for (let i = 1; i < s.length; i++) {
-					l.push({ s: s[i-1], e: s[i] })
-				}
-
-				l.push({ s: s[s.length - 1], e: project(s[s.length - 1]) })
-				return l;
-			}
-			/** Determines the leftmost intersection of the given line with the given edge
-			 * @param {line} l A line
-			 * @param {line[]} o A vertex edge
-			 * @param {number} sans Skips the given index
-			 * @param {line} sans Ignores intersects with the given line
-			 * @returns {{ i: number, l: line, p: vec2 }?} The intersecting point and line
-			 */
-			function intersection(l, o, sans)
-			{
-				for (let i = 0; i < o.length; i++) {
-					if(i == sans)
-						continue;
-
-					const p = lineLineIntersect(l.s, l.e, o[i].s, o[i].e)
-
-					if(p)
-						return { i:i, l: o[i], p: p }
-				}
-
-				return null
-			}
-
-			const la = lines(a);
-			const lb = lines(b);
-			let m = []
-			
-			let curEdge = leftof(a[0], b[0]) ? a : b;
-			let cur = project(curEdge[0])
-			let next = curEdge[0]
-			// index of _next_ end point
-			let curI = 0
-			let lastLine = -1
-
-			for(;;)
-			{
-				const li = (curEdge == a) ? lb : la
-				const i = intersection({ s: cur, e: next }, li, lastLine);
-
-				if(i && i.p.angle !== cur.angle)
-				{
-					cur = toPolar(i.p, l)
-					next = i.l.e
-					lastLine = curI + 1
-					curI = i.i
-					curEdge = (curEdge == a) ? b : a;
-				}
-				else
-				{
-					cur = next
-					curI++
-
-					if(curI > curEdge.length)
-					{
-						//m.push(cur);
-						break;
-					}
-
-					next = curI < curEdge.length ? curEdge[curI] : project(curEdge[curEdge.length - 1])
-					lastLine = -1
-				}
-			
-				// don't push duplicate points
-				if(m.length == 0 || cur.x != m[m.length - 1].x || cur.y != m[m.length - 1].y)
-					m.push(cur);
-			}
-
-			return m
-		}
-		function ccv(p)
-		{
-			return cc(...vx(p))
-		}
-
 		let S = this.distCull(R, l, l.range)
-			.map(r => this.shadowVertices(r, l))
+			.flatMap(function(r)
+			{
+				const s = rtx.shadowVertices(r,l)
+				let L = [ { s: project(s[0]), e: s[0] } ];
+	
+				for (let i = 1; i < s.length; i++)
+					L.push({ s: s[i - 1], e: s[i] });
+	
+				L.push({ s: s[s.length - 1], e: project(s[s.length - 1]) });
+				return L;
+			});
 
-
-		let mergedAny;
-
-		do
+		// perform successive merging of radially-aligned overlapping lines
+		// since they can't be properly processed via x-splicing
+		for(;;)
 		{
-			mergedAny = false;
+			function llen(l)
+			{
+				return Math.abs((l.s.len ?? Math.sqrt(l.s.len2)) - (l.e.len ?? Math.sqrt(l.e.len2)))
+			}
 
-			for (let i = 0; i < S.length; i++) {
-				for (let j = i+1; j < S.length; j++) {
-					if(overlap(S[i], S[j]))
+			let mergedAny = false;
+			
+			for (let i = 0; i < S.length; i++)
+			{
+				for (let j = i+1; j < S.length; j++)
+				{
+					// only projected lines match this
+					if(allapprox(S[i].s.angle, S[i].e.angle, S[j].s.angle, S[j].e.angle))
 					{
-						S[i] = merge(S[i], S[j]);
-						S.splice(j,1);
+						// both go in the same direction
+						if(S[i].s.len === S[j].s.len && S[i].e.len === S[j].e.len)
+							S.splice((llen(S[i]) > llen(S[j])) ? j : i,1)
+						else
+						{
+							if(S[i].s.len)
+								S[i].s = S[j].s;
+							else
+								S[i].e = S[j].e;
+
+							S.splice(j, 1);
+
+							if(approx(S[i].s, S[i].e))
+								S.splice(i, 1);
+						}
+
 						mergedAny = true;
 						break;
 					}
 				}
-
+		
 				if(mergedAny)
 					break;
 			}
-		} while(mergedAny);
 
-		let lastAngle = null;
-		let firstAngle;
-		const lc = cc(l.x, l.y, l.range)
-
-		for (const s of S.sort((a,b) => a[0].angle - b[0].angle))
-		{
-			if(lastAngle === null)
-			{
-				ctx.moveTo(...ccv(s[0]))
-				firstAngle = s[0].angle;
-			}
-			else
-				ctx.arc(...lc, lastAngle, s[0].angle)
-			
-			for (const p of s)
-				ctx.lineTo(...ccv(p))
-
-			const end = s[s.length - 1]
-			ctx.lineTo(...ccv(project(end)))
-			lastAngle = end.angle;
+			if(!mergedAny)
+				break;
 		}
 
-		if(lastAngle == null)
-			ctx.arc(...lc, 0, 2 * Math.PI);
+		// perform successive x- and y-splices,
+		// transforming S to an isomorphic set containing only non-intersecting line segments
+		// additionally splits any lines crossing the 0° axis into their left and right parts
+		for(;;)
+		{
+			let splitAny = false;
+
+			for (let i = 0; i < S.length; i++) {
+				for (let j = i+1; j < S.length; j++) {
+					let p = lineLineIntersect(S[i].s, S[i].e, S[j].s, S[j].e)
+
+					if(p)
+					{
+						p = toPolar(p, l)
+						const r = [{ s: S[i].s, e: p }, { s: S[j].s, e: p }, { s: p, e: S[i].e }, { s: p, e: S[j].e }]
+							.filter(l => !approx(l.s, l.e))
+
+						// don't perform v-splices as they will always yield the same lines again
+						if(r.length > 2)
+						{
+							S[i] = r[0]
+							S[j] = r[1]
+							S.push(...r.splice(2));
+
+							splitAny = true;
+							break;
+						}
+					}
+				}
+
+				if(splitAny)
+					break;
+				else if(S[i].s.angle > S[i].e.angle)
+				{ // S[i] passes through 0° axis
+					if(S[i].s.x != S[i].e.x)
+					{
+						console.error("rtx.drawLight(): SANITY CHECK FAILED: Line passing through 0° axis not y-axis-aligned");
+						throw "sanity check failed";
+					}
+					function p(a)
+					{
+						const x = S[i].s.x
+						return { x: x, y: l.y, angle: a, len2: (x - l.x) * (x - l.x) };
+					}
+
+					const r = [{ s: S[i].s, e:p(2 * Math.PI) }, { s: p(0), e: S[i].e }]
+
+					if(!r.some(l => approx(l.s, l.e)))
+					{
+						S[i] = r[0]
+						S.push(r[1]);
+						splitAny = true;
+						break;
+					}
+				}
+			}
+
+			if(!splitAny)
+				break;
+		}
+
+		S.sort((a,b) => a.s.angle - b.s.angle);
+
+		return S;
+	},
+	/** Renders a single light source onto the swap canvas.
+	 * Does not fill shapes, just populates the canvas path
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {light} l
+	 * @param {rect[]} R 
+	 */
+	drawLight: function(ctx, l, R)
+	{
+		const rad = cc(l.x, l.y, l.range)
+		let S = this.getLines(l, R);
+		
+		if(!S.length)
+		{
+			ctx.arc(...rad, 0, 2 * Math.PI);
+			return;
+		}
+
+		let first;
+
+		// determine first point
+		{
+			/** All possible starting points
+			 * @type {line[]}
+			 */
+			const fset = S.min(s => s.s.angle)
+
+			// The possible starting points connected to some possible end point
+			const pfset = fset.filter(f => S.some(s => approx(s.e, f.s)));
+
+			if(pfset.length)
+				first = pfset.min(f => f.len2)[0]
+			else
+				first = fset.max(f => f.len2)[0]
+		}
+
+		/**
+		 * @type {line}
+		 */
+		let cur = first;
+		ctx.moveTo(...ccv(cur.s))
+
+		while(S.length)
+		{
+			ctx.lineTo(...ccv(cur.e))
+
+			if(cur.e.angle < cur.s.angle)
+				break;
+
+			// TODO: Optimize this filter using the sortedness of S
+			S = S.filter(s => s.s.angle >= cur.e.angle && s != cur);
+
+			/**
+			 * @type {line}
+			 */
+			let next = S.filter(s => approx(s.s, cur.e))
+				.min(s => s.e.len2)[0]
+
+			if(!next)
+			{ // no connected next line
+				S = S.filter(s => s.s.angle > cur.e.angle);
+				
+				next = S.min(s => s.s.angle)
+					.max(s => s.s.len2)[0]
+
+				if(next)
+					ctx.arc(...rad, cur.e.angle, next.s.angle)
+				else
+					break;
+			}
+			
+			cur = next;
+		}
+
+		if(approx(cur.e, first.s))
+			ctx.lineTo(...ccv(first.s))
 		else
-			ctx.arc(...lc, lastAngle, firstAngle)
+			ctx.arc(...rad, cur.e.angle, first.s.angle);
 	},
 	/** Finds the player's darkvision light source
 	 * @returns {light[]} Either a 1-element array or an empty array
@@ -555,28 +644,51 @@ const rtx = {
 	draw: function(ctx, R, L, P)
 	{
 		if(map.rtxInfo.globallight == lightlevel.bright)
-		{
 			ctx.clear();
-			return;
-		}
-
-		ctx.save();
-
-		if(map.rtxInfo.globallight < lightlevel.dim)
+		else
 		{
-			// draw darkness, except around a player with darkvision
-			ctx.globalCompositeOperation = "copy"
+			ctx.save();
 
+			if(map.rtxInfo.globallight < lightlevel.dim)
+			{
+				// draw darkness, except around a player with darkvision
+				ctx.globalCompositeOperation = "copy"
+	
+				if(P?.range)
+				{
+					ctx.beginPath()
+					this.drawLight(ctx, P, R)
+	
+					ctx.globalAlpha = this.dimLightAlpha
+					ctx.fill()
+					ctx.globalCompositeOperation = "destination-over"
+					ctx.globalAlpha = 1.0
+	
+					ctx.rect(w, 0, -w, h);
+					ctx.fill();
+				}
+				else
+					ctx.fillRect(0, 0, w, h)
+				
+				ctx.globalCompositeOperation = "destination-out"
+				ctx.beginPath()
+	
+				// erase all illuminated areas
+				for (const l of L.filter(l => l.level == lightlevel.dim)) {
+					this.drawLight(ctx, l, R)
+				}
+	
+				ctx.fill();
+			}
+	
+			ctx.globalCompositeOperation = "destination-over"
+			ctx.globalAlpha = this.dimLightAlpha;
+	
+			// fill in dim light color, except around a player with darkvision
 			if(P?.range)
 			{
 				ctx.beginPath()
 				this.drawLight(ctx, P, R)
-
-				ctx.globalAlpha = this.dimLightAlpha
-				ctx.fill()
-				ctx.globalCompositeOperation = "destination-over"
-				ctx.globalAlpha = 1.0
-
 				ctx.rect(w, 0, -w, h);
 				ctx.fill();
 			}
@@ -584,40 +696,17 @@ const rtx = {
 				ctx.fillRect(0, 0, w, h)
 			
 			ctx.globalCompositeOperation = "destination-out"
+			ctx.globalAlpha = 1.0;
 			ctx.beginPath()
-
-			// erase all illuminated areas
-			for (const l of L.filter(l => l.level == lightlevel.dim)) {
+	
+			// erase all areas in bright light
+			for (const l of L.filter(l => l.level == lightlevel.bright)) {
 				this.drawLight(ctx, l, R)
 			}
-
+	
 			ctx.fill();
+			ctx.restore()
 		}
-
-		ctx.globalCompositeOperation = "destination-over"
-		ctx.globalAlpha = this.dimLightAlpha;
-
-		// fill in dim light color, except around a player with darkvision
-		if(P?.range)
-		{
-			ctx.beginPath()
-			this.drawLight(ctx, P, R)
-			ctx.rect(w, 0, -w, h);
-			ctx.fill();
-		}
-		else
-			ctx.fillRect(0, 0, w, h)
-		
-		ctx.globalCompositeOperation = "destination-out"
-		ctx.globalAlpha = 1.0;
-		ctx.beginPath()
-
-		// erase all areas in bright light
-		for (const l of L.filter(l => l.level == lightlevel.bright)) {
-			this.drawLight(ctx, l, R)
-		}
-
-		ctx.fill();
 
 		if(P && map.rtxInfo.lineOfSight)
 		{
@@ -633,7 +722,6 @@ const rtx = {
 			ctx.fill();
 		}
 
-		ctx.restore()
 	}
 };
 
@@ -713,8 +801,49 @@ function debugctx() {
 	ctx.canvas.style.filter = ""
 	ctx.fillStyle = "orange"
 	ctx.strokeStyle = "red"
-	ctx.lineWidth = 9
-	ctx.globalAlpha = 0.4
+	ctx.lineWidth = 3
+	ctx.globalAlpha = 1
 
 	return ctx
+}
+
+function viz(o)
+{
+	const c = debugctx();
+	function rot(p, a, h)
+	{
+		let m = vmul(v(Math.cos(a), Math.sin(a)), 20);
+		p = vmul(p, cellSize);
+
+		c.moveTo(...vx(h ? p : vsub(p, m)))
+		c.lineTo(...vx(vadd(p, m)))
+	}
+
+	function _viz(o)
+	{	
+		if(Array.isArray(o))
+		{
+			for (const i of o)
+				_viz(i);
+		}
+		else if(typeof o.x === "number" && typeof o.y === "number")
+		{
+			rot(o, 0.5 * Math.PI)
+			rot(o, 0.5 * Math.PI)
+		}
+		else if(typeof o.s === "object" && typeof o.e === "object")
+		{
+			c.moveTo(...ccv(o.s))
+			c.lineTo(...ccv(o.e))
+			let d = toPolar(o.e, o.s)
+			rot(o.s, d.angle + 0.5 * Math.PI)
+			rot(o.e, d.angle + 1.2 * Math.PI, true)
+			rot(o.e, d.angle + 0.8 * Math.PI, true)
+		}
+
+	}
+
+	c.beginPath();
+	_viz(o);
+	c.stroke();
 }

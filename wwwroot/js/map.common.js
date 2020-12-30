@@ -26,6 +26,58 @@ const mapFields = {
 
 //#region Array Extension methods
 
+/** Finds the element that is mapped to the lowest value via f
+ * @param {function} f The map function
+ * @returns {any[]} Every object mapped to the minimum value
+ */
+Array.prototype.min = function(f) {
+	if(this.length < 1)
+		return [];
+
+	let cur = [ this[0] ]
+	let curMin = f(cur[0])
+
+	for (let i = 1; i < this.length; i++) {
+		const c = f(this[i])
+
+		if(c == curMin)
+			cur.push(this[i])
+		else if(c < curMin)
+		{
+			cur = [ this[i] ];
+			curMin = c;
+		}
+	}
+
+	return cur;
+}
+
+/** Finds the element that is mapped to the lowest value via f
+ * @param {function} f The map function
+ * @returns {any[]} Every object mapped to the minimum value
+ */
+Array.prototype.max = function(f) {
+	if(this.length < 1)
+		return [];
+
+	let cur = [ this[0] ]
+	let curMax = f(cur[0])
+
+	for (let i = 1; i < this.length; i++) {
+		const c = f(this[i])
+
+		if(c == curMax)
+			cur.push(this[i])
+		else if(c > curMax)
+		{
+			cur = [ this[i] ];
+			curMax = c;
+		}
+	}
+
+	return cur;
+}
+
 /** Removes every item from the array matching a predicate
  * @param {function} matches	The predicate
  * @returns {number}	The amount of deleted items
@@ -45,6 +97,7 @@ Array.prototype.removeAll = function(matches) {
 
 	return c
 }
+
 
 /** Removes the given item in-place.
  * @param item	The item
