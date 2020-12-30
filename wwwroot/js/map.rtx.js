@@ -401,7 +401,7 @@ const rtx = {
 					L.push({ s: s[i - 1], e: s[i] });
 	
 				L.push({ s: s[s.length - 1], e: project(s[s.length - 1]) });
-				return L;
+				return L.filter(l => !approx(l.s, l.e));
 			});
 
 		// perform successive merging of radially-aligned overlapping lines
@@ -453,7 +453,6 @@ const rtx = {
 
 		// perform successive x- and y-splices,
 		// transforming S to an isomorphic set containing only non-intersecting line segments
-		// additionally splits any lines crossing the 0° axis into their left and right parts
 		for(;;)
 		{
 			let splitAny = false;
@@ -483,34 +482,34 @@ const rtx = {
 
 				if(splitAny)
 					break;
-				else if(S[i].s.angle > S[i].e.angle)
-				{ // S[i] passes through 0° axis
-					if(S[i].s.x != S[i].e.x)
-					{
-						console.error("rtx.drawLight(): SANITY CHECK FAILED: Line passing through 0° axis not y-axis-aligned");
-						throw "sanity check failed";
-					}
-					function p(a)
-					{
-						const x = S[i].s.x
-						return { x: x, y: l.y, angle: a, len2: (x - l.x) * (x - l.x) };
-					}
-
-					const r = [{ s: S[i].s, e:p(2 * Math.PI) }, { s: p(0), e: S[i].e }]
-
-					if(!r.some(l => approx(l.s, l.e)))
-					{
-						S[i] = r[0]
-						S.push(r[1]);
-						splitAny = true;
-						break;
-					}
-				}
 			}
 
 			if(!splitAny)
 				break;
 		}
+
+		// Split any lines crossing the 0°-axis along it
+		S = S.flatMap(function(s){
+			function p(a)
+			{
+				const x = s.s.x
+				return { x: x, y: l.y, angle: a, len2: (x - l.x) * (x - l.x) };
+			}
+			if(s.s.x == s.e.x)
+			{
+				let r = null;
+
+				if (s.s.x < l.x && s.e.x > l.x)
+					r = [{ s: s.s, e:p(2 * Math.PI) }, { s: p(0), e: s.e }]
+				else if (s.s.x > l.x && s.e.x < l.x)
+					r = [{ s: s.s, e:p(0) }, { s: p(2 * Math.PI), e: s.e }]
+				
+				if(r && !r.some(l => approx(l.s, l.e)))
+					return r;
+			}
+
+			return [ s ];
+		})
 
 		S.sort((a,b) => a.s.angle - b.s.angle);
 
@@ -571,7 +570,8 @@ const rtx = {
 			 * @type {line}
 			 */
 			let next = S.filter(s => approx(s.s, cur.e))
-				.min(s => s.e.len2)[0]
+				.min(s => s.e.len2)
+				.max(s => s.e.angle)[0]
 
 			if(!next)
 			{ // no connected next line
@@ -807,7 +807,7 @@ function debugctx() {
 	return ctx
 }
 
-function viz(o)
+function viz(o, cl)
 {
 	const c = debugctx();
 	function rot(p, a, h)
@@ -843,6 +843,10 @@ function viz(o)
 
 	}
 
+	if(cl)
+		c.clear();
+
+	console.log(c);
 	c.beginPath();
 	_viz(o);
 	c.stroke();
