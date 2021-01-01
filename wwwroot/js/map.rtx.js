@@ -571,11 +571,8 @@ const rtx = {
 		{
 			ctx.lineTo(...ccv(cur.e))
 
-			if(cur.e.angle < cur.s.angle)
-				break;
-
 			// TODO: Optimize this filter using the sortedness of S
-			S = S.filter(s => s.s.angle >= cur.e.angle && s != cur);
+			S = S.filter(s => s != cur && (s.s.angle >= cur.e.angle || approx(s.s.angle, cur.e.angle)));
 
 			/**
 			 * @type {line}
