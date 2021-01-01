@@ -125,13 +125,13 @@ function lineLineIntersect(a,b,c,d)
 	const t = (a.x - c.x) * (c.y - d.y) - (a.y - c.y) * (c.x - d.x)
 
 	// Point outside |AB|
-	if(Math.sign(div) != Math.sign(t) || Math.abs(t) > Math.abs(div))
+	if(!approx(t,div) && (Math.sign(div) != Math.sign(t) || Math.abs(t) > Math.abs(div)))
 		return null;
 
 	const u = (a.y - b.y) * (a.x - c.x) - (a.x - b.x) * (a.y - c.y)
 	
 	// Point outside [CD]
-	if(Math.sign(div) != Math.sign(u) || Math.abs(u) > Math.abs(div))
+	if(!approx(u, div) && (Math.sign(div) != Math.sign(u) || Math.abs(u) > Math.abs(div)))
 		return null;
 
 	return vadd(a, vmul(vsub(b,a), t / div))
@@ -434,7 +434,7 @@ const rtx = {
 				const x = s.s.x
 				return { x: x, y: l.y, angle: a, len2: (x - l.x) * (x - l.x) };
 			}
-			if(s.s.x == s.e.x && s.s.x > l.x)
+			if(approx(s.s.x, s.e.x) && s.s.x > l.x)
 			{
 				/**
 				 * @type {line[]}
