@@ -375,6 +375,7 @@ const rtx = {
 				L.push({ s: s[s.length - 1], e: project(s[s.length - 1]) });
 				return L.filter(l => !approx(l.s, l.e));
 			});
+		// TODO: cull occluded rectangles
 
 		/*	perform successive x- and y-splices,
 			transforming S to an isomorphic set containing only non-intersecting line segments
@@ -383,6 +384,7 @@ const rtx = {
 		{
 			let splitAny = false;
 
+			// TODO: optimize this loop by not repeating low indices
 			for (let i = 0; i < S.length; i++) {
 				for (let j = i+1; j < S.length; j++) {
 					let p = lineLineIntersect(S[i].s, S[i].e, S[j].s, S[j].e)

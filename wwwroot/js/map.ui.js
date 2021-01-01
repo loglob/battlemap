@@ -922,23 +922,29 @@ const toolbox = {
 				this.hidehidden.checked = data.hideHidden ?? false
 				this.lineofsight.checked = data.lineOfSight ?? false
 			},
-			getData: function() {
-				const rtxinfo = {
-					sources: {},
-					opaque: new Array(...this.opaque.childNodes)
-						.map(tr => parseColor(tr.firstChild.innerText)),
-					globallight: Number(this.globallight.value),
-					hideHidden: this.hidehidden.checked,
-					lineOfSight: this.lineofsight.checked,
-				}
+			getSources: function() {
+				let s = {};
 
 				for (const source of this.sources.childNodes)
 				{
 					const cells = new Array(... source.childNodes).map(d => d.innerText)
-					rtxinfo.sources[cells[0]] = { range: Number(cells[1]), level: Number(cells[2]) }
+					s[cells[0]] = { range: Number(cells[1]), level: Number(cells[2]) }
 				}
 
-				return rtxinfo
+				return s;
+			},
+			getOpaque: function() {
+				return new Array(...this.opaque.childNodes)
+					.map(tr => parseColor(tr.firstChild.innerText));
+			},
+			getData: function() {
+				return {
+					sources: this.getSources(),
+					opaque: this.getOpaque(),
+					globallight: Number(this.globallight.value),
+					hideHidden: this.hidehidden.checked,
+					lineOfSight: this.lineofsight.checked,
+				};
 			},
 			onSave: function(evnt) {
 				maphub.rtxUpdate(toolbox.tools.rtx.getData())
@@ -950,15 +956,21 @@ const toolbox = {
 			onMouseDown: function(evnt) {
 				const p = v(tile(evnt.pageX), tile(evnt.pageY))
 				const tk = tokenAt(p.x, p.y)
+				// TODO: rework UI
 
 				if(tk)
 				{
-					// TODO: properly implement this
-					addRow(this.sources, [idName(tk), 6, 2], null).contentEditable = true
+					const id = idName(tk);
+
+					if(!this.getSources()[id])
+						addRow(this.sources, [idName(tk), 6, 2], null).contentEditable = true
 				}
 				else
 				{
-					this.makeColorRow(map.colors[p.x][p.y])
+					const c = map.colors[p.x][p.y]
+
+					if(!this.getOpaque().includes(c))
+						this.makeColorRow(c)
 				}
 			},
 			init: function() {
