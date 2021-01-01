@@ -44,16 +44,6 @@ function toPolar(p, ref)
 	return { x:p.x, y:p.y, len2: rel.x*rel.x + rel.y * rel.y, angle: (tau + Math.atan(rel.y / rel.x) + (rel.x < 0) * Math.PI) % tau }
 }
 
-/** Calculates dot product
- * @param {vec2} a A vector
- * @param {vec2} b Another vector
- * @returns {number} a . b
- */
-function vdot(a,b)
-{
-	return a.x * b.x + a.y * b.y
-}
-
 /**
  * @param {vec2} p 
  * @returns {Number[]} cc(...vx(p))
@@ -285,8 +275,8 @@ const rtx = {
 						const b = cur[cur.length - 1]
 						b.Width += Math.abs(d0.x)
 						b.Height += Math.abs(d0.y)
-						b.X = min(b.X, p.x)
-						b.Y = min(b.Y, p.y)
+						b.X = Math.min(b.X, p.x)
+						b.Y = Math.min(b.Y, p.y)
 					}
 				}
 		
@@ -302,8 +292,8 @@ const rtx = {
 							const b = last[j]
 							b.Width += Math.abs(d1.x)
 							b.Height += Math.abs(d1.y)
-							b.X = min(b.X, cur[i].X)
-							b.Y = min(b.Y, cur[i].Y)
+							b.X = Math.min(b.X, cur[i].X)
+							b.Y = Math.min(b.Y, cur[i].Y)
 		
 							cur[i] = b
 							last.splice(j, 1);
@@ -669,7 +659,6 @@ const rtx = {
 			ctx.rect(w, 0, -w, h);
 			ctx.fill();
 		}
-
 	}
 };
 

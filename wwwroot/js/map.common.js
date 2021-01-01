@@ -903,16 +903,6 @@ function cc()
 	return Array.from(arguments).map(i => i * cellSize)
 }
 
-function min(a,b)
-{
-	return (a < b) ? a : b
-}
-
-function max(a,b)
-{
-	return (a > b) ? a : b
-}
-
 /** Performs initialization for all map components
  * @returns {void}
  */
