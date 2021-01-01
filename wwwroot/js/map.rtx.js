@@ -73,30 +73,9 @@ function leftof(a,b)
 	return ((tau + b.angle - a.angle) % tau) <= ((tau + a.angle - b.angle) % tau)
 }
 
-/** Determines if two scalars or vectors are close
- * @param {vec2|number} a 
- * @param {vec2|number} b 
- */
-function approx(a,b)
-{
-	if(typeof a === "number")
-		return Math.abs(a-b) < 0.00001
-	else
-		return approx(a.x, b.x) && approx(a.y, b.y)
-}
-
-/** Determines if all given values are approximately equal
- * @param {...vec2|number} args
- * @returns {boolean}
- */
-function allapprox()
-{
-	return !Array.from(arguments).splice(1).some(i => !approx(i, arguments[0]));
-}
-
 /** Determines if two line segments intersect and, if so, determines their intersection point.
- * If the lines are paralell, returns the first start or end that is within both
- *   (prefers starts over ends and [AB] over [CD])
+ * If the lines are paralell, returns the first start or end that is within both.
+ * (the order for this is a,c,b,d and points within lines are preferred over end points)
  * @param {vec2} a The first line segment's start
  * @param {vec2} b The first line segment's end
  * @param {vec2} c The second line segment's start
@@ -112,11 +91,13 @@ function lineLineIntersect(a,b,c,d)
 		const lens = [ vsub(a,b), vsub(b,c), vsub(a,c) ].map(vlen)
 
 		// Determine if lines are collinear
-		if((lens[0] + lens[1] + lens[2]) != Math.max(...lens) * 2)
+		if(!approx(lens[0] + lens[1] + lens[2], Math.max(...lens) * 2))
 			return null;
 
 		/** Determines if a point is in a line.
 		 * Relies on the previous collinearity check.
+		 * Returns the kind of position, 0 for not on the line,
+		 * 1 for hit on the edge, 2 for hit within the line
 		 * @param {vec2} lp start of line
 		 * @param {vec2} lq end of line
 		 * @param {vec2} k a point
@@ -126,20 +107,16 @@ function lineLineIntersect(a,b,c,d)
 		{
 			const diff = vmap(vsub(lq, lp), Math.abs);
 
-			if(diff.x >= diff.y)
-				return lp.x <= k.x && k.x <= lq.x;
+			if(diff.x > diff.y)
+				return approx(k.x, lp.x) || approx(k.x, lq.x) ? 1 : (k.x >= lp.x && lq.x >= k.x) ? 2 : 0;
 			else
-				return lp.y <= k.y && k.y <= lq.y;
+				return approx(k.y, lp.y) || approx(k.y, lq.y) ? 1 : (k.y >= lp.y && lq.y >= k.y) ? 2 : 0;
 		}
 		
-		if(inLine(c,d,a))
-			return a;
-		if(inLine(a,b,c))
-			return c;
-		if(inLine(c,d,b))
-			return b;
-		
-		return null
+		const hits = [ [ a, inLine(c,d,a) ], [ c, inLine(a,b,c) ], [ b, inLine(c,d,b) ], [ d, inLine(a,b,d) ] ];
+		const hit = hits.find(h => h[1] == 2) ?? hits.find(h => h[1] == 1);
+
+		return hit ? hit[0] : null;
 	}
 
 	const t = (a.x - c.x) * (c.y - d.y) - (a.y - c.y) * (c.x - d.x)
@@ -408,7 +385,7 @@ const rtx = {
 				L.push({ s: s[s.length - 1], e: project(s[s.length - 1]) });
 				return L.filter(l => !approx(l.s, l.e));
 			});
-
+/*
 		// perform successive merging of radially-aligned overlapping lines
 		// since they can't be properly processed via x-splicing
 		for(;;)
@@ -455,7 +432,7 @@ const rtx = {
 			if(!mergedAny)
 				break;
 		}
-
+*/
 		// perform successive x- and y-splices,
 		// transforming S to an isomorphic set containing only non-intersecting line segments
 		for(;;)
@@ -560,9 +537,9 @@ const rtx = {
 			const pfset = fset.filter(f => S.some(s => approx(s.e, f.s)));
 
 			if(pfset.length)
-				first = pfset.min(f => f.len2)[0]
+				first = pfset.min(f => f.s.len2)[0]
 			else
-				first = fset.max(f => f.len2)[0]
+				first = fset.max(f => f.s.len2)[0]
 		}
 
 		/**
@@ -576,7 +553,7 @@ const rtx = {
 			ctx.lineTo(...ccv(cur.e))
 
 			// TODO: Optimize this filter using the sortedness of S
-			S = S.filter(s => s != cur && (s.s.angle >= cur.e.angle || approx(s.s.angle, cur.e.angle)));
+			S = S.filter(s => s != cur && gte(s.s.angle, cur.e.angle));
 
 			/**
 			 * @type {line}
@@ -849,8 +826,8 @@ function viz(o, cl)
 			c.lineTo(...ccv(o.e))
 			let d = toPolar(o.e, o.s)
 			rot(o.s, d.angle + 0.5 * Math.PI)
-			rot(o.e, d.angle + 1.2 * Math.PI, true)
-			rot(o.e, d.angle + 0.8 * Math.PI, true)
+			rot(o.e, d.angle + 1.1 * Math.PI, true)
+			rot(o.e, d.angle + 0.9 * Math.PI, true)
 		}
 
 	}

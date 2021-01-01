@@ -40,7 +40,7 @@ Array.prototype.min = function(f) {
 	for (let i = 1; i < this.length; i++) {
 		const c = f(this[i])
 
-		if(c == curMin)
+		if(approx(c, curMin))
 			cur.push(this[i])
 		else if(c < curMin)
 		{
@@ -66,7 +66,7 @@ Array.prototype.max = function(f) {
 	for (let i = 1; i < this.length; i++) {
 		const c = f(this[i])
 
-		if(c == curMax)
+		if(approx(c, curMax))
 			cur.push(this[i])
 		else if(c > curMax)
 		{
@@ -977,4 +977,35 @@ function addRow(table, contents, removeCallback)
 
 	table.appendChild(row)
 	return row
+}
+
+/** Determines if two scalars or vectors are close
+ * @param {vec2|number} a 
+ * @param {vec2|number} b 
+ */
+function approx(a,b)
+{
+	if(typeof a === "number")
+		return Math.abs(a-b) < 0.00001
+	else
+		return approx(a.x, b.x) && approx(a.y, b.y)
+}
+
+/** a >= b that handles floating point rounding erorrs
+ * @param {number} a 
+ * @param {number} b 
+ * @returns {boolean} a >= b
+ */
+function gte(a,b)
+{
+	return approx(a,b) || a >= b;
+}
+
+/** Determines if all given values are approximately equal
+ * @param {...vec2|number} args
+ * @returns {boolean}
+ */
+function allapprox()
+{
+	return !Array.from(arguments).splice(1).some(i => !approx(i, arguments[0]));
 }
