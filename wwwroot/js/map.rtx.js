@@ -534,6 +534,10 @@ const rtx = {
 	 */
 	drawLight: function(ctx, l, R)
 	{
+		// skip drawing lights inside blocks
+		if(R.some(r => within(r.X, r.Y, r.Width, r.Height, l.x, l.y)))
+			return;
+
 		const rad = cc(l.x, l.y, l.range)
 		let S = this.getLines(l, R);
 		
