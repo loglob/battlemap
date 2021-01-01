@@ -518,6 +518,11 @@ const rtx = {
 
 			if(!next)
 			{ // no connected next line
+
+				// deals with horizontal lines colinear to the 0°-axis
+				if(!approx(cur.s.angle, cur.e.angle) && cur.s.angle > cur.e.angle)
+					break;
+
 				S = S.filter(s => s.s.angle > cur.e.angle);
 				
 				next = S.min(s => s.s.angle)
