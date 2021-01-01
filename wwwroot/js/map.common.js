@@ -898,6 +898,10 @@ function dist(cX1, cY1, cX2, cY2)
 	return (h - l + diag) * 5
 }
 
+/** Scales every argument by cellSize
+ * @param {...number} args Map coordinates
+ * @returns {number[]} Canvas coordinates
+ */
 function cc()
 {
 	return Array.from(arguments).map(i => i * cellSize)
@@ -923,11 +927,11 @@ function init()
  */
 
 /** Generates a <tr> element with the given cell contents.
- * @param {...cellContent} cells The cell contents.
+ * @param {...cellContent} args The cell contents.
  *  strings are wrapped in a <td> element, HtmlElement are appended directly.
  * @returns {HTMLTableRowElement} The generated row
  */
-function makeRow(cells)
+function makeRow()
 {
 	const row = document.createElement("tr")
 
