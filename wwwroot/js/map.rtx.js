@@ -105,12 +105,15 @@ function lineLineIntersect(a,b,c,d)
 		 */
 		function inLine(lp,lq,k)
 		{
+			if(approx(lp, k) || approx(lq, k))
+				return 1;
+			
 			const diff = vmap(vsub(lq, lp), Math.abs);
 
 			if(diff.x > diff.y)
-				return approx(k.x, lp.x) || approx(k.x, lq.x) ? 1 : (k.x >= lp.x && lq.x >= k.x) ? 2 : 0;
+				return gte(k.x, Math.min(lp.x, lq.x)) && gte(Math.max(lq.x, lp.x), k.x) ? 2 : 0;
 			else
-				return approx(k.y, lp.y) || approx(k.y, lq.y) ? 1 : (k.y >= lp.y && lq.y >= k.y) ? 2 : 0;
+				return gte(k.y, Math.min(lp.y, lq.y)) && gte(Math.max(lq.y, lp.y), k.y) ? 2 : 0;
 		}
 		
 		const hits = [ [ a, inLine(c,d,a) ], [ c, inLine(a,b,c) ], [ b, inLine(c,d,b) ], [ d, inLine(a,b,d) ] ];
@@ -242,14 +245,11 @@ const rtx = {
 				closest = p;
 		}
 
-		const r2 = l.range * l.range
+		const r2 = l.range * l.range;
+		const nleft = left.len2 > r2 ? replaceOut(left) : left;
+		const nright = right.len2 > r2 ? replaceOut(right) : right;
 
-		if(left.len2 > r2)
-			left = replaceOut(left);
-		if(right.len2 > r2)
-			right = replaceOut(right);
-
-		return (closest == left || closest == right) ? [left, right] : [left, closest, right];
+		return (closest == left || closest == right) ? [nleft, nright] : [nleft, closest, nright];
 	},
 	/**
 	 * 
@@ -385,56 +385,10 @@ const rtx = {
 				L.push({ s: s[s.length - 1], e: project(s[s.length - 1]) });
 				return L.filter(l => !approx(l.s, l.e));
 			});
-/*
-		// perform successive merging of radially-aligned overlapping lines
-		// since they can't be properly processed via x-splicing
-		for(;;)
-		{
-			function llen(l)
-			{
-				return Math.abs((l.s.len ?? Math.sqrt(l.s.len2)) - (l.e.len ?? Math.sqrt(l.e.len2)))
-			}
 
-			let mergedAny = false;
-			
-			for (let i = 0; i < S.length; i++)
-			{
-				for (let j = i+1; j < S.length; j++)
-				{
-					// only projected lines match this
-					if(allapprox(S[i].s.angle, S[i].e.angle, S[j].s.angle, S[j].e.angle))
-					{
-						// both go in the same direction
-						if(S[i].s.len === S[j].s.len && S[i].e.len === S[j].e.len)
-							S.splice((llen(S[i]) > llen(S[j])) ? j : i,1)
-						else
-						{
-							if(S[i].s.len)
-								S[i].s = S[j].s;
-							else
-								S[i].e = S[j].e;
-
-							S.splice(j, 1);
-
-							if(approx(S[i].s, S[i].e))
-								S.splice(i, 1);
-						}
-
-						mergedAny = true;
-						break;
-					}
-				}
-		
-				if(mergedAny)
-					break;
-			}
-
-			if(!mergedAny)
-				break;
-		}
-*/
-		// perform successive x- and y-splices,
-		// transforming S to an isomorphic set containing only non-intersecting line segments
+		/*	perform successive x- and y-splices,
+			transforming S to an isomorphic set containing only non-intersecting line segments
+			leverages the edge-cases covered by lineLineIntersect() to handle colinear lines */
 		for(;;)
 		{
 			let splitAny = false;
@@ -817,8 +771,8 @@ function viz(o, cl)
 		}
 		else if(typeof o.x === "number" && typeof o.y === "number")
 		{
-			rot(o, 0.5 * Math.PI)
-			rot(o, 0.5 * Math.PI)
+			rot(o, 0.25 * Math.PI)
+			rot(o, -0.25 * Math.PI)
 		}
 		else if(typeof o.s === "object" && typeof o.e === "object")
 		{
