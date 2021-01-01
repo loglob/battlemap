@@ -391,8 +391,13 @@ const rtx = {
 		/** All lines
 		 * @type {line[]}
 		 */
-		let S = this.distCull(R, l, l.range)
-			.flatMap(function(r)
+		let S = this.distCull(R, l, l.range).flatMap( 
+			/** Maps a rectangle to the lines making up its shadow outline.
+			 * The return is sorted by angle.
+			 * @param {rect} r
+			 * @returns {line[]}
+			 */
+			function(r)
 			{
 				const s = rtx.shadowVertices(r,l)
 				let L = [ { s: project(s[0]), e: s[0] } ];
@@ -488,8 +493,11 @@ const rtx = {
 				break;
 		}
 
-		// Split any lines crossing the 0°-axis along it
-		S = S.flatMap(function(s){
+		S = S.flatMap(
+		/** Split any lines crossing the 0°-axis along it
+		 * @param {line} s 
+		 */	
+		function(s){
 			function p(a)
 			{
 				const x = s.s.x
@@ -497,6 +505,9 @@ const rtx = {
 			}
 			if(s.s.x == s.e.x && s.s.x > l.x)
 			{
+				/**
+				 * @type {line[]}
+				 */
 				let r = null;
 
 				if (s.s.y < l.y && s.e.y > l.y)
@@ -595,7 +606,7 @@ const rtx = {
 			ctx.arc(...rad, cur.e.angle, first.s.angle);
 	},
 	/** Finds the player's darkvision light source
-	 * @returns {light[]} Either a 1-element array or an empty array
+	 * @returns {light?}
 	 */
 	getPlayerLight: function()
 	{
@@ -711,10 +722,10 @@ const rtx = {
 		if(P && map.rtxInfo.lineOfSight)
 		{
 			ctx.globalCompositeOperation = "source-over"
-			const maxR = max(max(vlensq(P),
-					vlensq(vsub(P, v(0, map.height)))),
-				max(vlensq(vsub(P, v(map.width, 0))),
-					vlensq(vsub(P, v(map.width, map.height)))))
+			const maxR = Math.max(vlensq(P),
+				vlensq(vsub(P, v(0, map.height))),
+				vlensq(vsub(P, v(map.width, 0))),
+				vlensq(vsub(P, v(map.width, map.height))));
 			
 			ctx.beginPath();
 			this.drawLight(ctx, { x: P.x, y: P.y, range: Math.ceil(Math.sqrt(maxR)) }, R);
