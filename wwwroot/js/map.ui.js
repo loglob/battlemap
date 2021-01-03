@@ -332,13 +332,13 @@ const toolbox = {
 				const d = Math.min(map.height, Math.max(0, -parseInt(toolbox.tools.resize.down.value)))
 	
 				if(l)
-					ct.fillRect(0, u * cellSize, l * cellSize, h)
+					ct.fillRect(...cc(0, u, l, map.height))
 				if(u)
-					ct.fillRect(0, 0, w - r * cellSize, u * cellSize)
+					ct.fillRect(...cc(0, 0, map.width - r, u))
 				if(r)
-					ct.fillRect(w - r * cellSize, 0, r * cellSize, h - d * cellSize)
+					ct.fillRect(...cc(map.width - r, 0, r, map.height - d))
 				if(d)
-					ct.fillRect(l * cellSize, h - d * cellSize, w, d * cellSize)
+					ct.fillRect(...cc(l, map.height - d, map.width, d))
 
 				return 1;
 			}
@@ -1199,6 +1199,9 @@ const selection = {
 	},
 	token: {
 		hasRuler: true,
+		/** The selected token
+		 * @type {token?}
+		 */
 		token: null,
 		/** A canvas holding a copy of the token
 		 * @type {HTMLCanvasElement}
@@ -1220,21 +1223,21 @@ const selection = {
 			
 			//c.getContext("2d").putToken(this.token, 0, 0)
 
-			const tkw = this.token.Width * cellSize
-			const tkh = this.token.Height * cellSize
+			/**
+			 * @type {token}
+			 */
+			const tk = this.token;
 
 			c.getContext("2d").drawImage(
 				layers.token.canvas,
-				this.token.X * cellSize, this.token.Y * cellSize,
-				tkw, tkh,
+				...cc(tk.X, tk.Y,
+				tk.Width, tk.Height,
 				0, 0,
-				tkw, tkh)
+				tk.Width, tk.Height))
 
 			mapInterface.redrawToken(this.token)
 
-			this.offset = { x: 10 + this.token.X * cellSize - mousepos.x,
-				y: 10 + this.token.Y * cellSize - mousepos.y,  }
-
+			this.offset = vadd(vsub(vmul(v(tk.X, tk.Y), cellSize), mousepos), 10)
 			this.tkCanvas = c;
 		},
 		onDrop: function(x,y) {
@@ -1283,8 +1286,7 @@ const selection = {
 					if(!shape.containsToken(this.rect, tk))
 						continue;
 
-					ct.putToken(tk, mousepos.x + tk.X * cellSize - selection.pos.x,
-						mousepos.y + tk.Y * cellSize - selection.pos.y);
+					ct.putToken(tk, ...vx(vadd(vmul(v(tk.X, tk.Y),cellSize), vsub(mousepos, selection.pos))));
 				}
 			}
 			else
@@ -1371,8 +1373,7 @@ const selection = {
 					if(!this.isSelected(tk))
 						continue;
 
-					ct.putToken(tk, mousepos.x + tk.X * cellSize - selection.pos.x,
-						mousepos.y + tk.Y * cellSize - selection.pos.y);
+					ct.putToken(tk, ...vx(vadd(vmul(v(tk.X, tk.Y), cellSize), vsub(mousepos, selection.pos))));
 				}
 			}
 			else
@@ -1480,8 +1481,7 @@ const selection = {
 					if(!shape.containsToken(this.shape, tk))
 						continue;
 
-					ct.putToken(tk, mousepos.x + tk.X * cellSize - selection.pos.x,
-						mousepos.y + tk.Y * cellSize - selection.pos.y);
+					ct.putToken(tk, ...vx(vadd(vmul(v(tk.X, tk.Y), cellSize),vsub(mousepos, selection.pos))));
 				}
 			}
 			else
@@ -1571,8 +1571,7 @@ const selection = {
 					if(!shape.containsToken(this.shape, tk))
 						continue;
 
-					ct.putToken(tk, mousepos.x + tk.X * cellSize - selection.pos.x,
-						mousepos.y + tk.Y * cellSize - selection.pos.y);
+					ct.putToken(tk, ...vx(vadd(vmul(v(tk.X, tk.Y),cellSize), vsub(mousepos, selection.pos))));
 				}
 			}
 			else

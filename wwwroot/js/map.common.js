@@ -161,7 +161,7 @@ const shape = {
 		 * @returns {void} */
 		draw: function(s, ct) {
 			const r = this.radius(s)
-			ct.arc(s.start.x * cellSize, s.start.y * cellSize, r * cellSize, 0, 2 * Math.PI);
+			ct.arc(...cc(s.start.x, s.start.y, r), 0, 2 * Math.PI);
 		},
 		/**@param {shape} a 
 		 * @param {shape} b
@@ -899,12 +899,16 @@ function dist(cX1, cY1, cX2, cY2)
 }
 
 /** Scales every argument by cellSize
- * @param {...number} args Map coordinates
- * @returns {number[]} Canvas coordinates
+ * If only one coordinate is given, returns that canvas coordinate value directly.
+ * Otherwise returns an array with all canvas coordnates.
+ * Returns undefined if no arguments are given.
+ * @param {...number} args Map coordinate(s)
+ * @returns {number[]|number|undefined} Canvas coordinate(s)
  */
 function cc()
 {
-	return Array.from(arguments).map(i => i * cellSize)
+	const args = Array.from(arguments).map(i => Math.round(i * cellSize));
+	return args.length ? args.length > 1 ? args : args[0] : undefined;
 }
 
 /** Performs initialization for all map components

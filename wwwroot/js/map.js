@@ -184,8 +184,8 @@ CanvasRenderingContext2D.prototype.putToken = function(tk, x, y, color = "black"
 	const spl = tk.Name.split('\n')
 	const idname = spl[0]
 	const tknum = spl.length > 0 ? spl[1] : null
-	const cW = tk.Width * cellSize;
-	const cH = tk.Height * cellSize;
+	const cW = cc(tk.Width);
+	const cH = cc(tk.Height);
 
 	// Draw an outline to make potentially empty occupied squares visible
 	if(tk.Height * tk.Width > 1)
@@ -246,8 +246,8 @@ CanvasRenderingContext2D.prototype.putToken = function(tk, x, y, color = "black"
 	if(tk.Hidden)
 	{
 		const symbol = "👁️"
-		this.fitText(symbol, tk.Width * cellSize / 2, tk.Height * cellSize / 2);
-		this.putText(symbol, x, y, tk.Width * cellSize - 10, tk.Height * cellSize - 10, "bl")
+		this.fitText(symbol, ...cc(tk.Width / 2, tk.Height / 2));
+		this.putText(symbol, x, y, ...vx(vsub(vmul(v(tk.Width, tk.Height), cellSize),10)), "bl")
 		this.globalAlpha = 1;
 	}
 
@@ -364,9 +364,7 @@ const layers =
 		draw: function()
 		{
 			const ct = layers.grid.context
-			const w = map.width * cellSize
-			const h = map.height * cellSize
-
+			
 			ct.clear()
 			ct.beginPath();
 			
@@ -425,7 +423,7 @@ const layers =
 	
 			for (let tk of map.tokens)
 			{
-				ct.putToken(tk, tk.X * cellSize, tk.Y * cellSize, this.tokenColor(tk));
+				ct.putToken(tk, ...cc(tk.X, tk.Y), this.tokenColor(tk));
 			}
 		},
 		/** Redraws only the given token
@@ -434,11 +432,9 @@ const layers =
 		 */
 		redrawToken: function(tk) {
 			const ct = layers.token.context
-			const tkx = tk.X * cellSize;
-			const tky = tk.Y * cellSize;
 			
-			ct.clearRect(tkx, tky, tk.Width * cellSize, tk.Height * cellSize)
-			ct.putToken(tk, tkx, tky, this.tokenColor(tk))
+			ct.clearRect(...cc(tk.X, tk.Y, tk.Width, tk.Height))
+			ct.putToken(tk, ...cc(tk.X, tk.Y), this.tokenColor(tk))
 		},
 		/** Redraws all tokens with the given id name
 		 * @param {string} idname
@@ -484,29 +480,21 @@ const layers =
 						ct.beginPath()
 
 						if(h.initiative)
-						{
 							ct.strokeStyle = "green";
-						}
 
-						ct.irect(h.token.X * cellSize, h.token.Y * cellSize,
-							h.token.Width * cellSize, h.token.Height * cellSize, 10)
-
+						ct.irect(...cc(h.token.X, h.token.Y, h.token.Width, h.token.Height), 10)
 						ct.globalAlpha = 1;
 						ct.stroke();
 						ct.globalAlpha = 0.4;
 
 
 						if(h.initiative)
-						{
 							ct.strokeStyle = "darkorange";
-						}
 					}
 					else if(h.pos)
 					{
 						ct.beginPath()
-
-						ct.irect(cellSize * h.pos.x, cellSize * h.pos.y, cellSize, cellSize, 10)
-
+						ct.irect(...cc(h.pos.x, h.pos.y, 1, 1), 10)
 						ct.globalAlpha = 1;
 						ct.stroke();
 						ct.globalAlpha = 0.4;
@@ -793,8 +781,8 @@ const mapInterface = {
 	{
 		if(fieldIds & mapFields.size)
 		{
-			w = map.width * cellSize
-			h = map.height * cellSize
+			w = cc(map.width)
+			h = cc(map.height)
 
 			for(let layer in layers)
 			{

@@ -44,7 +44,7 @@ function toPolar(p, ref)
 	return { x:p.x, y:p.y, len2: rel.x*rel.x + rel.y * rel.y, angle: (tau + Math.atan(rel.y / rel.x) + (rel.x < 0) * Math.PI) % tau }
 }
 
-/**
+/** Shorthand for cc()ing vectors
  * @param {vec2} p 
  * @returns {Number[]} cc(...vx(p))
  */
