@@ -376,9 +376,19 @@ const maphub =
 				map.tokens.removeAll(tk => cutByResize(tk, left, right, up, down))
 
 				for (const tk of map.tokens) {
-					tk.X += left
-					tk.Y += up
+					tk.X += left;
+					tk.Y += up;
 				}
+
+				const d = v(left, up);
+
+				for (const ef of map.effects) {
+					ef.start = vadd(ef.start, d);
+					ef.end = vadd(ef.end, d);
+				}
+
+				const oob = p => p.x < 0 || p.x >= w || p.y < 0 || p.y >= h;
+				map.effects.removeAll(ef => oob(ef.start) || oob(ef.end));
 				
 				// initialize and fill a new color array
 				const newc = Array(w)
@@ -408,6 +418,7 @@ const maphub =
 				map.colors = newc
 				map.width = w
 				map.height = h
+
 			},
 			checkReceived: function(){},
 			/**@param {number} left 

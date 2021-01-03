@@ -15,10 +15,10 @@ namespace battlemap.Models
 	{
 #region Fields
 		[JsonProperty("start")]
-		public readonly Vec2<int> Start;
+		public Vec2<int> Start;
 		
 		[JsonProperty("end")]
-		public readonly Vec2<int> End;
+		public Vec2<int> End;
 
 		private ((int x, int y) min, (int x, int y) max)? bounds;
 #endregion

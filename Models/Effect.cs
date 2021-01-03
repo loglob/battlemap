@@ -19,11 +19,17 @@ namespace battlemap.Models
 
 		[JsonProperty("start")]
 		public Vec2<int> Start
-			=> Shape.Start;
+		{
+			get => Shape.Start;
+			set => Shape.Start = value;
+		}
 
 		[JsonProperty("end")]
 		public Vec2<int> End
-			=> Shape.End;
+		{
+			get => Shape.End;
+			set => Shape.End = value;
+		}
 
 		public static implicit operator Shape(Effect e)
 			=> e.Shape;

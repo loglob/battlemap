@@ -382,6 +382,15 @@ namespace battlemap.Hubs
 				tk.Y += up;
 				return Info.Map.Outside(tk.Hitbox);
 			});
+
+			var d = (left,up);
+
+			Info.Map.Effects.RemoveAll(ef => {
+				ef.Start = d.Add(ef.Start);
+				ef.End = d.Add(ef.End);
+
+				return Info.Map.Outside(ef.Start) || Info.Map.Outside(ef.End);
+			});
 			
 			State.Invalidated = true;
 			await Clients.Group(GroupId).SendAsync("SetSize", left, right, up, down);
