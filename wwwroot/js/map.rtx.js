@@ -505,8 +505,9 @@ const rtx = {
 			 * @type {line}
 			 */
 			let next = S.filter(s => approx(s.s, cur.e))
-				.min(s => s.e.len2)
-				.max(s => s.e.angle)[0]
+				.map(s => ({ l:s, a : (toPolar(s.e, s.s).angle - s.e.angle + 2 * Math.PI) % (2 * Math.PI)}))
+				.max(la => la.a)
+				.max(la => vlensq(vsub(la.l.s, la.l.e)))[0]?.l;
 
 			if(!next)
 			{ // no connected next line
