@@ -380,12 +380,12 @@ const rtx = {
 		/*	perform successive x- and y-splices,
 			transforming S to an isomorphic set containing only non-intersecting line segments
 			leverages the edge-cases covered by lineLineIntersect() to handle colinear lines */
-		for(;;)
+		
+		for(let i = 0;;)
 		{
 			let splitAny = false;
-
-			// TODO: optimize this loop by not repeating low indices
-			for (let i = 0; i < S.length; i++) {
+			
+			for (; i < S.length; i++) {
 				for (let j = i+1; j < S.length; j++) {
 					if(approx(S[i].e, S[j].s) && approx(S[i].s, S[j].e))
 					{
