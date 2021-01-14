@@ -387,6 +387,14 @@ const rtx = {
 			// TODO: optimize this loop by not repeating low indices
 			for (let i = 0; i < S.length; i++) {
 				for (let j = i+1; j < S.length; j++) {
+					if(approx(S[i].e, S[j].s) && approx(S[i].s, S[j].e))
+					{
+						S.splice(j,1);
+						S.splice(i,1);
+						splitAny = true;
+						break;
+					}
+
 					let p = lineLineIntersect(S[i].s, S[i].e, S[j].s, S[j].e)
 
 					if(p)
@@ -500,12 +508,14 @@ const rtx = {
 
 			// TODO: Optimize this filter using the sortedness of S
 			S = S.filter(s => s != cur && gte(s.s.angle, cur.e.angle));
+			const refangle = toPolar(l, cur.e).angle;
 
 			/**
 			 * @type {line}
 			 */
 			let next = S.filter(s => approx(s.s, cur.e))
-				.map(s => ({ l:s, a : (toPolar(s.e, s.s).angle - s.e.angle + 2 * Math.PI) % (2 * Math.PI)}))
+				.map(s => ({ l:s, a : (toPolar(s.e, s.s).angle - refangle + 2 * Math.PI) % (2 * Math.PI)}))
+				.map(la => ({ l:la.l, a: approx(la.a, 0) ? 2 * Math.PI : la.a }))
 				.max(la => la.a)
 				.max(la => vlensq(vsub(la.l.s, la.l.e)))[0]?.l;
 
