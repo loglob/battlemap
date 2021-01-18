@@ -42,13 +42,13 @@ const maphub =
 	/** @type {Object.<string,command>} */
 	commands: {
 		AddToken: {
-			/**@param {token} tk 
+			/**@param {token} tk
 			 * @returns {void} nothing
 			 */
 			receive: function(tk) {
 				map.tokens.push(tk)
 			},
-			/**@param {token} tk 
+			/**@param {token} tk
 			 * @returns {checkReport} */
 			check: function(tk) {
 				if(tk.Name == null || tk.Name.trim() == "")
@@ -84,9 +84,9 @@ const maphub =
 		Blink: {
 			receive: mapInterface.blink,
 			/**
-			 * 
+			 *
 			 * @param {number} kind The blink kind, as defined in blinkKind
-			 * @param {number} x	The tile or token's x 
+			 * @param {number} x	The tile or token's x
 			 * @param {number} y	The tile or token's y
 			 * @returns {checkReport} */
 			check: function(kind,x,y){
@@ -102,9 +102,9 @@ const maphub =
 
 		BlinkShape: {
 			/**@param {shape} s
-			 * @returns {void} nothing 
+			 * @returns {void} nothing
 			 */
-			receive: function(s) { 
+			receive: function(s) {
 				mapInterface.blinkShape(s)
 			},
 			check: function(){ },
@@ -134,8 +134,8 @@ const maphub =
 		},
 
 		Debug: {
-			/**@param {string} conn 
-			 * @param {string} ctxt 
+			/**@param {string} conn
+			 * @param {string} ctxt
 			 * @returns {void} nothing
 			 */
 			receive: function(conn, ctxt) {
@@ -145,7 +145,7 @@ const maphub =
 			check: function() { },
 			modified: 0,
 		},
-		
+
 		RtxUpdate: {
 			/**@param {rtxinfo} data
 			 * @returns {void} nothing
@@ -162,9 +162,9 @@ const maphub =
 		},
 
 		SetImage: {
-			/**@param {token} token 
+			/**@param {token} token
 			 * @param {string} imgid
-			 * @returns {void} nothing 
+			 * @returns {void} nothing
 			 */
 			receive: function(token, imgid) {
 				map.sprites[token] = imgid;
@@ -173,7 +173,7 @@ const maphub =
 			checkSent: function() {
 				return "SetImage isn't allowed from Client side!";
 			},
-			/**@param {token} token 
+			/**@param {token} token
 			 * @param {string} imgid
 			 * @returns {checkReport} */
 			checkReceived: function(token, imgid) {
@@ -216,7 +216,7 @@ const maphub =
 			check: function(s, delta) {
 				if((!delta.move || (!delta.move.x && !delta.move.y)) && typeof delta.hidden !== "boolean" && !delta.turn)
 					return "Refusing modifyTokens without change";
-				
+
 				if(delta.move || delta.turn)
 				{
 					let moved = 0
@@ -228,7 +228,7 @@ const maphub =
 						if(shape.containsToken(s, tk))
 						{
 							moved++
-							
+
 							if(delta.move)
 							{
 								hb.x += delta.move.x
@@ -242,20 +242,20 @@ const maphub =
 								hb.h = w
 							}
 						}
-						
+
 						if(outOfBounds(hb.x, hb.y, hb.w, hb.h))
 							return oob(`Refusing modifyTokens that would put ${flatName(tk)} out of bounds`);
-						
-						for (let dx = 0; dx < hb.w; dx++) {	
+
+						for (let dx = 0; dx < hb.w; dx++) {
 							for (let dy = 0; dy < hb.h; dy++) {
 								let i = (hb.x + dx) + (hb.y + dy) * map.width
 
 								if(points.has(i))
 									return `Refusing modifyTokens that would make ${flatName(tk)} collide`;
-								
+
 								points.add(i);
-							}	
-						}					
+							}
+						}
 					}
 
 					if(moved == 0)
@@ -284,13 +284,13 @@ const maphub =
 		},
 
 		RemoveEffect: {
-			/**@param {shape} s 
+			/**@param {shape} s
 			 * @returns {void} nothing
 			 */
 			receive: function(s) {
 				map.effects.removeAll(e => shape.equal(s, e))
 			},
-			/**@param {shape} s 
+			/**@param {shape} s
 			 * @returns {checkReport} */
 			check: function(s) {
 				if(!map.effects.some(e => shape.equal(e,s)))
@@ -301,7 +301,7 @@ const maphub =
 		},
 
 		Resync: {
-			/**@param {number} field 
+			/**@param {number} field
 			 * @param {string} data
 			 */
 			receive: function(field, data){
@@ -326,7 +326,7 @@ const maphub =
 				mapInterface.onMapUpdate(field, true);
 			},
 			checkReceived: function(field, data) {},
-			/**@param {number} field 
+			/**@param {number} field
 			 */
 			checkSent: function(fields){
 				if(fields == 0)
@@ -362,16 +362,16 @@ const maphub =
 		},
 
 		SetSize: {
-			/**@param {number} left 
-			 * @param {number} right 
-			 * @param {number} up 
-			 * @param {number} down 
+			/**@param {number} left
+			 * @param {number} right
+			 * @param {number} up
+			 * @param {number} down
 			 * @returns {void} nothing
 			 */
 			receive: function(left, right, up, down)
 			{
 				const w = map.width + left + right
-				const h = map.height + up + down 
+				const h = map.height + up + down
 
 				map.tokens.removeAll(tk => cutByResize(tk, left, right, up, down))
 
@@ -389,7 +389,7 @@ const maphub =
 
 				const oob = p => p.x < 0 || p.x >= w || p.y < 0 || p.y >= h;
 				map.effects.removeAll(ef => oob(ef.start) || oob(ef.end));
-				
+
 				// initialize and fill a new color array
 				const newc = Array(w)
 
@@ -400,7 +400,7 @@ const maphub =
 				for (let x = 0; x < map.width; x++)
 				{
 					let newx = x + left;
-					
+
 					if(newx < 0 || newx >= w)
 						continue;
 
@@ -421,10 +421,10 @@ const maphub =
 
 			},
 			checkReceived: function(){},
-			/**@param {number} left 
-			 * @param {number} right 
-			 * @param {number} up 
-			 * @param {number} down 
+			/**@param {number} left
+			 * @param {number} right
+			 * @param {number} up
+			 * @param {number} down
 			 * @returns {checkReport} */
 			checkSent: function(left,right,down,up,force) {
 				if(map.width + left + right == 0 || map.height + up + down == 0)
@@ -434,7 +434,7 @@ const maphub =
 		},
 
 		SetSpawnZone: {
-			/**@param {number} sx Start x 
+			/**@param {number} sx Start x
 			 * @param {number} sy Start y
 			 * @param {number} ex End x
 			 * @param {number} ey End y
@@ -446,7 +446,7 @@ const maphub =
 				else
 					map.spawn = shape.new("mask", v(sx, sy), v(ex, ey));
 			},
-			/**@param {number} sx Start x 
+			/**@param {number} sx Start x
 			 * @param {number} sy Start y
 			 * @param {number} ex End x
 			 * @param {number} ey End y
@@ -465,7 +465,7 @@ const maphub =
 
 		SetTexture: {
 			receive: function(tk, texture) {
-				
+
 			},
 			check: function(tk, texture) {
 
@@ -474,8 +474,8 @@ const maphub =
 		},
 
 		Fail: {
-			/**@param {string} method 
-			 * @param {string} reason 
+			/**@param {string} method
+			 * @param {string} reason
 			 * @returns {void} nothing
 			 */
 			receive: function(method, reason) {
@@ -524,7 +524,7 @@ const maphub =
 					const args = cmd.sendsObject ? Array.from(arguments).map(JSON.parse) : arguments
 					/** @type {checkReport} */
 					const ck = cmd.checkReceived ?  cmd.checkReceived(...args) : cmd.check(...args)
-					
+
 					switch(typeof ck)
 					{
 						case "undefined":
@@ -550,7 +550,7 @@ const maphub =
 					console.error(`maphub: on ${command}:`, ex);
 				}
 			})
-			
+
 			this[ccname] = function() {
 				/** @type {checkReport} */
 				const ck = maphub.skipCommandSendingChecks ? undefined : cmd.checkSent ?  cmd.checkSent(...arguments) : cmd.check(...arguments)
@@ -564,7 +564,7 @@ const maphub =
 							throw e;
 						});
 					return;
-					
+
 
 					case "string":
 						console.log(ck);

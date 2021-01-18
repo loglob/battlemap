@@ -31,7 +31,7 @@
   * @property {!function} getCursor	Returns the cursor shown while using the selection
   * @property {function=} drawOutline	Called by uiInterface.draw if the selection is the last one used
   * @property {function=} isSelected	Determines if a token is selected by the selection. If defined, tokenColor must be defined too
-  * @property {string=} tokenColor		The color for selected tokens (as determined by isSelected)  
+  * @property {string=} tokenColor		The color for selected tokens (as determined by isSelected)
   * @property {function=} specialRuler	Implements a special distance function for the ruler
   */
 //#endregion
@@ -71,7 +71,7 @@ const toolbox = {
 				const cX = tile(evnt.pageX)
 				const cY = tile(evnt.pageY)
 				const tk = tokenAt(cX, cY)
-		
+
 
 				if(evnt.shiftKey)
 				{
@@ -139,7 +139,7 @@ const toolbox = {
 			 */
 			onMouseDown: function(evnt) {
 				const tk = tokenAt(tile(evnt.pageX), tile(evnt.pageY))
-				
+
 				if(evnt.ctrlKey && tk)
 				{
 					const spl = tk.Name.split('\n');
@@ -215,9 +215,9 @@ const toolbox = {
 
 						if(tile(mousepos.x) != cX || tile(mousepos.y) != cY)
 							maphub.color(cX, cY, parseInt(toolbox.tools.tileedit.Color.value.substring(1), 16))
-						
+
 						mousepos = { x: evnt.pageX, y: evnt.pageY }
-					}		
+					}
 				}
 			},
 			getCursor: function() {
@@ -241,10 +241,10 @@ const toolbox = {
 			savebutton: initpls,
 			force: false,
 			/** Called on number input, checks for invalid values and resets them.
-			 * @param {'left'|'right'|'up'|down} dir 
+			 * @param {'left'|'right'|'up'|down} dir
 			 * @returns {void} nothing
 			 */
-			onInput: function(dir) {	
+			onInput: function(dir) {
 				if(((dir == "left" || dir == "right") && parseInt(this.left.value) + parseInt(this.right.value) < -map.width)
 					|| ((dir == "up" || dir == "down") && parseInt(this.up.value) + parseInt(this.down.value) < -map.height))
 				{
@@ -260,13 +260,13 @@ const toolbox = {
 				this.savebutton.innerText = "Save"
 				layers.special.draw();
 			},
-			/** Enacts a map resize. 
+			/** Enacts a map resize.
 			 * @throws {string} If the resize would cut off tokens
 			 * @param {number} left
-			 * @param {number} right 
-			 * @param {number} up 
-			 * @param {number} down 
-			 * @param {boolean} force 
+			 * @param {number} right
+			 * @param {number} up
+			 * @param {number} down
+			 * @param {boolean} force
 			 */
 			resize: function(left,right,up,down,force)
 			{
@@ -321,7 +321,7 @@ const toolbox = {
 				this.reset()
 			},
 			/**@param {CanvasRenderingContext2D} ct
-			 * @returns {void} nothing 
+			 * @returns {void} nothing
 			 */
 			draw: function(ct) {
 				ct.globalAlpha = 0.5
@@ -330,7 +330,7 @@ const toolbox = {
 				const r = Math.min(map.width, Math.max(0, -parseInt(toolbox.tools.resize.right.value)))
 				const u = Math.min(map.height, Math.max(0, -parseInt(toolbox.tools.resize.up.value)))
 				const d = Math.min(map.height, Math.max(0, -parseInt(toolbox.tools.resize.down.value)))
-	
+
 				if(l)
 					ct.fillRect(...cc(0, u, l, map.height))
 				if(u)
@@ -432,7 +432,7 @@ const toolbox = {
 						let opt = document.createElement("option");
 						opt.setAttribute("value", s)
 						opt.innerText = s[0].toUpperCase() + s.substring(1);
-	
+
 						this.selection.appendChild(opt)
 					}
 				}
@@ -444,11 +444,11 @@ const toolbox = {
 			pips: [ 2, 4, 6, 8, 10, 12, 20, 100 ],
 			/** Rolls the given die and updates the window's list and totals
 			 * @param {number} p The die's pips
-			 * @returns {void} nothing 
+			 * @returns {void} nothing
 			 */
 			roll : function(p) {
 				let roll = Math.floor(Math.random() * p) + 1;
-				
+
 				const n = document.getElementById(`dice_d${p}_numbers`);
 				let numbers = [roll].concat(JSON.parse(`[${n.innerText}]`));
 				n.innerText = numbers.join(", ");
@@ -472,7 +472,7 @@ const toolbox = {
 			del: function(p) {
 				document.getElementById(`dice_d${p}_numbers`).innerText = "";
 				document.getElementById(`dice_d${p}_name`).innerText = `0d${p}`;
-				
+
 				const totalMatch = /[0-9]+$/;
 
 				const t = document.getElementById(`dice_d${p}_total`)
@@ -646,7 +646,7 @@ const toolbox = {
 			 * @property {number} initCount	The initiative count for the entry
 			 * @property {token} token	The token
 			*/
-			
+
 			/**@type {HTMLElement} */
 			list: initpls,
 			/**@type {HTMLElement} */
@@ -662,7 +662,7 @@ const toolbox = {
 			sort: function() {
 				/**@type {initEntry_t[]} */
 				let ls = [];
-				
+
 				while(this.list.hasChildNodes())
 				{
 					const c = this.list.firstChild;
@@ -677,13 +677,13 @@ const toolbox = {
 				}
 			},
 			/** Sets the current token
-			 * @param {initEntry_t} li 
-			 * @param {*} dontblink 
+			 * @param {initEntry_t} li
+			 * @param {*} dontblink
 			 */
 			setCur: function(li, dontblink) {
 				if(this.cur)
 					this.cur.style.fontWeight = "inherit"
-				
+
 				this.cur = li
 
 				if(this.cur)
@@ -751,12 +751,12 @@ const toolbox = {
 				}
 				let roll = Math.floor(Math.random() * 20) + 1
 				let count = (!genIc) ? -100 : (roll === 20) ? 99 : (roll === 1) ? -99 : (roll + parseInt(this.mod.value));
-				
+
 				this.addLi(tk, count)
 				this.sort();
 			},
 			/** Handles clicks on list entries
-			 * @param {initEntry_t} li 
+			 * @param {initEntry_t} li
 			 * @param {MouseEvent} ev */
 			onClick: function(li, ev) {
 				if(ev.shiftKey) // Remove item
@@ -831,7 +831,7 @@ const toolbox = {
 
 					obj[k].token = map.tokens[eqi]
 				}
-				
+
 				for (const i of obj) {
 					this.addLi(i.token, i.initCount);
 
@@ -853,7 +853,7 @@ const toolbox = {
 
 					data.push(co);
 				}
-				
+
 				return data
 			},
 			/** Stores cookie data, called before tab close. */
@@ -897,19 +897,19 @@ const toolbox = {
 			},
 			makeColorRow: function(color) {
 				const ex = document.createElement("td")
-				
+
 				ex.innerText = "■"
 				ex.style.color = colorString(color)
 
 				addRow(this.opaque, [hexColor(color), ex], null)
 			},
 			/** Populates the tables with the given rtx info
-			 * @param {rtxinfo} data 
+			 * @param {rtxinfo} data
 			 */
 			fill: function(data) {
 				if(typeof data !== "object")
 					return;
-				
+
 				for (const tkid in data.sources) {
 					const e = data.sources[tkid]
 					addRow(this.sources, [tkid, e.range, e.level], null)
@@ -1029,7 +1029,7 @@ const toolbox = {
 						w.classList.add("br");
 						w.hide();
 					}
-					
+
 					if(tool !== toolbox.tools.cursor)
 					{
 						tool.window.unhide();
@@ -1043,7 +1043,7 @@ const toolbox = {
 
 				if(toolbox.activeTool == tool)
 					return;
-				
+
 				for(let name in toolbox.tools)
 				{
 					const t = toolbox.tools[name]
@@ -1054,7 +1054,7 @@ const toolbox = {
 
 
 				canvasStyle.cursor = toolbox.getCursor(tool)
-				
+
 				if(tool.window != null)
 					tool.window.unhide();
 
@@ -1213,14 +1213,14 @@ const selection = {
 			/*ctx.clearRect(
 				oldmousepos.x + this.offset.x, oldmousepos.y + this.offset.y,
 				this.tkCanvas.width, this.tkCanvas.height)*/
-			
+
 			ctx.drawImage(this.tkCanvas, mousepos.x + this.offset.x, mousepos.y + this.offset.y);
 		},
 		onPickup: function() {
 			const c = this.tkCanvas ?? document.createElement("canvas");
 			c.width = cellSize * this.token.Width
 			c.height = cellSize * this.token.Height
-			
+
 			//c.getContext("2d").putToken(this.token, 0, 0)
 
 			/**
@@ -1296,7 +1296,7 @@ const selection = {
 				ct.strokeStyle = "blue"
 				ct.fillStyle = "lightblue"
 				ct.lineWidth = 2
-	
+
 				ct.fillRect(selection.pos.x, selection.pos.y, dx, dy)
 				ct.rect(selection.pos.x, selection.pos.y, dx, dy);
 				ct.stroke();
@@ -1457,10 +1457,10 @@ const selection = {
 				return shape["circle"].radius(this.getShape()) * 5;
 		},
 		getKind : function() { return this.tool.selection.value; },
-		getShape: function() { 
+		getShape: function() {
 			if(this.shape)
 				return this.shape
-			
+
 			const k = this.getKind()
 
 			if(shape[k].vertexCentered)
@@ -1549,10 +1549,10 @@ const selection = {
 			if(this.shape === null)
 				return shape["circle"].radius(this.getShape()) * 5;
 		},
-		getShape: function() { 
+		getShape: function() {
 			if(this.shape)
 				return this.shape
-			
+
 			if(shape[this.kind].vertexCentered)
 				return shape.new(this.kind, rtile(selection.pos), rtile(mousepos))
 			else
@@ -1653,7 +1653,7 @@ const selection = {
 const contextmenu = {
 	menus: {
 		token: {
-			/**@param {number} x 
+			/**@param {number} x
 			 * @param {number} y */
 			condition: function(x, y) { return tokenAt(...vx(tile(v(x,y)))) },
 			onMapUpdate: function() { if(map.tokens.indexOf(contextmenu.data) == -1) contextmenu.hide() },
@@ -1672,7 +1672,7 @@ const contextmenu = {
 			turn: function(tk) { maphub.modifyTokens(shape.point(tk.X, tk.Y), { turn: true }) },
 		},
 		effect: {
-			/**@param {number} x 
+			/**@param {number} x
 			 * @param {number} y */
 			condition: function(x, y) {
 				return map.effects.find(e => shape.containsPoint(e, x / cellSize, y / cellSize));
@@ -1727,7 +1727,7 @@ const contextmenu = {
 			const view = document.getElementsByTagName("html")[0].getBoundingClientRect()
 			const w = win.offsetWidth;
 			const h = win.offsetHeight;
-			
+
 			this.visible = menu;
 			this.hook.mask = menu.updateMask ?? 0;
 			win.style.left = `${(event.offsetX + view.left + w >= view.width) ? event.offsetX - w : event.offsetX}px`;
@@ -1760,7 +1760,7 @@ const contextmenu = {
 
 // Contains the event Handlers
 const handlers = {
-	/** Redraws hovering token and ruler length display 
+	/** Redraws hovering token and ruler length display
 	 * @param {MouseEvent} evnt
 	 * @returns {void} nothing
 	 */
@@ -1777,7 +1777,7 @@ const handlers = {
 		if(selection.current.hasRuler)
 			rulerDisplay.update();
 	},
-	/** Picks up a token or anchors a ruler 
+	/** Picks up a token or anchors a ruler
 	 * @param {MouseEvent} evnt
 	 * @returns {void} nothing
 	 */
@@ -1821,9 +1821,9 @@ const handlers = {
 				rulerDisplay.update();
 			}
 		}
-		
+
 	},
-	/** Moves the held token or removes the ruler 
+	/** Moves the held token or removes the ruler
 	 * @param {MouseEvent} evnt
 	 * @returns {void} nothing
 	 */
@@ -1943,7 +1943,7 @@ const handlers = {
 					/*if(images.length > 1)
 					{
 						console.log("Error: Drop: From items: From HTML: Too many images given");
-						return;	
+						return;
 					}*/
 
 					return callback(images[images.length - 1].src);
@@ -1969,7 +1969,7 @@ const handlers = {
 		getfile(f => {
 			mapInterface.uploadImage(idName(tk), f)
 		});
-	
+
 	},
 	/** Handles drag sans drop over the canvas. Prevents the browser from opening the file.
 	 * @param {DragEvent} evnt
@@ -2075,10 +2075,10 @@ const uiInterface = {
 		s.addEventListener("drop", handlers.onCanvasDrop);
 		s.addEventListener("dragover", handlers.onCanvasDragover);
 		s.addEventListener("contextmenu", handlers.onCanvasContextMenu);
-	
+
 		document.body.addEventListener("keydown", handlers.onKeyDown)
 		this.player = map.tokens.find(tk => tk.Name === playerToken) ?? null;
-		
+
 		toolbox.init();
 		contextmenu.init();
 	},
@@ -2123,7 +2123,7 @@ const uiInterface = {
 
 	/** Draws the UI to the given canvas. Called from layers.special.draw().
 	 * @param {CanvasRenderingContext2D} ct	The canvas' context
-	 * @returns {void} nothing 
+	 * @returns {void} nothing
 	 */
 	draw: function(ct) {
 		ct.clear();

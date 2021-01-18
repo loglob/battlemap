@@ -38,7 +38,7 @@ CanvasRenderingContext2D.prototype.clear = function()
  * @param {number} x The rectangle's x
  * @param {number} y The rectangle's y
  * @param {number} w The rectangle's width, measured at the outer edge
- * @param {number} h The rectangle's width, measured at the outer edge 
+ * @param {number} h The rectangle's width, measured at the outer edge
  * @param {number} b The border width
  * @returns {void} nothing
  */
@@ -52,7 +52,7 @@ CanvasRenderingContext2D.prototype.irect = function(x, y, w, h, b)
  * @param {string} txt The text to fit
  * @param {number} width The rectangle's width
  * @param {number} height The rectangle's height
- * @param {string} [fontName="sans-serif"] The used font 
+ * @param {string} [fontName="sans-serif"] The used font
  * @returns {number} The new font size, in px
  */
 CanvasRenderingContext2D.prototype.fitText = function(txt, width, height, fontName = "sans-serif")
@@ -64,7 +64,7 @@ CanvasRenderingContext2D.prototype.fitText = function(txt, width, height, fontNa
 	if(s.width > width)
 	{
 		siz = Math.floor((siz / s.width) * width);
-		this.font = `${siz}px ${fontName}`	
+		this.font = `${siz}px ${fontName}`
 		s = this.measureText(txt);
 	}
 
@@ -73,7 +73,7 @@ CanvasRenderingContext2D.prototype.fitText = function(txt, width, height, fontNa
 	if(h > height)
 	{
 		siz = Math.floor((siz / h) * height);
-		this.font = `${siz}px ${fontName}`	
+		this.font = `${siz}px ${fontName}`
 		s = this.measureText(txt);
 	}
 
@@ -89,7 +89,7 @@ CanvasRenderingContext2D.prototype.fitText = function(txt, width, height, fontNa
  * @param {string} txt The text to fit
  * @param {number} width The rectangle's width
  * @param {number} height The rectangle's height
- * @param {string} [fontName="sans-serif"] The used font 
+ * @param {string} [fontName="sans-serif"] The used font
  * @returns {number} The new font size, in px
  */
 CanvasRenderingContext2D.prototype.cramText = function(txt, width, height, fontName = "sans-serif")
@@ -98,7 +98,7 @@ CanvasRenderingContext2D.prototype.cramText = function(txt, width, height, fontN
 	const parts = txt.split(/\s+/);
 	let measure = parts.map(this.measureText);
 	let lines = 1;
-	
+
 }
 
 /** Renders text in the given rectangle (stroke and fill). Does NOT automatically set proper font size.
@@ -109,7 +109,7 @@ CanvasRenderingContext2D.prototype.cramText = function(txt, width, height, fontN
  * @param {number} y	The rectangle's y
  * @param {number} w	The rectangle's width
  * @param {number} h	The rectangle's height
- * @param {string} [align="cc"] in /[tcbx][lcr]/ 
+ * @param {string} [align="cc"] in /[tcbx][lcr]/
  * @returns {void} nothing
  */
 CanvasRenderingContext2D.prototype.putText = function(txt, x, y, w, h, align = "cc")
@@ -142,7 +142,7 @@ CanvasRenderingContext2D.prototype.putText = function(txt, x, y, w, h, align = "
 			cY = y + h - txtH + a;
 		break;
 	}
-	
+
 	let cX;
 
 	switch(align[1])
@@ -162,14 +162,14 @@ CanvasRenderingContext2D.prototype.putText = function(txt, x, y, w, h, align = "
 	}
 
 	this.strokeText(txt, cX, cY);
-	this.fillText(txt, cX, cY);	
+	this.fillText(txt, cX, cY);
 }
 
 /** Renders a token
  * @param {token} tk	The token
  * @param {number} x	The token's upper left x (canvas coords)
  * @param {number} y	The token's upper left y (canvas coords)
- * @param {string} color	The token's primary HTML color 
+ * @param {string} color	The token's primary HTML color
  */
 CanvasRenderingContext2D.prototype.putToken = function(tk, x, y, color = "black")
 {
@@ -218,7 +218,7 @@ CanvasRenderingContext2D.prototype.putToken = function(tk, x, y, color = "black"
 			this.fitText(tknum, cW - 20, (cH - 20) / 2)
 			this.putText(tknum, x + 10, y + 20 + (cH - 20) / 2, cW - 20, (cH - 20) / 2, "tc")
 		}
-		else 
+		else
 			this.putText(txt, x + 10, y + 10, cW - 20, cH - 20 /*, m.getHeight() ? "cc" : "bc"*/)
 
 		//console.log(`${idname} ${tknum}: ${r}`)
@@ -282,7 +282,7 @@ function mc(tk, item)
 	}
 
 	item = (item ?? tk).toLowerCase().replace(/ /g, "_")
-	
+
 	if(item === "bow")
 		item = "bow_standby";
 	else if(item === "clock" || item === "compass")
@@ -344,14 +344,14 @@ const layers =
 		{
 			const ct = layers.tile.context
 			ct.clear();
-	
+
 			for (let x = 0; x < map.width; x++) {
 				for (let y = 0; y < map.height; y++) {
 					const color = map.colors[x][y];
-	
+
 					if(color == 0xFFFFFF)
 						continue;
-	
+
 					ct.fillStyle = colorString(color)
 					ct.fillRect(cellSize * x, cellSize * y, cellSize, cellSize);
 				}
@@ -364,15 +364,15 @@ const layers =
 		draw: function()
 		{
 			const ct = layers.grid.context
-			
+
 			ct.clear()
 			ct.beginPath();
-			
+
 			for (let p = 0; p <= w; p+= cellSize) {
 				ct.moveTo(p, 0);
 				ct.lineTo(p, h);
 			}
-	
+
 			for (let p = 0; p <= h; p+= cellSize) {
 				ct.moveTo(0, p);
 				ct.lineTo(w, p);
@@ -420,7 +420,7 @@ const layers =
 		{
 			var ct = layers.token.context
 			ct.clear()
-	
+
 			for (let tk of map.tokens)
 			{
 				ct.putToken(tk, ...cc(tk.X, tk.Y), this.tokenColor(tk));
@@ -432,7 +432,7 @@ const layers =
 		 */
 		redrawToken: function(tk) {
 			const ct = layers.token.context
-			
+
 			ct.clearRect(...cc(tk.X, tk.Y, tk.Width, tk.Height))
 			ct.putToken(tk, ...cc(tk.X, tk.Y), this.tokenColor(tk))
 		},
@@ -455,16 +455,16 @@ const layers =
 			const t = Date.now()
 			let i = highlighted.length
 			const ct = layers.highlight.context
-	
+
 			ct.clear()
 			ct.strokeStyle = "darkorange";
 			ct.fillStyle = "orange"
 			ct.globalAlpha = 0.4;
-	
+
 			while(i--)
 			{
 				const dt = t - highlighted[i].time
-	
+
 				// blinking pattern: 400ms on, 400ms off, 400ms on
 				if(dt > 1200)
 				{
@@ -548,7 +548,7 @@ const textures = {
 	/**@type {Object.<string, HTMLElement>} */
 	images : {},
 	/**Upscales a small image pixel by pixel
-	 * @param {HTMLElement} img 
+	 * @param {HTMLElement} img
 	 * @returns {HTMLElement} the upscaled image
 	 */
 	upscale: function(img)
@@ -557,37 +557,37 @@ const textures = {
 		let py = Math.floor(cellSize / img.height)
 		let x0 = Math.floor((cellSize - px * img.width) / 2)
 		let y0 = Math.floor((cellSize - py * img.height) / 2)
-		
+
 	//	let c = new OffscreenCanvas(cellSize, cellSize)
 		let c = document.createElement("canvas")
 		c.width = cellSize
 		c.height = cellSize
 		let ct = c.getContext("2d");
-	
+
 	//	let imgc = new OffscreenCanvas(img.width, img.height)
 		let imgc = document.createElement("canvas")
 		imgc.width = img.width
 		imgc.height = img.height
-	
+
 		let imgct = imgc.getContext("2d")
-		imgct.drawImage(img, 0, 0); 
-	
+		imgct.drawImage(img, 0, 0);
+
 		let d = imgct.getImageData(0, 0, img.width, img.height).data;
-	
+
 		for (let y = 0; y < img.height; y++) {
 			for (let x = 0; x < img.width; x++) {
 				let col = 4 * (x + y * img.width)
-	
+
 				ct.fillStyle = `rgba(${d[col]}, ${d[col + 1]}, ${d[col + 2]}, ${d[col + 3] / 0xFF})`
 				ct.fillRect(x0 + x * px, y0 + y * py, px, py)
 			}
-			
+
 		}
-	
+
 		return c;
 	},
 	/**Sets a token's sprite to an image URL
-	 * @param {string} token 
+	 * @param {string} token
 	 * @param {string} url
 	 * @returns {void} nothing
 	 */
@@ -600,7 +600,7 @@ const textures = {
 			.catch(console.error);
 	},
 	/**Sets a token's sprite to a blob of image data
-	 * @param {string} token 
+	 * @param {string} token
 	 * @param {Blob} blob
 	 * @returns {void} nothing
 	 */
@@ -623,7 +623,7 @@ const textures = {
 			})
 	},
 	/**Deletes a token's image
-	 * @param {string} token 
+	 * @param {string} token
 	 * @returns {void} nothing
 	 */
 	delete : function(token) {
@@ -639,14 +639,14 @@ const textures = {
 			})
 	},
 	/**Called after images is updated, before any UI changes are executed.
-	 * @param {string} token 
+	 * @param {string} token
 	 * @returns {void} nothing
 	 */
 	onImageChange : function(token) {
 		layers.token.redrawAllTokens(token)
 	},
 	/** Updates the given token's image by looking up its map.sprites entry
-	 * @param {string} name 
+	 * @param {string} name
 	 * @returns {void} nothing
 	 */
 	update: function(name){
@@ -656,23 +656,23 @@ const textures = {
 		{
 			const url = `/image/get/${map.sprites[idname]}`;
 			let img = new Image();
-	
+
 			img.loading = "eager";
 			img.crossOrigin = "anonymous";
 			img.decoding = "async";
 			img.src = url;
-			
+
 			img.decode().then(e => {
 				if(img.width <= 32 && img.height <= 32)
 					img = this.upscale(img);
 
 				this.images[idname] = img;
-				this.onImageChange(idname);	
+				this.onImageChange(idname);
 			}).catch(e => {
 				console.error(`Error decoding image for ${idname} (url ${url})`)
 				console.error(e);
 			})
-		}		
+		}
 		else if(this.images[idname])
 		{
 			this.images[idname] = null;
@@ -680,7 +680,7 @@ const textures = {
 		}
 	},
 	/** Retrieves a token's sprite
-	 * @param {string} name 
+	 * @param {string} name
 	 * @returns {HTMLElement?} nothing
 	 */
 	get: function(name){
@@ -734,13 +734,13 @@ const mapInterface = {
 		window.setTimeout(f, 1201)
 	},
 	/** Highlights a shape
-	 * @param {shape} s 
+	 * @param {shape} s
 	 * @returns {void} nothing
 	 */
 	blinkShape: function(s) {
 		const t = Date.now()
 		highlighted.push({ time: t, shape: s })
-		
+
 		for (const tk of map.tokens) {
 			if(shape.containsToken(s, tk) && (isDM || !tk.Hidden))
 				highlighted.push({ time: t, token: tk });
@@ -758,7 +758,7 @@ const mapInterface = {
 	},
 
 	/** Removes a sprite
-	 * @param {string} imageID 
+	 * @param {string} imageID
 	 * @returns {void} nothing
 	 */
 	removeSprite: function(img) {
@@ -766,15 +766,15 @@ const mapInterface = {
 		layers.token.draw()
 	},
 	/** Called on receiving a new image
-	 * @param {string} idname The token's name 
+	 * @param {string} idname The token's name
 	 * @returns {void} nothing
 	 */
 	gotImage: function(idname){
 		textures.update(idname)
 	},
 	/** Handles outside changes in the map object. Called when the map datastructure updates.
-	 * @param {number} fieldIds map field flags, as defined in mapFields 
-	 * @param {bool?} isResync set to true if the map update was a resync command 
+	 * @param {number} fieldIds map field flags, as defined in mapFields
+	 * @param {bool?} isResync set to true if the map update was a resync command
 	 * @returns {void} nothing
 	 */
 	onMapUpdate: function(fieldIds, isResync)
@@ -798,7 +798,7 @@ const mapInterface = {
 			if(fieldIds & mapFields.tokens)
 				layers.token.draw();
 			if(fieldIds & mapFields.effects)
-				layers.effect.draw();			
+				layers.effect.draw();
 		}
 
 		if(typeof uiInterface !== "undefined" && uiInterface)
@@ -808,7 +808,7 @@ const mapInterface = {
 	},
 
 	/** Redraws only the given token
-	 * @param {token} token 
+	 * @param {token} token
 	 * @returns {void} nothing
 	 */
 	redrawToken: function(token) {
@@ -819,8 +819,8 @@ const mapInterface = {
 	 * Passing null deletes the image;
 	 * Passing a string treats it as an image URL;
 	 * Passing a Blob treats it as image data
-	 * @param {string} token 
-	 * @param {null|string|Blob} img 
+	 * @param {string} token
+	 * @param {null|string|Blob} img
 	 */
 	uploadImage: function(token, img) {
 		if(img === null)

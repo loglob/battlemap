@@ -105,7 +105,7 @@ Array.prototype.removeAll = function(matches) {
  */
 Array.prototype.remove = function(item) {
 	let i = this.length
-	
+
 	while(i--)
 	{
 		if(this[i] === item)
@@ -130,7 +130,7 @@ Array.prototype.remove = function(item) {
  * @property {function} containsPoint Determines if a point is within the shape.
  * @property {function=} containsToken Determines if a token is within the shape. If not given, implemented via containsPoint().
  * @property {function=} equal Determines if two shapes are equal. If not given, implemented via memberwise compare.
- * @property {function=} empty Determines if a shape is empty. If not given, implemented by comparing start and end vectors. 
+ * @property {function=} empty Determines if a shape is empty. If not given, implemented by comparing start and end vectors.
 */
 
 const shape = {
@@ -142,28 +142,28 @@ const shape = {
 		radius: function(s) {
 			return Math.floor(Math.sqrt(Math.pow(s.start.x - s.end.x, 2) + Math.pow(s.start.y - s.end.y, 2)))
 		},
-		/**@param {shape} s 
-		 * @param {number} x 
+		/**@param {shape} s
+		 * @param {number} x
 		 * @param {number} y
 		 * @returns {boolean} */
 		containsPoint: function(s, x, y) {
 			const r = this.radius(s)
 			return r*r >= Math.pow(x + 0.5 - s.start.x, 2) + Math.pow(y + 0.5 - s.start.y, 2)
 		},
-		/**@param {shape} s 
+		/**@param {shape} s
 		 * @param {token} tk
 		 * @returns {boolean} */
 		containsToken: function(s, tk) {
 			return this.containsPoint(s, nearest(tk.X, tk.Width, s.start.x), nearest(tk.Y, tk.Height, s.start.y))
 		},
-		/**@param {shape} s 
-		 * @param {CanvasRenderingContext2D} ct 
+		/**@param {shape} s
+		 * @param {CanvasRenderingContext2D} ct
 		 * @returns {void} */
 		draw: function(s, ct) {
 			const r = this.radius(s)
 			ct.arc(...cc(s.start.x, s.start.y, r), 0, 2 * Math.PI);
 		},
-		/**@param {shape} a 
+		/**@param {shape} a
 		 * @param {shape} b
 		 * @returns {boolean} */
 		equal: function(a, b) {
@@ -172,8 +172,8 @@ const shape = {
 	},
 	/** @type {shapeKindInterface} */
 	cone: {
-		/**@param {shape} s 
-		 * @param {number} x 
+		/**@param {shape} s
+		 * @param {number} x
 		 * @param {number} y
 		 * @returns {boolean} */
 		containsPoint: function(s, x, y) {
@@ -181,7 +181,7 @@ const shape = {
 			y += 0.5
 
 			const a1 = vadd(s.start, 0.5);
-			
+
 			const end = vadd(s.end, 0.5);
 			const v = vsub(a1, end);
 
@@ -201,20 +201,20 @@ const shape = {
 
 			return 0 <= a && a <= 1 && 0 <= b && b <= 1 && 0 <= c && c <= 1;
 		},
-		/**@param {shape} s 
-		 * @param {CanvasRenderingContext2D} ct 
+		/**@param {shape} s
+		 * @param {CanvasRenderingContext2D} ct
 		 * @returns {void} */
 		draw: function(s, ct) {
 			const origin = vmul(vadd(s.start, 0.5), cellSize);
 
 			ct.moveTo(origin.x, origin.y)
-			
+
 			const end = vmul(vadd(s.end, 0.5), cellSize);
 			const v = vsub(origin, end);
 			const ov = vmul(orth(v), vlen(v) / 2);
 			const a1 = vadd(end, ov)
 			const a2 = vsub(end, ov)
-	
+
 			ct.lineTo(a1.x, a1.y)
 			ct.lineTo(a2.x, a2.y)
 			ct.lineTo(origin.x, origin.y);
@@ -222,23 +222,23 @@ const shape = {
 	},
 	/** @type {shapeKindInterface} */
 	mask: {
-		/**@param {shape} s 
-		 * @param {number} x 
+		/**@param {shape} s
+		 * @param {number} x
 		 * @param {number} y
 		 * @returns {boolean} */
 		containsPoint: function(s, x, y) {
 			const b = vbounds(s.start, s.end);
 			return x >= b.min.x && x <= b.max.x && y >= b.min.y && y <= b.max.y
 		},
-		/**@param {shape} s 
+		/**@param {shape} s
 		 * @param {token} tk
 		 * @returns {boolean} */
 		containsToken: function(s, tk) {
 			const b = vbounds(s.start, s.end);
 			return (tk.X <= b.max.x) && (b.min.x < tk.X + tk.Width) && (tk.Y <= b.max.y) && (b.min.y < tk.Y + tk.Height)
 		},
-		/**@param {shape} s 
-		 * @param {CanvasRenderingContext2D} ct 
+		/**@param {shape} s
+		 * @param {CanvasRenderingContext2D} ct
 		 * @returns {void} */
 		draw: function(s, ct) {
 			const b = vbounds(s.start, s.end)
@@ -257,8 +257,8 @@ const shape = {
 	},
 	/** @type {shapeKindInterface} */
 	line: {
-		/**@param {shape} s 
-		 * @param {number} x 
+		/**@param {shape} s
+		 * @param {number} x
 		 * @param {number} y
 		 * @returns {boolean} */
 		containsPoint: function(s, x, y) {
@@ -270,7 +270,7 @@ const shape = {
 			const p = vadd(s.start, 0.5)
 			const q = vadd(s.end, 0.5)
 			const ve = vsub(s.end, s.start);
-			
+
 			const d = (ve.y * x - ve.x * y + q.x * p.y - q.y * p.x) / vlen(ve);
 
 			if(d > 0.5 || d < -0.5)
@@ -280,19 +280,19 @@ const shape = {
 
 			return l > 0 && l <= 1;
 		},
-		/**@param {shape} s 
+		/**@param {shape} s
 		 * @returns {{ min:vec2, max:vec2 }} */
 		bounds: function(s) {
 			return vbounds(s.start, s.end);
 		},
-		/**@param {shape} s 
-		 * @param {CanvasRenderingContext2D} ct 
+		/**@param {shape} s
+		 * @param {CanvasRenderingContext2D} ct
 		 * @returns {void} */
 		draw: function(s, ct) {
 			const o = vmul(orth(vsub(s.end, s.start)), 0.5 * cellSize)
 			const end = vmul(vadd(s.end, 0.5), cellSize)
 			const start = vmul(vadd(s.start, 0.5), cellSize)
-			
+
 			ct.moveTo(...vx(vadd(start, o)))
 			ct.lineTo(...vx(vsub(start, o)))
 			ct.lineTo(...vx(vsub(end, o)))
@@ -302,7 +302,7 @@ const shape = {
 	},
 	/** @type {shapeKindInterface} */
 	cube: {
-		/**@param {shape} s 
+		/**@param {shape} s
 		 * @returns {vec2[]} The cube's vertices */
 		getPoints: function(s) {
 			const v = vsub(s.end, s.start);
@@ -312,14 +312,14 @@ const shape = {
 
 			return [ vadd(start, o), vsub(start, o), vsub(end, o), vadd(end, o) ]
 		},
-		/**@param {shape} s 
+		/**@param {shape} s
 		 * @returns {{ min:vec2, max:vec2 }} */
 		bounds: function(s) {
 			let p = this.getPoints(s)
 			return vbounds(...p.map(v => vmap(v, Math.floor)), ...p.map(v => vmap(v, Math.ceil)))
 		},
-		/**@param {shape} s 
-		 * @param {number} x 
+		/**@param {shape} s
+		 * @param {number} x
 		 * @param {number} y
 		 * @returns {boolean} */
 		containsPoint: function(s, x, y) {
@@ -332,38 +332,38 @@ const shape = {
 			const q = vadd(s.end, 0.5)
 			const v = vsub(s.end, s.start);
 			const vl = vlen(v)
-			
+
 			const d = (v.y * x - v.x * y + q.x * p.y - q.y * p.x) / (vl * vl);
 
 			if(d > 0.5 || d < -0.5)
 				return false;
 
 			const l = vdiv(vsub(vsub({ x: x, y:y}, vmul(orth(v), d * vl)), p), v)
-			
+
 			return l >= 0 && l <= 1
 		},
-		/**@param {shape} s 
-		 * @param {CanvasRenderingContext2D} ct 
+		/**@param {shape} s
+		 * @param {CanvasRenderingContext2D} ct
 		 * @returns {void} */
 		draw: function(s, ct) {
 			const p = this.getPoints(s).map(v => vx(vmul(v, cellSize)))
-			
+
 			ct.moveTo(...p[3])
-			
+
 			for (const i of p)
 				ct.lineTo(...i);
 		}
 	},
 
 	/** Creates a shape that contains only the given point or vector
-	 * @param {number|vec2} x 
+	 * @param {number|vec2} x
 	 * @param {number=} y
 	 * @returns {shape}
 	 */
 	point: function(x,y) {
 		if(typeof x === "number")
 			x = v(x,y);
-		
+
 		return this.new("mask", x, x);
 	},
 	/** Determines if two shapes are equal
@@ -515,7 +515,7 @@ function orth(v)
 /** Maps each component of v via f
  * @param {vec2} v - The vector
  * @param {function} f - A number->number function
- * @returns {vec2} 
+ * @returns {vec2}
 */
 function vmap(v, f)
 {
@@ -525,7 +525,7 @@ function vmap(v, f)
 /** Multiplies vector v with scalar k
  * @param {vec2} v - The vector
  * @param {number} k - The scalar
- * @returns {vec2} 
+ * @returns {vec2}
 */
 function vmul(v, k)
 {
@@ -550,7 +550,7 @@ function vdiv(v, u)
 			return ly ?? 0;
 		if(u.y === 0 && v.y === 0)
 			return lx;
-			
+
 		return lx;
 	}
 }
@@ -745,7 +745,7 @@ function nearest(start, len, target)
 {
 	if(target <= start)
 		return start
-	
+
 	const end = start + len - 1
 
 	if(target >= end)
@@ -770,7 +770,7 @@ function inCircle(tX, tY, x, y, r)
 /** Finds the token that occupies a point, or null, if there is none.
  * @param {number} x	The point's x
  * @param {number} y	The point's y
- * @returns {?token} 
+ * @returns {?token}
 */
 function tokenAt(x,y)
 {
@@ -780,7 +780,7 @@ function tokenAt(x,y)
 /** Finds the token that has its origin at a point, or null, if there is none.
  * @param {number} x	The point's x
  * @param {number} y	The point's y
- * @returns {?token} 
+ * @returns {?token}
 */
 function tokenAtExact(x,y)
 {
@@ -953,7 +953,7 @@ function makeRow()
 	return row
 }
 
-/** Adds a row to the table that can be deleted via shift-clicking 
+/** Adds a row to the table that can be deleted via shift-clicking
  * @param {HTMLTableElement} table The table to add to
  * @param {cellContent[]} contents The contents, as with makeRow()
  * @param {function?} removeCallback Called on deletion of the row.
@@ -968,7 +968,7 @@ function addRow(table, contents, removeCallback)
 	row.onclick = (evnt) => {
 		if(!evnt.shiftKey)
 			return;
-	
+
 		if(!removeCallback || !removeCallback(contents, row))
 			table.removeChild(row)
 	}
@@ -978,8 +978,8 @@ function addRow(table, contents, removeCallback)
 }
 
 /** Determines if two scalars or vectors are close
- * @param {vec2|number} a 
- * @param {vec2|number} b 
+ * @param {vec2|number} a
+ * @param {vec2|number} b
  */
 function approx(a,b)
 {
@@ -990,8 +990,8 @@ function approx(a,b)
 }
 
 /** a >= b that handles floating point rounding erorrs
- * @param {number} a 
- * @param {number} b 
+ * @param {number} a
+ * @param {number} b
  * @returns {boolean} a >= b
  */
 function gte(a,b)

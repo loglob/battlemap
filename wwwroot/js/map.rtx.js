@@ -45,7 +45,7 @@ function toPolar(p, ref)
 }
 
 /** Shorthand for cc()ing vectors
- * @param {vec2} p 
+ * @param {vec2} p
  * @returns {Number[]} cc(...vx(p))
  */
 function ccv(p)
@@ -97,7 +97,7 @@ function lineLineIntersect(a,b,c,d)
 		{
 			if(approx(lp, k) || approx(lq, k))
 				return 1;
-			
+
 			const diff = vmap(vsub(lq, lp), Math.abs);
 
 			if(diff.x > diff.y)
@@ -105,7 +105,7 @@ function lineLineIntersect(a,b,c,d)
 			else
 				return gte(k.y, Math.min(lp.y, lq.y)) && gte(Math.max(lq.y, lp.y), k.y) ? 2 : 0;
 		}
-		
+
 		const hits = [ [ a, inLine(c,d,a) ], [ c, inLine(a,b,c) ], [ b, inLine(c,d,b) ], [ d, inLine(a,b,d) ] ];
 		const hit = hits.find(h => h[1] == 2) ?? hits.find(h => h[1] == 1);
 
@@ -119,7 +119,7 @@ function lineLineIntersect(a,b,c,d)
 		return null;
 
 	const u = (a.y - b.y) * (a.x - c.x) - (a.x - b.x) * (a.y - c.y)
-	
+
 	// Point outside [CD]
 	if(!approx(u, div) && (Math.sign(div) != Math.sign(u) || Math.abs(u) > Math.abs(div)))
 		return null;
@@ -207,7 +207,7 @@ const rtx = {
 		/** Finds the replacement point for p if p is outside the light's radius.
 		 * Finds the point along the edge p is part of such that it is on the light's boundary and closest to p.
 		 * p must be left or right.
-		 * @param {pvec} p 
+		 * @param {pvec} p
 		 * @returns {pvec} A point on the circle that replaces p
 		 */
 		function replaceOut(p)
@@ -219,14 +219,14 @@ const rtx = {
 
 		const vert = [v(r.X, r.Y), v(r.X + r.Width, r.Y), v(r.X, r.Y + r.Height), v(r.X + r.Width, r.Y + r.Height)]
 			.map(p => toPolar(p, l));
-		
+
 		var left = vert[0]
 		var right = vert[0]
 		var closest = vert[0]
 
 		for (let i = 1; i < 4; i++) {
 			const p = vert[i];
-			
+
 			if(leftof(p, left))
 				left = p;
 			else if(leftof(right, p))
@@ -242,9 +242,9 @@ const rtx = {
 		return (closest == left || closest == right) ? [nleft, nright] : [nleft, closest, nright];
 	},
 	/**
-	 * 
+	 *
 	 * @param {boolean[][]} obsmap The obstruction map
-	 * @returns {rect[]} An equivalent set of rectangles 
+	 * @returns {rect[]} An equivalent set of rectangles
 	 */
 	toRects: function(obsmap)
 	{
@@ -261,10 +261,10 @@ const rtx = {
 			const d1 = { x: d0.y, y: d0.x }
 			let all = []
 			let last = []
-		
+
 			for (; within(0,0,width,height,p0.x,p0.y); p0 = vadd(p0, d1)) {
 				let cur = []
-		
+
 				for (let p = p0; within(0,0,width,height,p.x,p.y); p = vadd(p,d0)) {
 					if(!M[p.x][p.y])
 						continue;
@@ -279,14 +279,14 @@ const rtx = {
 						b.Y = Math.min(b.Y, p.y)
 					}
 				}
-		
+
 				if(last.length > 0)
 				{
 					for (let i = cur.length - 1; i >= 0; i--) {
 						const c = cur[i]
 						const r = { x : c.X - d1.x, y: c.Y - d1.y, w: c.Width * d0.x, h: c.Height * d0.y }
 						const j = last.findIndex(s => s.X === r.x && s.Y === r.y && s.Width * d0.x === r.w && s.Height * d0.y === r.h)
-						
+
 						if(j >= 0)
 						{
 							const b = last[j]
@@ -294,23 +294,23 @@ const rtx = {
 							b.Height += Math.abs(d1.y)
 							b.X = Math.min(b.X, cur[i].X)
 							b.Y = Math.min(b.Y, cur[i].Y)
-		
+
 							cur[i] = b
 							last.splice(j, 1);
 						}
 					}
-		
+
 					all.push(...last)
 				}
-		
+
 				last = cur
 			}
-		
+
 			all.push(...last)
-		
+
 			return all
 		}
-		
+
 		/*  */
 		const allw = [
 			/* left to right */
@@ -354,11 +354,11 @@ const rtx = {
 			const _p = vadd(vmul(vsub(p, l), l.range / Math.sqrt(p.len2)), l)
 			return { x:_p.x, y:_p.y, angle: p.angle, len2: l.range * l.range, len: l.range }
 		}
-		
+
 		/** All lines
 		 * @type {line[]}
 		 */
-		let S = this.distCull(R, l, l.range).flatMap( 
+		let S = this.distCull(R, l, l.range).flatMap(
 			/** Maps a rectangle to the lines making up its shadow outline.
 			 * The return is sorted by angle.
 			 * @param {rect} r
@@ -368,10 +368,10 @@ const rtx = {
 			{
 				const s = rtx.shadowVertices(r,l)
 				let L = [ { s: project(s[0]), e: s[0] } ];
-	
+
 				for (let i = 1; i < s.length; i++)
 					L.push({ s: s[i - 1], e: s[i] });
-	
+
 				L.push({ s: s[s.length - 1], e: project(s[s.length - 1]) });
 				return L.filter(l => !approx(l.s, l.e));
 			});
@@ -380,11 +380,11 @@ const rtx = {
 		/*	perform successive x- and y-splices,
 			transforming S to an isomorphic set containing only non-intersecting line segments
 			leverages the edge-cases covered by lineLineIntersect() to handle colinear lines */
-		
+
 		for(let i = 0;;)
 		{
 			let splitAny = false;
-			
+
 			for (; i < S.length; i++) {
 				for (let j = i+1; j < S.length; j++) {
 					if(approx(S[i].e, S[j].s) && approx(S[i].s, S[j].e))
@@ -410,6 +410,7 @@ const rtx = {
 							S[j] = r[1]
 							S.push(...r.splice(2));
 
+							// todo: skip indices [i..j-1] on repeated check
 							splitAny = true;
 							break;
 						}
@@ -426,8 +427,8 @@ const rtx = {
 
 		S = S.flatMap(
 		/** Split any lines crossing the 0°-axis along it
-		 * @param {line} s 
-		 */	
+		 * @param {line} s
+		 */
 		function(s){
 			function p(a)
 			{
@@ -445,7 +446,7 @@ const rtx = {
 					r = [{ s: s.s, e:p(2 * Math.PI) }, { s: p(0), e: s.e }]
 				else if (s.s.y > l.y && s.e.y < l.y)
 					r = [{ s: s.s, e:p(0) }, { s: p(2 * Math.PI), e: s.e }]
-				
+
 				if(r && !r.some(l => approx(l.s, l.e)))
 					return r;
 			}
@@ -461,7 +462,7 @@ const rtx = {
 	 * Does not fill shapes, just populates the canvas path
 	 * @param {CanvasRenderingContext2D} ctx
 	 * @param {light} l
-	 * @param {rect[]} R 
+	 * @param {rect[]} R
 	 */
 	drawLight: function(ctx, l, R)
 	{
@@ -471,7 +472,7 @@ const rtx = {
 
 		const rad = cc(l.x, l.y, l.range)
 		let S = this.getLines(l, R);
-		
+
 		if(!S.length)
 		{
 			ctx.arc(...rad, 0, 2 * Math.PI);
@@ -527,7 +528,7 @@ const rtx = {
 					break;
 
 				S = S.filter(s => s.s.angle > cur.e.angle);
-				
+
 				next = S.min(s => s.s.angle)
 					.max(s => s.s.len2)[0]
 
@@ -536,7 +537,7 @@ const rtx = {
 				else
 					break;
 			}
-			
+
 			cur = next;
 		}
 
@@ -559,7 +560,7 @@ const rtx = {
 			return null
 	},
 	/**
-	 * @param {Object.<string,light>} lightDict Maps token idnames to light templates 
+	 * @param {Object.<string,light>} lightDict Maps token idnames to light templates
 	 * @returns {light[]} All light sources
 	 */
 	getLights: function(lightDict, hideHidden)
@@ -587,7 +588,7 @@ const rtx = {
 			})
 	},
 	/** Renders the shadow layer
-	 * @param {CanvasRenderingContext2D} ctx 
+	 * @param {CanvasRenderingContext2D} ctx
 	 * @param {rect[]} R	All hitboxes
 	 * @param {light[]} L	All light sources
 	 * @param {light?} P	The player's pseudo-lightsource
@@ -604,37 +605,37 @@ const rtx = {
 			{
 				// draw darkness, except around a player with darkvision
 				ctx.globalCompositeOperation = "copy"
-	
+
 				if(P?.range)
 				{
 					ctx.beginPath()
 					this.drawLight(ctx, P, R)
-	
+
 					ctx.globalAlpha = this.dimLightAlpha
 					ctx.fill()
 					ctx.globalCompositeOperation = "destination-over"
 					ctx.globalAlpha = 1.0
-	
+
 					ctx.rect(w, 0, -w, h);
 					ctx.fill();
 				}
 				else
 					ctx.fillRect(0, 0, w, h)
-				
+
 				ctx.globalCompositeOperation = "destination-out"
 				ctx.beginPath()
-	
+
 				// erase all illuminated areas
 				for (const l of L.filter(l => l.level == lightlevel.dim)) {
 					this.drawLight(ctx, l, R)
 				}
-	
+
 				ctx.fill();
 			}
-	
+
 			ctx.globalCompositeOperation = "destination-over"
 			ctx.globalAlpha = this.dimLightAlpha;
-	
+
 			// fill in dim light color, except around a player with darkvision
 			if(P?.range)
 			{
@@ -645,16 +646,16 @@ const rtx = {
 			}
 			else
 				ctx.fillRect(0, 0, w, h)
-			
+
 			ctx.globalCompositeOperation = "destination-out"
 			ctx.globalAlpha = 1.0;
 			ctx.beginPath()
-	
+
 			// erase all areas in bright light
 			for (const l of L.filter(l => l.level == lightlevel.bright)) {
 				this.drawLight(ctx, l, R)
 			}
-	
+
 			ctx.fill();
 			ctx.restore()
 		}
@@ -666,7 +667,7 @@ const rtx = {
 				vlensq(vsub(P, v(0, map.height))),
 				vlensq(vsub(P, v(map.width, 0))),
 				vlensq(vsub(P, v(map.width, map.height))));
-			
+
 			ctx.beginPath();
 			this.drawLight(ctx, { x: P.x, y: P.y, range: Math.ceil(Math.sqrt(maxR)) }, R);
 			ctx.rect(w, 0, -w, h);
@@ -695,7 +696,7 @@ const rtxInterface = {
 		this.initialized = true
 	},
 	/**
-	 * @param {CanvasRenderingContext2D} ctx 
+	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	draw: function(ctx)
 	{
@@ -731,7 +732,7 @@ const rtxInterface = {
 		}
 
 		const newcache = JSON.stringify(this.cache)
-		
+
 		// Avoid expensive redraw
 		if(!(fields & mapFields.size | mapFields.rtxInfo) && newcache === this.oldCache)
 			return;
@@ -770,7 +771,7 @@ function viz(o, cl)
 	}
 
 	function _viz(o)
-	{	
+	{
 		if(Array.isArray(o))
 		{
 			for (const i of o)
