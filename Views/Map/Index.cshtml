@@ -13,7 +13,7 @@
 	var isDmStr = ViewBag.LoadDmTools.ToString().ToLower();
 	var playerToken = ((string)ViewBag.tokenName).ToJson().AsHtml();
 
-	var hubargs = $"token={token}&dm={isDmStr}{(ViewBag.tokenName == null ? "" : $"&name={ViewBag.tokenName}")}".AsHtml();
+	var hubargs = $"token={token}&dm={isDmStr}{(ViewBag.tokenName == null ? "" : $"&name={Uri.EscapeUriString(ViewBag.tokenName)}")}".AsHtml();
 	
 	ViewData["Title"] = ViewBag.Token;
 }
