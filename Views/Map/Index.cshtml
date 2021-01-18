@@ -2,6 +2,7 @@
 @using System.Xml.Linq
 @using Newtonsoft.Json
 @using System.IO
+@using battlemap.Util
 @model (string token, Map map)
 
 @{
@@ -10,7 +11,7 @@
 	var w = map.Width * Map.CellSize;
 	var h = map.Height * Map.CellSize;
 	var isDmStr = ViewBag.LoadDmTools.ToString().ToLower();
-	var playerToken = ViewBag.tokenName ?? "";
+	var playerToken = ((string)ViewBag.tokenName).ToJson().AsHtml();
 
 	var hubargs = $"token={token}&dm={isDmStr}{(ViewBag.tokenName == null ? "" : $"&name={ViewBag.tokenName}")}".AsHtml();
 	
@@ -186,15 +187,7 @@ else
 
 @section scripts
 {
-
-@if(ViewBag.tokenName is null)
-{
-	<script>const playerToken = null</script>
-}
-else
-{
-	<script>const playerToken = "@ViewBag.tokenName"</script>
-}
+	<script> const playerToken = @playerToken </script>
 
 	<script>
 		const map = @Model.map.FieldData(MapFields.All).json.AsHtml()
