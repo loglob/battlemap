@@ -396,7 +396,7 @@ const layers =
 				ct.fillStyle = color
 				ct.strokeStyle = color
 
-				shape.draw(e, ct);
+				shape.draw(e.shape, ct);
 
 				ct.fill()
 				ct.stroke()

@@ -6,25 +6,25 @@ namespace battlemap.Models
 {
 	public class Effect
 	{
-		[JsonIgnore]
+		[JsonProperty("shape")]
 		public readonly Shape Shape;
 
 		[JsonProperty("color")]
 		public readonly int Color;
 
-		[JsonProperty("kind")]
-		[JsonConverter(typeof(StringEnumConverter), true)]
+
+		[JsonIgnore]
 		public ShapeKind Kind
 			=> Shape.Kind;
 
-		[JsonProperty("start")]
+		[JsonIgnore]
 		public Vec2<int> Start
 		{
 			get => Shape.Start;
 			set => Shape.Start = value;
 		}
 
-		[JsonProperty("end")]
+		[JsonIgnore]
 		public Vec2<int> End
 		{
 			get => Shape.End;
@@ -35,9 +35,9 @@ namespace battlemap.Models
 			=> e.Shape;
 
 		[JsonConstructor]
-		public Effect(ShapeKind kind, Vec2<int> start, Vec2<int> end, int color)
+		public Effect(Shape shape, ShapeKind? kind, Vec2<int>? start, Vec2<int>? end, int color)
 		{
-			this.Shape = Shape.From(kind, start, end);
+			this.Shape = shape ?? Shape.From(kind.Value, start.Value, end.Value);
 			this.Color = color;
 		}
 

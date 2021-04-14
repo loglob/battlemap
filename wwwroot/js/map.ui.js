@@ -16,9 +16,7 @@
 
 
 /** @typedef {Object} effect
- * @property {string} kind		The effect's kind/form
- * @property {vec2}	start		The starting point
- * @property {vec2}	end			The ending point
+ * @property {shape} shape		The effect's shape
  * @property {number} color		The effect's color
  * @property {?boolean} local	Whether or not the effect is local or persistent
  */
@@ -354,12 +352,12 @@ const toolbox = {
 				let div = document.createElement("div");
 				let name = document.createElement("span")
 
-				const diff = vsub(item.end, item.start)
+				const diff = vsub(item.shape.end, item.shape.start)
 
-				if(item.kind === "mask")
+				if(item.shape.kind === "mask")
 					name.innerText = `${Math.abs(diff.x) + 1}x${Math.abs(diff.y) + 1} rectangle`;
 				else
-					name.innerText = `${Math.round(vlen(diff)) * 5}' ${item.kind}`
+					name.innerText = `${Math.round(vlen(diff)) * 5}' ${item.shape.kind}`
 
 				div.appendChild(name);
 
@@ -1138,10 +1136,10 @@ const effects = {
 	 * @returns {void}
 	*/
 	onBlinkShape: function(s) {
-		if(this.list.some(e => shape.equal(e,s)))
+		if(this.list.some(e => shape.equal(e.shape,s)))
 			return;
 
-		this.list.push({ color:0, kind: s.kind, start: s.start, end: s.end, local: true });
+		this.list.push({ color:0, shape: s, local: true });
 		this.onEffectUpdate()
 	},
 	/** Reacts to updates of map.effects
@@ -1675,7 +1673,7 @@ const contextmenu = {
 			/**@param {number} x
 			 * @param {number} y */
 			condition: function(x, y) {
-				return map.effects.find(e => shape.containsPoint(e, x / cellSize, y / cellSize));
+				return map.effects.find(e => shape.containsPoint(e.shape, x / cellSize, y / cellSize));
 			},
 			onMapUpdate: function() { if(map.effects.indexOf(contextmenu.data) == -1) contextmenu.hide() },
 			updateMask: mapFields.effects,

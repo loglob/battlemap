@@ -72,7 +72,7 @@ const maphub =
 			/**@param {effect} e
 			 * @returns {checkReport} */
 			check: function(e) {
-				if(shape.empty(e))
+				if(shape.empty(e.shape))
 					return "Refusing AddEffect with empty shape"
 				if(e.color >> 24)
 					return "Refusing AddEffect with bad color"
@@ -288,12 +288,12 @@ const maphub =
 			 * @returns {void} nothing
 			 */
 			receive: function(s) {
-				map.effects.removeAll(e => shape.equal(s, e))
+				map.effects.removeAll(e => shape.equal(s, e.shape))
 			},
 			/**@param {shape} s
 			 * @returns {checkReport} */
 			check: function(s) {
-				if(!map.effects.some(e => shape.equal(e,s)))
+				if(!map.effects.some(e => shape.equal(e.shape,s)))
 					return "Refusing RemoveEffect without matching effect"
 			},
 			sendsObject: true,
@@ -383,12 +383,12 @@ const maphub =
 				const d = v(left, up);
 
 				for (const ef of map.effects) {
-					ef.start = vadd(ef.start, d);
-					ef.end = vadd(ef.end, d);
+					ef.shape.start = vadd(ef.shape.start, d);
+					ef.shape.end = vadd(ef.shape.end, d);
 				}
 
 				const oob = p => p.x < 0 || p.x >= w || p.y < 0 || p.y >= h;
-				map.effects.removeAll(ef => oob(ef.start) || oob(ef.end));
+				map.effects.removeAll(ef => oob(ef.shape.start) || oob(ef.shape.end));
 
 				// initialize and fill a new color array
 				const newc = Array(w)
