@@ -715,7 +715,8 @@ const mapInterface = {
 			break;
 
 			case blinkKind.initiative:
-				highlighted.push({ time: Date.now(), token: tk, initiative: true });
+				if(!tk.Hidden || isDM)
+					highlighted.push({ time: Date.now(), token: tk, initiative: true });
 
 				const _ct = currentTurn
 				currentTurn = tk;
