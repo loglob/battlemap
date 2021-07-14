@@ -1122,14 +1122,14 @@ const effects = {
 			this.onEffectUpdate()
 		}
 		else
-			maphub.removeEffect(effect)
+			maphub.removeEffect(effect.shape)
 	},
 	/** Blinks an effect.
 	 * @param {effect} effect	The effect
 	 * @returns {void}
 	*/
 	blink: function(effect) {
-		maphub.blinkShape(effect)
+		maphub.blinkShape(effect.shape)
 	},
 	/** Reacts to a blinkShape() command.
 	 * @param {shape} s	The shape
@@ -1679,11 +1679,11 @@ const contextmenu = {
 			updateMask: mapFields.effects,
 
 			/**@param {effect} e */
-			delete: function(e) { maphub.removeEffect(e); contextmenu.hide(); },
+			delete: function(e) { maphub.removeEffect(e.shape); contextmenu.hide(); },
 			/**@param {effect} e */
-			destroy: function(e) { maphub.removeAll(e); },
+			destroy: function(e) { maphub.removeAll(e.shape); },
 			/**@param {effect} e */
-			blink: function(e) { maphub.blinkShape(e); },
+			blink: function(e) { maphub.blinkShape(e.shape); },
 		}
 	},
 	data: null,
