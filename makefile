@@ -22,8 +22,9 @@ install:
 	mkdir -p /srv/battlemap
 	dotnet publish --self-contained -c Release -r linux-x64 -p:PublishSingleFile=true
 
-	if [ $(serviceStatus) = "active" ]; then sudo service battlemap stop; fi;
+	if [ $(serviceStatus) = "active" ]; then sudo systemctl stop battlemap; fi;
 
 	cp -r bin/Release/netcoreapp3.0/linux-x64/publish/* /srv/battlemap
-	
-	if [ $(serviceStatus) = "active" ]; then sudo service battlemap start; fi;
+	cp -r wwwroot /srv/battlemap
+
+	if [ $(serviceStatus) = "active" ]; then sudo systemctl start battlemap; fi;
