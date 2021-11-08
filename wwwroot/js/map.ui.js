@@ -199,11 +199,10 @@ const toolbox = {
 			 * @returns {void} nothing
 			 */
 			onMouseDown: function(evnt) {
-				if(evnt.shiftKey || evnt.ctrlKey)
-				{
-					const col = hexColor(map.colors[tile(evnt.pageX)][tile(evnt.pageY)])
-					this.Color.value = col
-				}
+				if(evnt.ctrlKey)
+					selection.current = selection.fill
+				else if(evnt.shiftKey)
+					this.Color.value = hexColor(map.colors[tile(evnt.pageX)][tile(evnt.pageY)])
 				else
 				{
 					maphub.color(tile(evnt.pageX), tile(evnt.pageY), parseInt(this.Color.value.substring(1), 16))
@@ -1643,6 +1642,33 @@ const selection = {
 			ct.fillRect(selection.pos.x, selection.pos.y, dx, dy)
 			ct.rect(selection.pos.x, selection.pos.y, dx, dy);
 			ct.stroke();
+		}
+	},
+	fill: {
+		onDrop: function() {
+			const a = tile(selection.pos)
+			const b = tile(mousepos)
+			
+			for (let x = Math.min(a.x, b.x); x <= Math.max(a.x, b.x); x++)
+			{
+				for (let y = Math.min(a.y, b.y); y <= Math.max(a.y, b.y); y++)
+				{
+					maphub.color(x, y, parseInt(toolbox.tools.tileedit.Color.value.substring(1), 16));
+					
+				}
+			}
+		},
+		draw: function(ct) {
+			const dx = mousepos.x - selection.pos.x
+			const dy = mousepos.y - selection.pos.y
+
+			ct.beginPath()
+			ct.globalAlpha = 0.4
+			ct.fillStyle = colorString(toolbox.tools.tileedit.Color.value);
+			ct.lineWidth = 2
+
+			ct.fillRect(selection.pos.x, selection.pos.y, dx, dy)
+			ct.rect(selection.pos.x, selection.pos.y, dx, dy);
 		}
 	}
 }
