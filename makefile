@@ -24,7 +24,7 @@ install:
 
 	if [ $(serviceStatus) = "active" ]; then sudo systemctl stop battlemap; fi;
 
-	cp -r bin/Release/netcoreapp3.0/linux-x64/publish/* /srv/battlemap
+	cp -r bin/Release/net5.0/linux-x64/publish/* /srv/battlemap
 	cp -r wwwroot /srv/battlemap
 
 	if [ $(serviceStatus) = "active" ]; then sudo systemctl start battlemap; fi;
