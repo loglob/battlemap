@@ -167,6 +167,106 @@ const lightlevel = {
 	bright: 2,
 }
 
+const flood = {
+	/** Gets the edge points of a rectangle
+	 * @param {rect} r 
+	 * @returns {{x:number, y:number}[]} The edge points
+	 */
+	getEdge: function(r)
+	{
+		var edge = [];
+
+		for (let x = r.X; x < r.X + r.Width; x++)
+		{
+			edge.push({ x:x, y:r.Y });
+
+			if(r.Height > 1)
+				edge.push({ x:x, y:r.Y + r.Height - 1 });
+		}
+
+		for (let y = r.Y+1; y < r.Y + r.Height - 1; y++) {
+			edge.push({ x:r.X, y:y });
+			
+			if(r.Width > 1)
+				edge.push({ x:r.X + r.Width - 1, y:y });
+		}
+
+		return edge;
+	},
+	/**
+	 * 
+	 * @param {shape} m
+	 * @returns {rect}  
+	 */
+	toRect: function(m)
+	{
+		if(typeof m !== "object")
+			return null;
+
+		var s = vbounds(m.start, m.end);
+		return { X: s.min.x, Y: s.min.y,
+			Width: s.max.x - s.min.x + 1, Height: s.max.y - s.min.y + 1 };
+	},
+	/** Calculates a darkness map from an obstruction map and a
+	 * @param {boolean[][]} obsmap The obstruction map
+	 * 	(true if that position contains an opaque tile)
+	 * @param {rect} spawn The spawn rectangle
+	 * @returns {boolean[][]} The dark tiles
+	 */
+	getDMap : function(obsmap, spawn)
+	{
+		// Filled with darkness (true) except for the spawn rectangle, which is light (false)
+		var dmap = obsmap.map((o,x) => o.map((_,y) => !within(spawn.X, spawn.Y, spawn.Width, spawn.Height, x, y)));
+
+		
+		for (let delta = this.getEdge(spawn); delta.length > 0;)
+		{
+			var nu = [];
+
+			for (const p of delta)
+			{
+				// star-shaped walk pattern offset
+				const d = [ -1, 1, -1, 0, 1, -1, 1, 0 ];
+
+				for (let i = 0; i < 8; i++)
+				{
+					const n = { x: p.x + d[i], y: p.y + d[(i+2) % 8] };
+
+					if(dmap[n.x] && dmap[n.x][n.y] && !obsmap[n.x][n.y])
+					{
+						dmap[n.x][n.y] = false;
+						nu.push(n);
+					}
+				}
+			}
+
+			delta = nu;
+		}
+
+		return dmap;
+	},
+	/**
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {rect[]} dr
+	 */
+	draw: function(ctx, dr)
+	{
+		ctx.clear();
+	
+		if(map.rtxInfo.globallight == lightlevel.bright)
+			return;
+		
+		ctx.globalCompositeOperation = "source-over"
+		ctx.globalAlpha = (map.rtxInfo.globallight == lightlevel.dim) ? rtx.dimLightAlpha : 1;
+
+		for (const r of dr) {
+			ctx.fillRect(r.X * cellSize, r.Y * cellSize, r.Width * cellSize, r.Height * cellSize);
+		}
+
+		ctx.fill();
+	}
+};
+
 const rtx = {
 	/** The source-over canvas used to draw an individual light source's light
 	 * @type {CanvasRenderingContext2D}
@@ -595,52 +695,28 @@ const rtx = {
 	 */
 	draw: function(ctx, R, L, P)
 	{
+		ctx.clear();
+
 		if(map.rtxInfo.globallight == lightlevel.bright)
-			ctx.clear();
-		else
+			return;
+		
+		ctx.save();
+
+		if(map.rtxInfo.globallight < lightlevel.dim)
 		{
-			ctx.save();
+			// draw darkness, except around a player with darkvision
+			ctx.globalCompositeOperation = "copy"
 
-			if(map.rtxInfo.globallight < lightlevel.dim)
-			{
-				// draw darkness, except around a player with darkvision
-				ctx.globalCompositeOperation = "copy"
-
-				if(P?.range)
-				{
-					ctx.beginPath()
-					this.drawLight(ctx, P, R)
-
-					ctx.globalAlpha = this.dimLightAlpha
-					ctx.fill()
-					ctx.globalCompositeOperation = "destination-over"
-					ctx.globalAlpha = 1.0
-
-					ctx.rect(w, 0, -w, h);
-					ctx.fill();
-				}
-				else
-					ctx.fillRect(0, 0, w, h)
-
-				ctx.globalCompositeOperation = "destination-out"
-				ctx.beginPath()
-
-				// erase all illuminated areas
-				for (const l of L.filter(l => l.level == lightlevel.dim)) {
-					this.drawLight(ctx, l, R)
-				}
-
-				ctx.fill();
-			}
-
-			ctx.globalCompositeOperation = "destination-over"
-			ctx.globalAlpha = this.dimLightAlpha;
-
-			// fill in dim light color, except around a player with darkvision
 			if(P?.range)
 			{
 				ctx.beginPath()
 				this.drawLight(ctx, P, R)
+
+				ctx.globalAlpha = this.dimLightAlpha
+				ctx.fill()
+				ctx.globalCompositeOperation = "destination-over"
+				ctx.globalAlpha = 1.0
+
 				ctx.rect(w, 0, -w, h);
 				ctx.fill();
 			}
@@ -648,17 +724,41 @@ const rtx = {
 				ctx.fillRect(0, 0, w, h)
 
 			ctx.globalCompositeOperation = "destination-out"
-			ctx.globalAlpha = 1.0;
 			ctx.beginPath()
 
-			// erase all areas in bright light
-			for (const l of L.filter(l => l.level == lightlevel.bright)) {
+			// erase all illuminated areas
+			for (const l of L.filter(l => l.level == lightlevel.dim)) {
 				this.drawLight(ctx, l, R)
 			}
 
 			ctx.fill();
-			ctx.restore()
 		}
+
+		ctx.globalCompositeOperation = "destination-over"
+		ctx.globalAlpha = this.dimLightAlpha;
+
+		// fill in dim light color, except around a player with darkvision
+		if(P?.range)
+		{
+			ctx.beginPath()
+			this.drawLight(ctx, P, R)
+			ctx.rect(w, 0, -w, h);
+			ctx.fill();
+		}
+		else
+			ctx.fillRect(0, 0, w, h)
+
+		ctx.globalCompositeOperation = "destination-out"
+		ctx.globalAlpha = 1.0;
+		ctx.beginPath()
+
+		// erase all areas in bright light
+		for (const l of L.filter(l => l.level == lightlevel.bright)) {
+			this.drawLight(ctx, l, R)
+		}
+
+		ctx.fill();
+		ctx.restore()
 
 		if(P && map.rtxInfo.lineOfSight)
 		{
@@ -708,7 +808,10 @@ const rtxInterface = {
 			return;
 		}
 
-		rtx.draw(ctx, this.cache.R, this.cache.L, this.cache.P)
+		if(map.rtxInfo.floodFill)
+			flood.draw(ctx, this.cache.DR)
+		else
+			rtx.draw(ctx, this.cache.R, this.cache.L, this.cache.P)
 	},
 	onMapUpdate: function(fields)
 	{
@@ -723,12 +826,24 @@ const rtxInterface = {
 		}
 		if(fields & mapFields.rtxInfo)
 			this.cache.opaqueSet = new Set(map.rtxInfo.opaque)
-		if(fields & (mapFields.colors | mapFields.size | mapFields.rtxInfo))
-			this.cache.R = rtx.toRects(rtx.getObsmap(this.cache.opaqueSet))
-		if(fields & (mapFields.tokens | mapFields.size | mapFields.rtxInfo))
+
+		if(map.rtxInfo.floodFill &&
+			(fields & (mapFields.colors | mapFields.size | mapFields.rtxInfo | mapFields.tokens)))
 		{
-			this.cache.L = rtx.getLights(map.rtxInfo.sources, map.rtxInfo.hideHidden ?? false)
-			this.cache.P = rtx.getPlayerLight();
+			var r = map.rtxInfo.lineOfSight ? uiInterface?.player : flood.toRect(map.spawn)
+			this.cache.DR = r
+				? rtx.toRects(flood.getDMap(rtx.getObsmap(this.cache.opaqueSet), r))
+				: [];
+		}
+		else if(!map.rtxInfo.floodFill)
+		{
+			if(fields & (mapFields.colors | mapFields.size | mapFields.rtxInfo))
+				this.cache.R = rtx.toRects(rtx.getObsmap(this.cache.opaqueSet))
+			if(fields & (mapFields.tokens | mapFields.size | mapFields.rtxInfo))
+			{
+				this.cache.L = rtx.getLights(map.rtxInfo.sources, map.rtxInfo.hideHidden ?? false)
+				this.cache.P = rtx.getPlayerLight();
+			}
 		}
 
 		const newcache = JSON.stringify(this.cache)

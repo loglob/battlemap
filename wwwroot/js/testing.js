@@ -19,6 +19,7 @@
  * @property {number[]} opaque The opaque tiles
  * @property {boolean?} hideHidden Whether or not hidden tokens produce light
  * @property {boolean?} lineOfSight Whether or not players cast line-of-sight
+ * @property {boolean?} floodFill Whether to use flood fill instead of shadow tracing
  */
 
  /**@type {map} */

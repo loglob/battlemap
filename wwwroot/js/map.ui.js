@@ -873,6 +873,8 @@ const toolbox = {
 			hidehidden: initpls,
 			/** @type {HTMLInputElement} */
 			lineofsight: initpls,
+			/** @type {HTMLInputElement} */
+			floodfill: initpls,
 			/** @type {HTMLButtonElement} */
 			save: initpls,
 			/** @type {HTMLInputElement} */
@@ -918,6 +920,7 @@ const toolbox = {
 				this.globallight.value = data.globallight
 				this.hidehidden.checked = data.hideHidden ?? false
 				this.lineofsight.checked = data.lineOfSight ?? false
+				this.floodfill.checked = data.floodFill ?? false
 			},
 			getSources: function() {
 				let s = {};
@@ -941,6 +944,7 @@ const toolbox = {
 					globallight: Number(this.globallight.value),
 					hideHidden: this.hidehidden.checked,
 					lineOfSight: this.lineofsight.checked,
+					floodFill: this.floodfill.checked,
 				};
 			},
 			onSave: function(evnt) {
