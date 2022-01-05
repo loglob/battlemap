@@ -169,7 +169,7 @@ const lightlevel = {
 
 const flood = {
 	/** Gets the edge points of a rectangle
-	 * @param {rect} r 
+	 * @param {rect} r
 	 * @returns {{x:number, y:number}[]} The edge points
 	 */
 	getEdge: function(r)
@@ -186,17 +186,16 @@ const flood = {
 
 		for (let y = r.Y+1; y < r.Y + r.Height - 1; y++) {
 			edge.push({ x:r.X, y:y });
-			
+
 			if(r.Width > 1)
 				edge.push({ x:r.X + r.Width - 1, y:y });
 		}
 
 		return edge;
 	},
-	/**
-	 * 
-	 * @param {shape} m
-	 * @returns {rect}  
+	/** Converts a shape to a rectangle
+	 * @param {shape} m Any shape
+	 * @returns {rect} THe bounding box of that shape
 	 */
 	toRect: function(m)
 	{
@@ -218,19 +217,16 @@ const flood = {
 		// Filled with darkness (true) except for the spawn rectangle, which is light (false)
 		var dmap = obsmap.map((o,x) => o.map((_,y) => !within(spawn.X, spawn.Y, spawn.Width, spawn.Height, x, y)));
 
-		
+
 		for (let delta = this.getEdge(spawn); delta.length > 0;)
 		{
 			var nu = [];
 
 			for (const p of delta)
 			{
-				// star-shaped walk pattern offset
-				const d = [ -1, 1, -1, 0, 1, -1, 1, 0 ];
-
-				for (let i = 0; i < 8; i++)
+				for (const o of [ v(0,-1), v(0,1), v(1,0), v(-1,0) ])
 				{
-					const n = { x: p.x + d[i], y: p.y + d[(i+2) % 8] };
+					const n = vadd(p, o);
 
 					if(dmap[n.x] && dmap[n.x][n.y] && !obsmap[n.x][n.y])
 					{
@@ -252,10 +248,10 @@ const flood = {
 	draw: function(ctx, dr)
 	{
 		ctx.clear();
-	
+
 		if(map.rtxInfo.globallight == lightlevel.bright)
 			return;
-		
+
 		ctx.globalCompositeOperation = "source-over"
 		ctx.globalAlpha = (map.rtxInfo.globallight == lightlevel.dim) ? rtx.dimLightAlpha : 1;
 
@@ -699,7 +695,7 @@ const rtx = {
 
 		if(map.rtxInfo.globallight == lightlevel.bright)
 			return;
-		
+
 		ctx.save();
 
 		if(map.rtxInfo.globallight < lightlevel.dim)
