@@ -13,6 +13,8 @@ namespace battlemap.Models
 		public int Sqrt2Numerator;
 		/* The denominator of the fraction used to approximate √2 */
 		public int Sqrt2Denominator;
+		/* What unit the ruler displays */
+		public string DistanceUnit = "5'";
 
 		public static bool operator !=(MapSettings l, MapSettings r)
 			=> !(l == r);
@@ -24,10 +26,10 @@ namespace battlemap.Models
 			else if(l is null || r is null)
 				return false;
 
-			return l.Sqrt2Denominator == r.Sqrt2Denominator && l.Sqrt2Numerator == r.Sqrt2Numerator;
+			return l.Sqrt2Denominator == r.Sqrt2Denominator && l.Sqrt2Numerator == r.Sqrt2Numerator && l.DistanceUnit == r.DistanceUnit;
 		}
 
-		public MapSettings(int num, int denom)
+		public MapSettings(int num, int denom, string distanceUnit = "5'")
 		{
 			this.Sqrt2Denominator = denom;
 			this.Sqrt2Numerator = num;

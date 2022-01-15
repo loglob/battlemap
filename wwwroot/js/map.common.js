@@ -895,7 +895,7 @@ function dist(cX1, cY1, cX2, cY2)
 
 	const diag = Math.floor((map.settings.Sqrt2Numerator * l) / map.settings.Sqrt2Denominator)
 
-	return (h - l + diag) * 5
+	return (h - l + diag)
 }
 
 /** Scales every argument by cellSize

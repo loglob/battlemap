@@ -341,6 +341,7 @@ const maphub =
 			/**@typedef {Object} settings
 			 * @property {number} Sqrt2Numerator
 			 * @property {number} Sqrt2Denominator
+			 * @property {string} DistanceUnit
 			 */
 
 			/**@param {settings} o

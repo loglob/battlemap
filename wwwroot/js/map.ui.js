@@ -356,7 +356,7 @@ const toolbox = {
 				if(item.shape.kind === "mask")
 					name.innerText = `${Math.abs(diff.x) + 1}x${Math.abs(diff.y) + 1} rectangle`;
 				else
-					name.innerText = `${Math.round(vlen(diff)) * 5}' ${item.shape.kind}`
+					name.innerText = `${rulerDisplay.format(Math.round(vlen(diff)))} ${item.shape.kind}`
 
 				div.appendChild(name);
 
@@ -564,13 +564,18 @@ const toolbox = {
 			pinnable: true,
 			Denom: document.getElementById("setting_sqrt2_denom"),
 			Num: document.getElementById("setting_sqrt2_num"),
+			Unit: document.getElementById("setting_dist_unit"),
 			/** Sends the current settings to the server */
 			save: function() {
-				maphub.settings({ Sqrt2Denominator: parseInt(this.Denom.value), Sqrt2Numerator: parseInt(this.Num.value) })
+				maphub.settings({
+					Sqrt2Denominator: parseInt(this.Denom.value),
+					Sqrt2Numerator: parseInt(this.Num.value),
+					DistanceUnit: this.Unit.value })
 			},
 			update: function() {
 				this.Denom.value = map.settings.Sqrt2Denominator
 				this.Num.value = map.settings.Sqrt2Numerator
+				this.Unit.value = map.settings.DistanceUnit
 			}
 		},
 		/**@constant {tool} */
@@ -1167,6 +1172,15 @@ const rulerDisplay = {
 	enable : function(){
 		this.div.unhide()
 	},
+	/** Formats a distance value according to the unit setting */
+	format: function(d) {
+		const u = map.settings.DistanceUnit.trim();
+		const s = Array.from(u).findIndex(c => c < '0' || c > '9')
+		const mul = s < 1 ? 1 : parseInt(u.substring(0, s));
+		const suf = s < 0 ? "" : u.substring(s);
+
+		return `${d*mul}${suf}`
+	},
 	/** Reacts to updates in measures distance
 	 * @returns {void}
 	 */
@@ -1177,7 +1191,7 @@ const rulerDisplay = {
 		if(d === undefined)
 			d = dist(tile(selection.pos.x), tile(selection.pos.y), tile(mousepos.x), tile(mousepos.y));
 
-		this.div.innerText = `📏 ${d}'`
+		this.div.innerText = `📏 ${this.format(d)}`
 	},
 	/** Hides the ruler
 	 * @returns {void}
@@ -1357,7 +1371,7 @@ const selection = {
 		circ: null,
 		specialRuler: function() {
 			if(!this.circ)
-				return shape.circle.radius(this.getCircle()) * 5;
+				return shape.circle.radius(this.getCircle());
 		},
 		isSelected: function(tk) {
 			return this.circ != null
@@ -1455,7 +1469,7 @@ const selection = {
 		},
 		specialRuler: function() {
 			if(this.shape === null)
-				return shape["circle"].radius(this.getShape()) * 5;
+				return shape["circle"].radius(this.getShape());
 		},
 		getKind : function() { return this.tool.selection.value; },
 		getShape: function() {
@@ -1548,7 +1562,7 @@ const selection = {
 		},
 		specialRuler: function() {
 			if(this.shape === null)
-				return shape["circle"].radius(this.getShape()) * 5;
+				return shape["circle"].radius(this.getShape());
 		},
 		getShape: function() {
 			if(this.shape)
