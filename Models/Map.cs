@@ -244,7 +244,7 @@ namespace battlemap.Models
 			this.Colors = new int[20, 20].Fill2(0xFFFFFF);
 			this.Sprites = new Dictionary<string, string>();
 			this.Effects = new List<Effect>();
-			this.Settings = new MapSettings();
+			this.Settings = new MapSettings(1,1);
 		}
 
 		[JsonConstructor]
@@ -292,7 +292,7 @@ namespace battlemap.Models
 				State.Textures[img].ReferenceCount++;
 			
 			this.Sprites = new Dictionary<string, string>(copy.Sprites);
-			this.Settings = new MapSettings(copy.Settings);
+			this.Settings = copy.Settings;
 		}
 #endregion
     }

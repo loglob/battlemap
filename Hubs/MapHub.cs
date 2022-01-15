@@ -306,6 +306,8 @@ namespace battlemap.Hubs
 			
 			if(settings == null)
 				await fail("Invalid JSON");
+			else if(settings.Sqrt2Denominator <= 0 || settings.Sqrt2Numerator <= 0)
+				await fail("Invalid value");
 			else if(Info.Map.Settings == settings)
 				await fail("No change");
 			else
