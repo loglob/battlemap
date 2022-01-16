@@ -41,13 +41,13 @@ namespace battlemap
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				//app.UseHsts();
 			}
-			
+
 			//app.UseHttpsRedirection();
 
 			app.UseDefaultFiles();
 			app.UseStaticFiles();
 
-			
+
 			app.UseRouting();
 
 			app.UseAuthorization();
@@ -63,7 +63,7 @@ namespace battlemap
 			MapHubContext = app.ApplicationServices.GetService<IHubContext<MapHub>>();
 			lifetime.ApplicationStopping.Register(OnShutdown);
 		}
- 
+
 		public void OnShutdown()
 		{
 			Console.WriteLine("Shutting down...");

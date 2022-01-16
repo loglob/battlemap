@@ -16,7 +16,7 @@ const cookie = {
 		catch
 		{
 			this.data = {};
-		}	
+		}
 	},
 	/** Stores the cookie object.
 	 * Calls callbacks from onStoreCallbacks beforehand.

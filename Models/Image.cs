@@ -1,7 +1,3 @@
-
-using System;
-using System.Buffers.Text;
-using System.Text;
 using Newtonsoft.Json;
 
 namespace battlemap.Models
@@ -75,13 +71,13 @@ namespace battlemap.Models
 		{
 			if(IsRedirect)
 				return Url.GetHashCode();
-			
+
 			int h = 0;
 
 			// Naive hashing (since the digest is so small a proper hash makes no sense)
 			for (int i = 0; i < Data.Length; i++)
 				h ^= Data[i] << 8 * (i % 4);
-			
+
 			return h;
 		}
 

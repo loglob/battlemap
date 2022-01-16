@@ -13,7 +13,7 @@ namespace battlemap.Models.Shapes
 		{
 			var e = End.Tuple.Add(0.5);
 			var ov = diff.Orth().Mul(0.5);
-			
+
 			return new (double x, double y)[]{ e.Add(ov), Start.Tuple.Add(0.5), e.Sub(ov) };
 		}
 

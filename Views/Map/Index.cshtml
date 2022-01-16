@@ -14,7 +14,7 @@
 	var playerToken = ((string)ViewBag.tokenName).ToJson().AsHtml();
 
 	var hubargs = $"token={token}&dm={isDmStr}{(ViewBag.tokenName == null ? "" : $"&name={Uri.EscapeUriString(ViewBag.tokenName)}")}".AsHtml();
-	
+
 	ViewData["Title"] = ViewBag.Token;
 }
 
@@ -54,7 +54,7 @@ else
 		Width: <input id="addtoken_width" size="1" min="1" type="number" value="1">
 		Height: <input id="addtoken_height" size="1" min="1" type="number" value="1">
 	</div>
-	
+
 	<div id="tileedit_window" class="hidden fixed br window">
 		<input id="tileedit_color" type="color">
 	</div>
@@ -141,7 +141,7 @@ else
 	<div id="character_window" class="hidden fixed br window">
 		Darkvision range:
 		<input id="character_darkvision" type="number" min="0" class="slimInput" max="99" size="3" >
-	</div>	
+	</div>
 }
 
 @if(ViewBag.LoadDevTools) {

@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -81,7 +80,7 @@ namespace battlemap.Controllers
 
 			if(!m.Sprites.ContainsKey(token))
 				return StatusCode(404);
-				
+
 			Textures.Remove(m, token);
 			await Startup.MapHubContext.Clients.Group(map).SendCoreAsync("SetImage", new object[]{ token, null });
 
@@ -94,15 +93,15 @@ namespace battlemap.Controllers
 		{
 			if(id is null || !State.Textures.ContainsKey(id))
 				return StatusCode(404);
-		
+
 			var img = State.Textures[id];
 
 			if(img.IsRedirect)
 				return Redirect(img.Url);
-			
+
 			// TODO: look into caching problems with conditional responses
 			DateTime ts = timestamp(id);
-			
+
 			// Handle conditional requests
 			if(Request.Headers.ContainsKey("If-Modified-Since")
 				&& Request.Headers["If-Modified-Since"]
@@ -115,7 +114,7 @@ namespace battlemap.Controllers
 				Response.Headers["cache-control"] = "immutable";
 			if(!Response.Headers.ContainsKey("Etag"))
 				Response.Headers["Etag"] = $"\"{ts.Ticks.ToString("x")}\"";
-			
+
 			Response.StatusCode = 200;
 			Response.ContentType = img.Type;
 			await Response.BodyWriter.WriteAsync(img.Data);

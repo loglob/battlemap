@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Threading;
-using battlemap.Models;
 using battlemap.Util;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -59,7 +56,7 @@ namespace battlemap
 						Console.WriteLine($"\nFailed GET on '{image.Value.Url}'");
 						goto skip;
 					}
-					
+
 					using(var f = File.Create(images + image.Key + Path.GetExtension(image.Value.Url)))
 					{
 						resp.Content.CopyToAsync(f).GetAwaiter().GetResult();
@@ -84,7 +81,7 @@ namespace battlemap
 		private static void clean()
 		{
 			Textures.Initialize();
-			
+
 			// check for unused textures
 			{
 				int unused = 0;
@@ -94,13 +91,13 @@ namespace battlemap
 				{
 					Console.CursorLeft = 0;
 					Console.Write($"Checking map {++cur}/{State.MapJoinTokens.Count}");
-					
+
 					var tokenIdnames = kvp.Value.Tokens.Select(t => t.Name.Split('\n')[0]).ToHashSet();
 					var orphaned = kvp.Value.Sprites.Keys.Where(k => !tokenIdnames.Contains(k)).ToList();
 
 					foreach (var k in orphaned)
 						Textures.Remove(kvp.Value, k);
-					
+
 					unused += orphaned.Count;
 				}
 
@@ -139,7 +136,7 @@ namespace battlemap
 
 					State.Textures.AssertRemove(tex.Key);
 				}
-			
+
 				Console.WriteLine($"\nRemoved {rm} invalid texture links.");
 			}
 

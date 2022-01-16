@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,7 +22,7 @@ namespace battlemap.Models
 		public List<Token> Tokens;
 
 		public List<Effect> Effects;
-		
+
 		public MapSettings Settings;
 
 		public string RtxInfo = "{ globallight: 2, sources: {}, opaque: [] }";
@@ -102,7 +101,7 @@ namespace battlemap.Models
 		{
 			Token[] relevant = Tokens.Where(tk => SpawnZone.Contains(tk)).ToArray();
 			var b = SpawnZone.Bounds;
-			
+
 			for (int x = b.min.x; x <= b.max.x; x++)
 			{
 				for (int y = b.min.y; y <= b.max.y; y++)
@@ -195,7 +194,7 @@ namespace battlemap.Models
 						return "Out of bounds";
 					if(covered[i])
 						return "Tokens would collide";
-					
+
 					covered[i] = true;
 				}
 			}
@@ -263,7 +262,7 @@ namespace battlemap.Models
 			string RtxInfo)
 		{
 			this.Colors = new int[Width, Height].Fill2(0xFFFFFF);
-			
+
 			if(Settings is null)
 				this.Settings = new MapSettings(Sqrt2Numerator, Sqrt2Denominator);
 			else
@@ -277,7 +276,7 @@ namespace battlemap.Models
 				this.CompactColors = CompactColors;
 
 			this.SpawnZone = SpawnZone;
-			
+
 			if(!(RtxInfo is null))
 				this.RtxInfo = RtxInfo;
 		}
@@ -287,10 +286,10 @@ namespace battlemap.Models
 			this.Colors = (int[,])copy.Colors.Clone();
 			this.Tokens = copy.Tokens.Select(t => new Token(t)).ToList();
 			this.Effects = copy.Effects.Select(t => new Effect(t)).ToList();
-			
+
 			foreach (var img in copy.Sprites.Values)
 				State.Textures[img].ReferenceCount++;
-			
+
 			this.Sprites = new Dictionary<string, string>(copy.Sprites);
 			this.Settings = copy.Settings;
 		}

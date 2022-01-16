@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,28 +10,28 @@ namespace battlemap.Util
 #region Add() overloads
 		public static (int a, int b) Add(this (int a, int b) v, int val)
 			=> (v.a + val, v.b + val);
-			
+
 		public static (int a, int b) Add(this (int a, int b) v, int a, int b)
 			=> (v.a + a, v.b + b);
-			
+
 		public static (int a, int b) Add(this (int a, int b) v, (int a, int b) u)
 			=> (v.a + u.a, v.b + u.b);
 
 		public static (double a, double b) Add(this (int a, int b) v, double val)
 			=> (v.a + val, v.b + val);
-			
+
 		public static (double a, double b) Add(this (int a, int b) v, double a, double b)
 			=> (v.a + a, v.b + b);
-			
+
 		public static (double a, double b) Add(this (int a, int b) v, (double a, double b) u)
 			=> (v.a + u.a, v.b + u.b);
 
 		public static (double a, double b) Add(this (double a, double b) v, double val)
 			=> (v.a + val, v.b + val);
-			
+
 		public static (double a, double b) Add(this (double a, double b) v, double a, double b)
 			=> (v.a + a, v.b + b);
-			
+
 		public static (double a, double b) Add(this (double a, double b) v, (double a, double b) u)
 			=> (v.a + u.a, v.b + u.b);
 
@@ -44,28 +43,28 @@ namespace battlemap.Util
 #region Sub() overloads
 		public static (int a, int b) Sub(this (int a, int b) v, int val)
 			=> (v.a - val, v.b - val);
-			
+
 		public static (int a, int b) Sub(this (int a, int b) v, int a, int b)
 			=> (v.a - a, v.b - b);
-			
+
 		public static (int a, int b) Sub(this (int a, int b) v, (int a, int b) u)
 			=> (v.a - u.a, v.b - u.b);
 
 		public static (double a, double b) Sub(this (int a, int b) v, double val)
 			=> (v.a - val, v.b - val);
-			
+
 		public static (double a, double b) Sub(this (int a, int b) v, double a, double b)
 			=> (v.a - a, v.b - b);
-			
+
 		public static (double a, double b) Sub(this (int a, int b) v, (double a, double b) u)
 			=> (v.a - u.a, v.b - u.b);
 
 		public static (double a, double b) Sub(this (double a, double b) v, double val)
 			=> (v.a - val, v.b - val);
-			
+
 		public static (double a, double b) Sub(this (double a, double b) v, double a, double b)
 			=> (v.a - a, v.b - b);
-			
+
 		public static (double a, double b) Sub(this (double a, double b) v, (double a, double b) u)
 			=> (v.a - u.a, v.b - u.b);
 #endregion
@@ -73,28 +72,28 @@ namespace battlemap.Util
 #region Mul() overloads
 		public static (int a, int b) Mul(this (int a, int b) v, int val)
 			=> (v.a * val, v.b * val);
-			
+
 		public static (int a, int b) Mul(this (int a, int b) v, int a, int b)
 			=> (v.a * a, v.b * b);
-			
+
 		public static (int a, int b) Mul(this (int a, int b) v, (int a, int b) u)
 			=> (v.a * u.a, v.b * u.b);
 
 		public static (double a, double b) Mul(this (int a, int b) v, double val)
 			=> (v.a * val, v.b * val);
-			
+
 		public static (double a, double b) Mul(this (int a, int b) v, double a, double b)
 			=> (v.a * a, v.b * b);
-			
+
 		public static (double a, double b) Mul(this (int a, int b) v, (double a, double b) u)
 			=> (v.a * u.a, v.b * u.b);
 
 		public static (double a, double b) Mul(this (double a, double b) v, double val)
 			=> (v.a * val, v.b * val);
-			
+
 		public static (double a, double b) Mul(this (double a, double b) v, double a, double b)
 			=> (v.a * a, v.b * b);
-			
+
 		public static (double a, double b) Mul(this (double a, double b) v, (double a, double b) u)
 			=> (v.a * u.a, v.b * u.b);
 #endregion
@@ -102,19 +101,19 @@ namespace battlemap.Util
 #region Div() overloads
 		public static (double a, double b) Div(this (int a, int b) v, double val)
 			=> (v.a / val, v.b / val);
-			
+
 		public static (double a, double b) Div(this (int a, int b) v, double a, double b)
 			=> (v.a / a, v.b / b);
-			
+
 		public static (double a, double b) Div(this (int a, int b) v, (double a, double b) u)
 			=> (v.a / u.a, v.b / u.b);
 
 		public static (double a, double b) Div(this (double a, double b) v, double val)
 			=> (v.a / val, v.b / val);
-			
+
 		public static (double a, double b) Div(this (double a, double b) v, double a, double b)
 			=> (v.a / a, v.b / b);
-			
+
 		public static (double a, double b) Div(this (double a, double b) v, (double a, double b) u)
 			=> (v.a / u.a, v.b / u.b);
 #endregion
@@ -164,7 +163,7 @@ namespace battlemap.Util
 			}
 
 			return cur;
-		}		
+		}
 
 		public static (int x, int y) Max(this (int x, int y) first, params (int x, int y)[] other)
 		{
@@ -179,7 +178,7 @@ namespace battlemap.Util
 			}
 
 			return cur;
-		}		
+		}
 
 		public static ((int x, int y) min, (int x, int y) max) Intersection(
 			this ((int x, int y) min, (int x, int y) max) bounds, ((int x, int y) min, (int x, int y) max) lim)

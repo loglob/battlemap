@@ -22,7 +22,7 @@ namespace battlemap.Hubs
 			public string TokenName;
 			public readonly string JoinToken;
 			public readonly string ConnectionId;
-			
+
 			/* Maps ConnectionTokens to ConnectionInfo objects */
 			private static readonly Dictionary<string, ConnectionInfo> connections =
 				new Dictionary<string, ConnectionInfo>();
@@ -73,7 +73,7 @@ namespace battlemap.Hubs
 #region Properties
 		private string GroupId
 			=> Info.JoinToken;
-			
+
 		private ConnectionInfo Info
 			=> info ?? (info = ConnectionInfo.Get(this.Context));
 #endregion
@@ -131,7 +131,7 @@ namespace battlemap.Hubs
 		public async Task AddEffect(string effectJson)
 		{
 			var e = effectJson.FromJson<Effect>();
-			
+
 			if(e is null)
 				await fail("Invalid JSON");
 			else if(e.Shape.IsEmpty)
@@ -201,7 +201,7 @@ namespace battlemap.Hubs
 			await Clients.Caller.SendAsync("Debug", ConnectionInfo.GetDebugInfo(this.Context), Context.ConnectionId.ToJson());
 		}
 		#endif
-		
+
 		public async Task ModifyTokens(string shapeJson, string deltaJson)
 		{
 			var shape = shapeJson.FromJson<Shape>();
@@ -278,7 +278,7 @@ namespace battlemap.Hubs
 			else
 				await fail("No such effect");
 		}
-		
+
 		// Demands all data of the given fields
 		public async Task Resync(int fieldIds)
 		{
@@ -303,7 +303,7 @@ namespace battlemap.Hubs
 		public async Task Settings(string json)
 		{
 			MapSettings settings = json.FromJson<MapSettings>();
-			
+
 			if(settings == null)
 				await fail("Invalid JSON");
 			else if(settings.Sqrt2Denominator <= 0 || settings.Sqrt2Numerator <= 0)
@@ -363,7 +363,7 @@ namespace battlemap.Hubs
 			for (int x = 0; x < Info.Map.Width; x++)
 			{
 				int newx = x + left;
-				
+
 				if(newx < 0 || newx >= newsize.w)
 					continue;
 
@@ -393,7 +393,7 @@ namespace battlemap.Hubs
 
 				return Info.Map.Outside(ef.Start) || Info.Map.Outside(ef.End);
 			});
-			
+
 			State.Invalidated = true;
 			await Clients.Group(GroupId).SendAsync("SetSize", left, right, up, down);
 		}

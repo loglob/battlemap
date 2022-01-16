@@ -1,11 +1,9 @@
-
-using System.Linq;
 using Newtonsoft.Json;
 using battlemap.Util;
 
 namespace battlemap.Models
 {
-	/* Encapsulates possible modificaitons to a token object. */
+	/* Encapsulates possible modifications to a token object. */
 	public class TokenDelta
 	{
 		public Vec2<int> move;

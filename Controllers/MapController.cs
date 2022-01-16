@@ -12,7 +12,7 @@ namespace battlemap.Controllers
     {
         public MapController(ILogger<MapController> logger)
         {}
-	
+
         public async Task<IActionResult> Index(string token, bool dm, string name, bool sure, bool dev = false)
 		{
 			#if DEBUG
@@ -46,11 +46,11 @@ namespace battlemap.Controllers
 						else if(!sure)
 							return View("DidYouMean", (token, matches, name));
 					}
-					
+
 					// Add token
 					if(!await map.Spawn(name, token))
 						return View("MapFull");
-					
+
 				}
 
 				return View("Index", (token, State.MapJoinTokens[token]));

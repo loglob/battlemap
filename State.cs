@@ -18,8 +18,8 @@ namespace battlemap
 	{}
 
 	/* Handles state. Fields marked with [Persistent] are mirrored to disk. */
-    public static class State
-    {
+	public static class State
+	{
 		/* The directory persistent fields are stored in */
 		private const string PersistentPath = "storage/";
 		private static JsonSerializer serializer = new JsonSerializer

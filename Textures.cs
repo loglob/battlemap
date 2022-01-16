@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using battlemap.Models;
 using battlemap.Util;
 
@@ -10,7 +9,7 @@ namespace battlemap
 {
 	/* Handles access and reference counting for State.Textures */
 	public class Textures
-    {
+	{
 		/* Maps images to their tokens */
 		private static Dictionary<Image, string> reverse = new Dictionary<Image, string>();
 
@@ -70,7 +69,7 @@ namespace battlemap
 			}*/
 
 		}
-	
+
 		/* Ensures the static constructor has been invoked */
 		public static void Initialize()
 		{	}
@@ -83,7 +82,7 @@ namespace battlemap
 			else
 			{
 				var ins = State.Textures.Insert(img, Image.TokenLength);
-				
+
 				reverse.Add(ins.value, ins.token);
 				State.Invalidated = true;
 
@@ -106,7 +105,7 @@ namespace battlemap
 			map.Sprites[sprite] = i.token;
 			i.image.ReferenceCount++;
 			State.Invalidated = true;
-			
+
 			return i;
 		}
 

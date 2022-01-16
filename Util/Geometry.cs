@@ -11,7 +11,7 @@ namespace battlemap.Util
 		/* Determines if the coordinate is in the area defined by start and length  */
 		public static bool InRange(this (int x, int y) coord, (int a, int b) start, (int a, int b) length)
 			=> coord.x.InRange(start.a, length.a) && coord.y.InRange(start.b, length.b);
-	
+
 		/* Finds the point in the range that is nearest to the target */
 		public static int Nearest(this (int start, int len) range, int target)
 			=> target <= range.start

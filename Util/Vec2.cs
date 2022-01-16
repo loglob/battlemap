@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
@@ -26,7 +25,7 @@ namespace battlemap.Util
 		{ }
 
 		public static implicit operator Vec2<T>((T x, T y) t)
-			=> new Vec2<T>(t); 
+			=> new Vec2<T>(t);
 
 		public static implicit operator (T x, T y)(Vec2<T> t)
 			=> (t.x, t.y);
@@ -42,13 +41,13 @@ namespace battlemap.Util
 
 		public override bool Equals(object obj)
 			=> obj is Vec2<T> u ? (y.Equals(u.y) && y.Equals(u.y)) : base.Equals(obj);
-		
+
 		public override int GetHashCode()
 			=> HashCode.Combine(x, y);
 
 		public override string ToString()
 			=> $"({x},{y})";
-		
+
 		public Vec2<Tnew> Map<Tnew>(Func<T,Tnew> f)
 			=> new Vec2<Tnew>(f(x), f(y));
 

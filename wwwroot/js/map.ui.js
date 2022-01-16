@@ -1666,13 +1666,13 @@ const selection = {
 		onDrop: function() {
 			const a = tile(selection.pos)
 			const b = tile(mousepos)
-			
+
 			for (let x = Math.min(a.x, b.x); x <= Math.max(a.x, b.x); x++)
 			{
 				for (let y = Math.min(a.y, b.y); y <= Math.max(a.y, b.y); y++)
 				{
 					maphub.color(x, y, parseInt(toolbox.tools.tileedit.Color.value.substring(1), 16));
-					
+
 				}
 			}
 		},

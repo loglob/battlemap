@@ -7,7 +7,7 @@
 {
 	font-size: 5vh;
 	text-align: left;
-	
+
 	-webkit-text-stroke: 0.05em white;
 	font-weight: bolder;
 
@@ -34,7 +34,7 @@
 	max-height:	3vmax;
 	font-size: 2vmax;
 	text-align: center;
-	
+
 	color: var(--fg-bright);
 }
 

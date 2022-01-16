@@ -1,4 +1,3 @@
-
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
@@ -15,7 +14,7 @@ namespace battlemap.Util
 
 		public override T ReadJson(JsonReader reader, Type objectType, [AllowNull] T existingValue, bool hasExistingValue, JsonSerializer serializer)
 			=> Create(JObject.Load(reader));
-		
+
 		public override void WriteJson(JsonWriter writer, [AllowNull] T value, JsonSerializer serializer)
 			=> throw new NotImplementedException();
 	}

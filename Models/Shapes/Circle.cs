@@ -12,7 +12,7 @@ namespace battlemap.Models.Shapes
 		{
 			var c = Start.Tuple;
 			double r = diff.Length();
-			
+
 			return (c.Add(-r).RoundAwayFrom(c), c.Add(r).RoundAwayFrom(c));
 		}
 

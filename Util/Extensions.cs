@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +14,7 @@ namespace battlemap.Util
 		/* Turns an IEnumerable into an HTML list, including a footer */
 		public static XElement Listify<T>(this IEnumerable<T> ls, XElement footer, bool ordered = false)
 			=> new XElement(ordered ? "ol" : "ul", ls.Select(i => new XElement("li", ls)).Append(footer));
-		
+
 		/* Turns a 2D IEnumerable into a HTML table, with an optional header row */
 		public static XElement Tabularize<T>(this IEnumerable<IEnumerable<T>> t, IEnumerable<T> header = null)
 		{
@@ -60,13 +59,13 @@ namespace battlemap.Util
 			for (int i = 0; i < arr.GetLength(0); i++)
 			{
 				for (int j = 0; j < arr.GetLength(1); j++)
-					arr[i,j] = val;	
+					arr[i,j] = val;
 			}
 
 			return arr;
 		}
 
-			
+
 		/* Turns an Enumerable into an Enumerable of array with the given length.
 			The last item may not have len elements, instead containing leftover elements from ls.  */
 		public static IEnumerable<T[]> Granulize<T>(this IEnumerable<T> ls, int len)
@@ -112,7 +111,7 @@ namespace battlemap.Util
 					t.Start();
 					return t;
 				}));
-		
+
 		public static string ToJson(this object data)
 		{
 			using(var writer = new StringWriter())
@@ -137,7 +136,7 @@ namespace battlemap.Util
 				{
 					return default(T);
 				}
-			}		
+			}
 		}
 
 		public static T FromJsonAnonymous<T>(this string json, T definition)
@@ -150,7 +149,7 @@ namespace battlemap.Util
 			{
 				return default(T);
 			}
-				
+
 		}
 
 		public static void ProcessAll<T>(this IEnumerable<T> data, Action<T> proc)
@@ -208,7 +207,7 @@ namespace battlemap.Util
 
 		public static bool Similar(this string l, string r)
 			=> l.ToLower() == r.ToLower();
-		
+
 		public static string ToDataUnit(this long l)
 		{
 			string[] dataUnits = {
@@ -247,7 +246,7 @@ namespace battlemap.Util
 
 		public static Dictionary<Tkey, Tval> ToDictionary<Tkey, Tval>(this IEnumerable<(Tkey key, Tval val)> ls)
 			=> new Dictionary<Tkey, Tval>(ls.Select(t => new KeyValuePair<Tkey, Tval>(t.key, t.val)));
-		
+
 		public static double RoundAwayFrom(this double x, double other)
 			=> (x < other) ? Math.Floor(x) : Math.Ceiling(x);
 

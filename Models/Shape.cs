@@ -16,7 +16,7 @@ namespace battlemap.Models
 #region Fields
 		[JsonProperty("start")]
 		public Vec2<int> Start;
-		
+
 		[JsonProperty("end")]
 		public Vec2<int> End;
 
@@ -32,7 +32,7 @@ namespace battlemap.Models
 
 		public ((int x, int y) min, (int x, int y) max) Bounds
 			=> bounds ?? (bounds = GetBounds()).Value;
-		
+
 		[Pure]
 		public virtual IEnumerable<(int x, int y)> Points
 			=> Bounds.GetBoundsPoints().Where(Contains);
@@ -62,7 +62,7 @@ namespace battlemap.Models
 		[Pure]
 		public bool Contains((int x, int y) p)
 			=> Contains(p.x, p.y);
-			
+
 		[Pure]
 		public bool Contains((int x, int y) pos, (int w, int h) siz)
 			=> Contains(pos.x, pos.y, siz.w, siz.h);
@@ -70,7 +70,7 @@ namespace battlemap.Models
 		[Pure]
 		public bool Contains(((int x, int y) pos, (int w, int h) siz) hitbox)
 			=> Contains(hitbox.pos.x, hitbox.pos.y, hitbox.siz.w, hitbox.siz.h);
-			
+
 		[Pure]
 		public bool Contains(Token tk)
 			=> Contains(tk.X, tk.Y, tk.Width, tk.Height);
@@ -115,13 +115,13 @@ namespace battlemap.Models
 
 				case ShapeKind.Mask:
 					return new Mask(start, end);
-					
+
 				default:
 					throw new InvalidOperationException($"Invalid shape kind: {kind}");
 			}
 		}
 #endregion
-	
+
 		protected Shape(Vec2<int> start, Vec2<int> end)
 		{
 			this.Start = start;

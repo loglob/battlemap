@@ -30,7 +30,7 @@ namespace battlemap.Models.Shapes
 			{
 				var a = Vertices[i];
 				var b = Vertices[(i + 1) % Vertices.Length];
-				
+
 				if((b.x - a.x) * (y + 0.5 - a.y) - (x + 0.5 - a.x) * (b.y - a.y) < 0)
 					return false;
 			}
