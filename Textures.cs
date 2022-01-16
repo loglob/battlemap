@@ -111,9 +111,9 @@ namespace battlemap
 
 		public static void Remove(Map map, string sprite)
 		{
-			if(map.Sprites.TryGetValue(sprite, out string oldimg))
+			if(map.Sprites.TryGetValue(sprite, out string oldImage))
 			{
-				State.Textures[oldimg].ReferenceCount--;
+				State.Textures[oldImage].ReferenceCount--;
 				map.Sprites.Remove(sprite);
 				State.Invalidated = true;
 			}

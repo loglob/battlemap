@@ -129,7 +129,7 @@ Array.prototype.remove = function(item) {
  * @property {function} draw Draws the shape onto a canvas.
  * @property {function} containsPoint Determines if a point is within the shape.
  * @property {function=} containsToken Determines if a token is within the shape. If not given, implemented via containsPoint().
- * @property {function=} equal Determines if two shapes are equal. If not given, implemented via memberwise compare.
+ * @property {function=} equal Determines if two shapes are equal. If not given, implemented via member-wise compare.
  * @property {function=} empty Determines if a shape is empty. If not given, implemented by comparing start and end vectors.
 */
 
@@ -533,7 +533,7 @@ function vmul(v, k)
 }
 
 /** Divides vector v by scalar or linearly dependant vector u
- * @param {vec2} v - The divident
+ * @param {vec2} v - The dividend
  * @param {(vec2|number)} u - The divisor
  * @returns {number} Their quotient
 */
@@ -574,23 +574,23 @@ function vadd(v, u)
  * @returns {{min: vec2, max: vec2}} */
 function vbounds(v, ...other)
 {
-	let xmin = v.x
-	let xmax = v.x
-	let ymin = v.y
-	let ymax = v.y
+	let xMin = v.x
+	let xMax = v.x
+	let yMin = v.y
+	let yMax = v.y
 
 	for (const i of other) {
-		if(i.x < xmin)
-			xmin = i.x
-		else if(i.x > xmax)
-			xmax = i.x
-		if(i.y < ymin)
-			ymin = i.y
-		else if(i.y > ymax)
-			ymax = i.y
+		if(i.x < xMin)
+			xMin = i.x
+		else if(i.x > xMax)
+			xMax = i.x
+		if(i.y < yMin)
+			yMin = i.y
+		else if(i.y > yMax)
+			yMax = i.y
 	}
 
-	return { min: { x:xmin, y:ymin }, max: { x:xmax, y:ymax } }
+	return { min: { x:xMin, y:yMin }, max: { x:xMax, y:yMax } }
 }
 
 /** Calculates v - u
@@ -623,7 +623,7 @@ function vlensq(v)
 
 //#endregion
 
-/** Compares two objects a and b memberwise recursively. Also works for atomic types.
+/** Compares two objects a and b member-wise recursively. Also works for atomic types.
  * @returns {boolean}
  */
 function compareObj(a,b)
@@ -721,7 +721,7 @@ function tokenIsAt(tk, x, y)
 	return within(tk.X, tk.Y, tk.Width, tk.Height, x, y);
 }
 
-/** Determines if a token intercets a rectangle
+/** Determines if a token intersects a rectangle
  * @param {token} tk	The token
  * @param {number} x	The rectangle's x
  * @param {number} y	The rectangle's y
@@ -900,7 +900,7 @@ function dist(cX1, cY1, cX2, cY2)
 
 /** Scales every argument by cellSize
  * If only one coordinate is given, returns that canvas coordinate value directly.
- * Otherwise returns an array with all canvas coordnates.
+ * Otherwise returns an array with all canvas coordinates.
  * Returns undefined if no arguments are given.
  * @param {...number} args Map coordinate(s)
  * @returns {number[]|number|undefined} Canvas coordinate(s)
@@ -989,7 +989,7 @@ function approx(a,b)
 		return approx(a.x, b.x) && approx(a.y, b.y)
 }
 
-/** a >= b that handles floating point rounding erorrs
+/** a >= b that handles floating point rounding errors
  * @param {number} a
  * @param {number} b
  * @returns {boolean} a >= b
@@ -997,13 +997,4 @@ function approx(a,b)
 function gte(a,b)
 {
 	return approx(a,b) || a >= b;
-}
-
-/** Determines if all given values are approximately equal
- * @param {...vec2|number} args
- * @returns {boolean}
- */
-function allapprox()
-{
-	return !Array.from(arguments).splice(1).some(i => !approx(i, arguments[0]));
 }

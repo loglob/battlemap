@@ -12,7 +12,7 @@
  * @property {boolean=} sendsObject	When set, causes its arguments to be serialized to JSON before sending
  * @property {function} receive	Called when receiving the command with all received arguments
  * @property {function=} checkSent Checks argument list before sending. Returns a {@link checkReport}
- * @property {function=} checkReceived Checks received argument list for incensistencies. Returns a {@link checkReport}
+ * @property {function=} checkReceived Checks received argument list for inconsistencies. Returns a {@link checkReport}
  * @property {function=} check Used as checkSent() and checkReceived(). Returns a {@link checkReport}
  * @property {function=} onFail Called when the method fails via fail command.
  */
@@ -134,13 +134,13 @@ const maphub =
 		},
 
 		Debug: {
-			/**@param {string} conn
-			 * @param {string} ctxt
+			/**@param {string} context
+			 * @param {string} connection
 			 * @returns {void} nothing
 			 */
-			receive: function(conn, ctxt) {
-				console.log(JSON.parse(conn));
-				console.log(JSON.parse(ctxt));
+			receive: function(context, connection) {
+				console.log(JSON.parse(connection));
+				console.log(JSON.parse(context));
 			},
 			check: function() { },
 			modified: 0,
@@ -163,22 +163,22 @@ const maphub =
 
 		SetImage: {
 			/**@param {token} token
-			 * @param {string} imgid
+			 * @param {string} imageID
 			 * @returns {void} nothing
 			 */
-			receive: function(token, imgid) {
-				map.sprites[token] = imgid;
+			receive: function(token, imageID) {
+				map.sprites[token] = imageID;
 				mapInterface.gotImage(token);
 			},
 			checkSent: function() {
 				return "SetImage isn't allowed from Client side!";
 			},
 			/**@param {token} token
-			 * @param {string} imgid
+			 * @param {string} imageID
 			 * @returns {checkReport} */
-			checkReceived: function(token, imgid) {
-				if(imgid === null && (typeof map.sprites[token] === "undefined" || map.sprites[token] === null))
-					return "Trying to remove nonexistant texture";
+			checkReceived: function(token, imageID) {
+				if(imageID === null && (typeof map.sprites[token] === "undefined" || map.sprites[token] === null))
+					return "Trying to remove nonexistent texture";
 			},
 			modifies: mapFields.sprites
 		},
@@ -332,7 +332,7 @@ const maphub =
 				if(fields == 0)
 					return "Refusing Resync without fields";
 
-				console.error(`DESYNC DETECTED! Field IDs ${fields.toString(2)} are desynced`)
+				console.error(`DESYNC DETECTED! Field IDs ${fields.toString(2)} are desynchronized`)
 			},
 			modifies: 0,
 		},
@@ -392,31 +392,31 @@ const maphub =
 				map.effects.removeAll(ef => oob(ef.shape.start) || oob(ef.shape.end));
 
 				// initialize and fill a new color array
-				const newc = Array(w)
+				const newColors = Array(w)
 
 				for (let x = 0; x < w; x++)
-					newc[x] = Array(h).fill(0xFFFFFF)
+					newColors[x] = Array(h).fill(0xFFFFFF)
 
 				// get colors from olf tile array
 				for (let x = 0; x < map.width; x++)
 				{
-					let newx = x + left;
+					let newX = x + left;
 
-					if(newx < 0 || newx >= w)
+					if(newX < 0 || newX >= w)
 						continue;
 
 					for (let y = 0; y < map.height; y++)
 					{
-						let newy = y + up;
+						let newY = y + up;
 
-						if(newy < 0 || newy >= h)
+						if(newY < 0 || newY >= h)
 							continue;
 
-						newc[newx][newy] = map.colors[x][y];
+						newColors[newX][newY] = map.colors[x][y];
 					}
 				}
 
-				map.colors = newc
+				map.colors = newColors
 				map.width = w
 				map.height = h
 
@@ -429,7 +429,7 @@ const maphub =
 			 * @returns {checkReport} */
 			checkSent: function(left,right,down,up,force) {
 				if(map.width + left + right == 0 || map.height + up + down == 0)
-					return "Refusing setsize that would make area 0";
+					return "Refusing SetSize that would make area 0";
 			},
 			modifies: mapFields.size,
 		},
@@ -516,8 +516,7 @@ const maphub =
 			/** @type {command} */
 			const cmd = this.commands[command]
 			// convert command name from PascalCase to camelCase
-			const ccname = command[0].toLowerCase() + command.substring(1);
-
+			const ccName = command[0].toLowerCase() + command.substring(1);
 
 			this.connection.on(command, function() {
 				try
@@ -552,7 +551,7 @@ const maphub =
 				}
 			})
 
-			this[ccname] = function() {
+			this[ccName] = function() {
 				/** @type {checkReport} */
 				const ck = maphub.skipCommandSendingChecks ? undefined : cmd.checkSent ?  cmd.checkSent(...arguments) : cmd.check(...arguments)
 
@@ -576,7 +575,7 @@ const maphub =
 					break;
 
 					default:
-						console.log("Refusing ", ccname);
+						console.log("Refusing ", ccName);
 					break;
 				}
 

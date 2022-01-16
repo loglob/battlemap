@@ -1,14 +1,12 @@
 "use strict";
 
-const lightrange = 5
 const tau = Math.PI * 2
-const lr2 = lightrange * lightrange
 
 /** A map of all opaque tiles.
  * @typedef {boolean[][]} obstructionMap
 */
 
-/** A reactangle that is compatible with geometric funcitons for tokens
+/** A rectangle that is compatible with geometric functions for tokens
  * @typedef {Object} rect
  * @property {number} X
  * @property {number} Y
@@ -29,7 +27,7 @@ const lr2 = lightrange * lightrange
  * @property {number} x The absolute X coordinate
  * @property {number} y The absolute Y coordinate
  * @property {number} range The range (in tiles) of the light
- * @property {number} level THe lightlevel (as in lightlevel enum)
+ * @property {number} level The light level (as in light level enum)
 */
 
 
@@ -58,13 +56,13 @@ function ccv(p)
  * @param {pvec} b The right right
  * @returns {boolean} a is left of b
  */
-function leftof(a,b)
+function leftOf(a,b)
 {
 	return ((tau + b.angle - a.angle) % tau) <= ((tau + a.angle - b.angle) % tau)
 }
 
 /** Determines if two line segments intersect and, if so, determines their intersection point.
- * If the lines are paralell, returns the first start or end that is within both.
+ * If the lines are parallel, returns the first start or end that is within both.
  * (the order for this is a,c,b,d and points within lines are preferred over end points)
  * @param {vec2} a The first line segment's start
  * @param {vec2} b The first line segment's end
@@ -161,7 +159,7 @@ function lineCircleIntersect(A, B, C, r)
 	].map(u => toPolar(vadd(u, C), C))
 }
 
-const lightlevel = {
+const lightLevel = {
 	dark: 0,
 	dim: 1,
 	bright: 2,
@@ -215,8 +213,7 @@ const flood = {
 	getDMap : function(obsmap, spawn)
 	{
 		// Filled with darkness (true) except for the spawn rectangle, which is light (false)
-		var dmap = obsmap.map((o,x) => o.map((_,y) => !within(spawn.X, spawn.Y, spawn.Width, spawn.Height, x, y)));
-
+		var darkMap = obsmap.map((o,x) => o.map((_,y) => !within(spawn.X, spawn.Y, spawn.Width, spawn.Height, x, y)));
 
 		for (let delta = this.getEdge(spawn); delta.length > 0;)
 		{
@@ -228,9 +225,9 @@ const flood = {
 				{
 					const n = vadd(p, o);
 
-					if(dmap[n.x] && dmap[n.x][n.y] && !obsmap[n.x][n.y])
+					if(darkMap[n.x] && darkMap[n.x][n.y] && !obsmap[n.x][n.y])
 					{
-						dmap[n.x][n.y] = false;
+						darkMap[n.x][n.y] = false;
 						nu.push(n);
 					}
 				}
@@ -239,7 +236,7 @@ const flood = {
 			delta = nu;
 		}
 
-		return dmap;
+		return darkMap;
 	},
 	/**
 	 * @param {CanvasRenderingContext2D} ctx
@@ -249,11 +246,11 @@ const flood = {
 	{
 		ctx.clear();
 
-		if(map.rtxInfo.globallight == lightlevel.bright)
+		if(map.rtxInfo.globallight == lightLevel.bright)
 			return;
 
 		ctx.globalCompositeOperation = "source-over"
-		ctx.globalAlpha = (map.rtxInfo.globallight == lightlevel.dim) ? rtx.dimLightAlpha : 1;
+		ctx.globalAlpha = (map.rtxInfo.globallight == lightLevel.dim) ? rtx.dimLightAlpha : 1;
 
 		for (const r of dr) {
 			ctx.fillRect(r.X * cellSize, r.Y * cellSize, r.Width * cellSize, r.Height * cellSize);
@@ -323,19 +320,19 @@ const rtx = {
 		for (let i = 1; i < 4; i++) {
 			const p = vert[i];
 
-			if(leftof(p, left))
+			if(leftOf(p, left))
 				left = p;
-			else if(leftof(right, p))
+			else if(leftOf(right, p))
 				right = p;
 			if(p.len2 < closest.len2)
 				closest = p;
 		}
 
 		const r2 = l.range * l.range;
-		const nleft = left.len2 > r2 ? replaceOut(left) : left;
-		const nright = right.len2 > r2 ? replaceOut(right) : right;
+		const nLeft = left.len2 > r2 ? replaceOut(left) : left;
+		const nRight = right.len2 > r2 ? replaceOut(right) : right;
 
-		return (closest == left || closest == right) ? [nleft, nright] : [nleft, closest, nright];
+		return (closest == left || closest == right) ? [nLeft, nRight] : [nLeft, closest, nRight];
 	},
 	/**
 	 *
@@ -407,8 +404,7 @@ const rtx = {
 			return all
 		}
 
-		/*  */
-		const allw = [
+		const allScans = [
 			/* left to right */
 			scanRects(obsmap, v(0,0), v(1,0)),
 			/* up to down */
@@ -419,11 +415,11 @@ const rtx = {
 			scanRects(obsmap, v(obsmap.length - 1, obsmap[0].length - 1), v(0,-1)),
 		]
 
-		let sel = allw[0]
+		let sel = allScans[0]
 
-		for (let i = 1; i < allw.length; i++) {
-			if(allw[i].length < sel.length)
-				sel = allw[i]
+		for (let i = 1; i < allScans.length; i++) {
+			if(allScans[i].length < sel.length)
+				sel = allScans[i]
 		}
 
 		return sel
@@ -582,15 +578,15 @@ const rtx = {
 			/** All possible starting points
 			 * @type {line[]}
 			 */
-			const fset = S.min(s => s.s.angle)
+			const fSet = S.min(s => s.s.angle)
 
 			// The possible starting points connected to some possible end point
-			const pfset = fset.filter(f => S.some(s => approx(s.e, f.s)));
+			const pfSet = fSet.filter(f => S.some(s => approx(s.e, f.s)));
 
-			if(pfset.length)
-				first = pfset.min(f => f.s.len2)[0]
+			if(pfSet.length)
+				first = pfSet.min(f => f.s.len2)[0]
 			else
-				first = fset.max(f => f.s.len2)[0]
+				first = fSet.max(f => f.s.len2)[0]
 		}
 
 		/**
@@ -605,13 +601,13 @@ const rtx = {
 
 			// TODO: Optimize this filter using the sortedness of S
 			S = S.filter(s => s != cur && gte(s.s.angle, cur.e.angle));
-			const refangle = toPolar(l, cur.e).angle;
+			const refAngle = toPolar(l, cur.e).angle;
 
 			/**
 			 * @type {line}
 			 */
 			let next = S.filter(s => approx(s.s, cur.e))
-				.map(s => ({ l:s, a : (toPolar(s.e, s.s).angle - refangle + 2 * Math.PI) % (2 * Math.PI)}))
+				.map(s => ({ l:s, a : (toPolar(s.e, s.s).angle - refAngle + 2 * Math.PI) % (2 * Math.PI)}))
 				.map(la => ({ l:la.l, a: approx(la.a, 0) ? 2 * Math.PI : la.a }))
 				.max(la => la.a)
 				.max(la => vlensq(vsub(la.l.s, la.l.e)))[0]?.l;
@@ -651,7 +647,7 @@ const rtx = {
 		const dv = cookie?.data?.character?.darkvision
 
 		if(p)
-			return { x: p.X + p.Width / 2, y: p.Y + p.Height / 2, range: dv, level: lightlevel.dim }
+			return { x: p.X + p.Width / 2, y: p.Y + p.Height / 2, range: dv, level: lightLevel.dim }
 		else
 			return null
 	},
@@ -676,9 +672,9 @@ const rtx = {
 				const x = tk.X + tk.Width / 2
 				const y = tk.Y + tk.Height / 2
 
-				if(l.level == lightlevel.bright)
-					return [ { x:x, y:y, range: l.range, level: lightlevel.bright },
-						{ x:x, y:y, range: l.range * 2, level: lightlevel.dim } ]
+				if(l.level == lightLevel.bright)
+					return [ { x:x, y:y, range: l.range, level: lightLevel.bright },
+						{ x:x, y:y, range: l.range * 2, level: lightLevel.dim } ]
 				else
 					return [ { x:x, y:y, range: l.range, level: l.level } ]
 			})
@@ -687,18 +683,18 @@ const rtx = {
 	 * @param {CanvasRenderingContext2D} ctx
 	 * @param {rect[]} R	All hitboxes
 	 * @param {light[]} L	All light sources
-	 * @param {light?} P	The player's pseudo-lightsource
+	 * @param {light?} P	The player's pseudo light source
 	 */
 	draw: function(ctx, R, L, P)
 	{
 		ctx.clear();
 
-		if(map.rtxInfo.globallight == lightlevel.bright)
+		if(map.rtxInfo.globallight == lightLevel.bright)
 			return;
 
 		ctx.save();
 
-		if(map.rtxInfo.globallight < lightlevel.dim)
+		if(map.rtxInfo.globallight < lightLevel.dim)
 		{
 			// draw darkness, except around a player with darkvision
 			ctx.globalCompositeOperation = "copy"
@@ -723,7 +719,7 @@ const rtx = {
 			ctx.beginPath()
 
 			// erase all illuminated areas
-			for (const l of L.filter(l => l.level == lightlevel.dim)) {
+			for (const l of L.filter(l => l.level == lightLevel.dim)) {
 				this.drawLight(ctx, l, R)
 			}
 
@@ -749,7 +745,7 @@ const rtx = {
 		ctx.beginPath()
 
 		// erase all areas in bright light
-		for (const l of L.filter(l => l.level == lightlevel.bright)) {
+		for (const l of L.filter(l => l.level == lightLevel.bright)) {
 			this.drawLight(ctx, l, R)
 		}
 
@@ -842,13 +838,13 @@ const rtxInterface = {
 			}
 		}
 
-		const newcache = JSON.stringify(this.cache)
+		const newCache = JSON.stringify(this.cache)
 
 		// Avoid expensive redraw
-		if(!(fields & mapFields.size | mapFields.rtxInfo) && newcache === this.oldCache)
+		if(!(fields & mapFields.size | mapFields.rtxInfo) && newCache === this.oldCache)
 			return;
 
-		this.oldCache = newcache;
+		this.oldCache = newCache;
 		if(this.initialized)
 			layers.shadow.draw()
 	}

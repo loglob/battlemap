@@ -34,14 +34,10 @@
   */
 //#endregion
 
-/** The mouse position before the current move event
- * @type {?vec2}
- */
-var oldmousepos;
 /** The mouse position after the current move event
  * @type {?vec2}
  */
-var mousepos;
+var mousePos;
 
 /** Used as placeholder in toolbox.tools, automatically replaced by toolbox.init
  * @constant
@@ -210,10 +206,10 @@ const toolbox = {
 						const cX = tile(evnt.pageX)
 						const cY = tile(evnt.pageY)
 
-						if(tile(mousepos.x) != cX || tile(mousepos.y) != cY)
+						if(tile(mousePos.x) != cX || tile(mousePos.y) != cY)
 							maphub.color(cX, cY, parseInt(toolbox.tools.tileedit.Color.value.substring(1), 16))
 
-						mousepos = { x: evnt.pageX, y: evnt.pageY }
+						mousePos = { x: evnt.pageX, y: evnt.pageY }
 					}
 				}
 			},
@@ -462,7 +458,7 @@ const toolbox = {
 				let supertotal = parseInt(st.innerText.match(totalMatch)[0]) + roll
 				st.innerText = `Supertotal: ${supertotal}`
 			},
-			/** Deletes the rolls of the given fice and updates totals
+			/** Deletes the rolls of the given dice and updates totals
 			 * @param {number} p The die's pips
 			 * @returns {void} nothing
 			 */
@@ -680,9 +676,9 @@ const toolbox = {
 			},
 			/** Sets the current token
 			 * @param {initEntry_t} li
-			 * @param {*} dontblink
+			 * @param {*} dontBlink
 			 */
-			setCur: function(li, dontblink) {
+			setCur: function(li, dontBlink) {
 				if(this.cur)
 					this.cur.style.fontWeight = "inherit"
 
@@ -692,7 +688,7 @@ const toolbox = {
 				{
 					this.cur.style.fontWeight = "bold"
 
-					if(!dontblink)
+					if(!dontBlink)
 						maphub.blink(blinkKind.initiative, li.token.X, li.token.Y);
 				}
 			},
@@ -820,10 +816,10 @@ const toolbox = {
 					if(eqi == -1)
 					{
 						// Attempt to recover from moved token
-						let samename =  map.tokens.filter(tk => tk.Name == obj[k].token.Name);
+						let sameName =  map.tokens.filter(tk => tk.Name == obj[k].token.Name);
 
-						if(samename.length == 1)
-							eqi = map.tokens.indexOf(samename[0]);
+						if(sameName.length == 1)
+							eqi = map.tokens.indexOf(sameName[0]);
 						else
 						{
 							console.error("Cannot find token for entry from old initiative list:", obj[k]);
@@ -885,7 +881,7 @@ const toolbox = {
 			/** @type {HTMLInputElement} */
 			preview: initpls,
 			clear: function() {
-				function cleartable(t) {
+				function clearTable(t) {
 					for(;;)
 					{
 						const c = t.firstChild;
@@ -896,8 +892,8 @@ const toolbox = {
 						t.removeChild(c)
 					}
 				}
-				cleartable(this.sources)
-				cleartable(this.opaque)
+				clearTable(this.sources)
+				clearTable(this.opaque)
 			},
 			makeColorRow: function(color) {
 				const ex = document.createElement("td")
@@ -914,9 +910,9 @@ const toolbox = {
 				if(typeof data !== "object")
 					return;
 
-				for (const tkid in data.sources) {
-					const e = data.sources[tkid]
-					addRow(this.sources, [tkid, e.range, e.level], null)
+				for (const tkID in data.sources) {
+					const e = data.sources[tkID]
+					addRow(this.sources, [tkID, e.range, e.level], null)
 				}
 				for (const color of data.opaque) {
 					this.makeColorRow(color)
@@ -1064,12 +1060,12 @@ const toolbox = {
 				if(tool.window != null)
 					tool.window.unhide();
 
-				const ltool = toolbox.activeTool
+				const lTool = toolbox.activeTool
 
 				toolbox.activeTool = tool
 
-				if(ltool.onPutAway)
-					ltool.onPutAway();
+				if(lTool.onPutAway)
+					lTool.onPutAway();
 				if(tool.onSelect)
 					tool.onSelect();
 			}
@@ -1189,7 +1185,7 @@ const rulerDisplay = {
 		if(selection.current && selection.current.specialRuler)
 			d = selection.current.specialRuler()
 		if(d === undefined)
-			d = dist(tile(selection.pos.x), tile(selection.pos.y), tile(mousepos.x), tile(mousepos.y));
+			d = dist(tile(selection.pos.x), tile(selection.pos.y), tile(mousePos.x), tile(mousePos.y));
 
 		this.div.innerText = `📏 ${this.format(d)}`
 	},
@@ -1205,7 +1201,7 @@ const rulerDisplay = {
 const selection = {
 	current: null,
 	last: null,
-	/** copy of mousepos at time of creation.
+	/** copy of mousePos at time of creation.
 	 * @type {vec2}	In screen coordinates
 	*/
 	pos: null,
@@ -1225,11 +1221,7 @@ const selection = {
 		offset: { x: 0, y: 0 },
 		/**@param {CanvasRenderingContext2D} ctx */
 		draw: function(ctx) {
-			/*ctx.clearRect(
-				oldmousepos.x + this.offset.x, oldmousepos.y + this.offset.y,
-				this.tkCanvas.width, this.tkCanvas.height)*/
-
-			ctx.drawImage(this.tkCanvas, mousepos.x + this.offset.x, mousepos.y + this.offset.y);
+			ctx.drawImage(this.tkCanvas, mousePos.x + this.offset.x, mousePos.y + this.offset.y);
 		},
 		onPickup: function() {
 			const c = this.tkCanvas ?? document.createElement("canvas");
@@ -1252,7 +1244,7 @@ const selection = {
 
 			mapInterface.redrawToken(this.token)
 
-			this.offset = vadd(vsub(vmul(v(tk.X, tk.Y), cellSize), mousepos), 10)
+			this.offset = vadd(vsub(vmul(v(tk.X, tk.Y), cellSize), mousePos), 10)
 			this.tkCanvas = c;
 		},
 		onDrop: function(x,y) {
@@ -1275,7 +1267,7 @@ const selection = {
 			ctx.strokeStyle = "orange"
 			ctx.lineWidth = 20
 			ctx.moveTo(selection.pos.x, selection.pos.y);
-			ctx.lineTo(mousepos.x, mousepos.y);
+			ctx.lineTo(mousePos.x, mousePos.y);
 			ctx.stroke();
 		},
 		onDrop: function(x,y) {	},
@@ -1291,8 +1283,8 @@ const selection = {
 			return (this.rect != null) ? "grabbing" : "default"
 		},
 		draw: function(ct) {
-			const dx = mousepos.x - selection.pos.x
-			const dy = mousepos.y - selection.pos.y
+			const dx = mousePos.x - selection.pos.x
+			const dy = mousePos.y - selection.pos.y
 
 			if(this.rect)
 			{
@@ -1301,7 +1293,7 @@ const selection = {
 					if(!shape.containsToken(this.rect, tk))
 						continue;
 
-					ct.putToken(tk, ...vx(vadd(vmul(v(tk.X, tk.Y),cellSize), vsub(mousepos, selection.pos))));
+					ct.putToken(tk, ...vx(vadd(vmul(v(tk.X, tk.Y),cellSize), vsub(mousePos, selection.pos))));
 				}
 			}
 			else
@@ -1333,14 +1325,12 @@ const selection = {
 		onDrop: function(x,y) {
 			if(this.rect != null)
 			{
-				maphub.modifyTokens(this.rect, { move: vsub(tile(mousepos), tile(selection.pos)) });
+				maphub.modifyTokens(this.rect, { move: vsub(tile(mousePos), tile(selection.pos)) });
 				this.reset();
 			}
-			else if(selection.pos.x != mousepos.x || selection.pos.y != mousepos.y)
+			else if(selection.pos.x != mousePos.x || selection.pos.y != mousePos.y)
 			{
-				//const b = vbounds(tile(selection.pos), tile(mousepos))
-				//this.rect = shape.new("mask", b.min, vadd(b.max, 1))
-				this.rect = shape.new("mask", tile(selection.pos), tile(mousepos))
+				this.rect = shape.new("mask", tile(selection.pos), tile(mousePos))
 
 				layers.token.draw();
 				this.hasRuler = true;
@@ -1388,7 +1378,7 @@ const selection = {
 					if(!this.isSelected(tk))
 						continue;
 
-					ct.putToken(tk, ...vx(vadd(vmul(v(tk.X, tk.Y), cellSize), vsub(mousepos, selection.pos))));
+					ct.putToken(tk, ...vx(vadd(vmul(v(tk.X, tk.Y), cellSize), vsub(mousePos, selection.pos))));
 				}
 			}
 			else
@@ -1419,7 +1409,7 @@ const selection = {
 		},
 		getCircle: function() {
 
-			return this.circ ?? shape.new("circle", rtile(selection.pos), rtile(mousepos))
+			return this.circ ?? shape.new("circle", rtile(selection.pos), rtile(mousePos))
 
 //			return { x: cX, y: cY,
 //				r: Math.round(Math.sqrt(Math.pow(cX - xe / cellSize, 2) + Math.pow(cY - ye / cellSize, 2))) }
@@ -1427,12 +1417,12 @@ const selection = {
 		onDrop: function(x,y) {
 			if(this.circ != null)
 			{
-				const off =  vsub(tile(mousepos), tile(selection.pos))
+				const off =  vsub(tile(mousePos), tile(selection.pos))
 				maphub.modifyTokens(this.circ, { move: off });
 
 				this.reset();
 			}
-			else if(selection.pos.x != mousepos.x || selection.pos.y != mousepos.y)
+			else if(selection.pos.x != mousePos.x || selection.pos.y != mousePos.y)
 			{
 				this.circ = this.getCircle(selection.pos.x, selection.pos.y, x, y)
 
@@ -1479,9 +1469,9 @@ const selection = {
 			const k = this.getKind()
 
 			if(shape[k].vertexCentered)
-				return shape.new(k, rtile(selection.pos), rtile(mousepos))
+				return shape.new(k, rtile(selection.pos), rtile(mousePos))
 			else
-				return shape.new(k, tile(selection.pos), tile(mousepos))
+				return shape.new(k, tile(selection.pos), tile(mousePos))
 		},
 		hasRuler: true,
 		tokenColor: "blue",
@@ -1496,7 +1486,7 @@ const selection = {
 					if(!shape.containsToken(this.shape, tk))
 						continue;
 
-					ct.putToken(tk, ...vx(vadd(vmul(v(tk.X, tk.Y), cellSize),vsub(mousepos, selection.pos))));
+					ct.putToken(tk, ...vx(vadd(vmul(v(tk.X, tk.Y), cellSize),vsub(mousePos, selection.pos))));
 				}
 			}
 			else
@@ -1540,11 +1530,11 @@ const selection = {
 		onDrop: function() {
 			if(this.shape)
 			{
-				const off =  vsub(tile(mousepos), tile(selection.pos))
+				const off =  vsub(tile(mousePos), tile(selection.pos))
 				maphub.modifyTokens(this.shape, { move: off });
 				this.reset();
 			}
-			else if(selection.pos.x != mousepos.x || selection.pos.y != mousepos.y)
+			else if(selection.pos.x != mousePos.x || selection.pos.y != mousePos.y)
 			{
 
 				this.shape = this.getShape()
@@ -1569,9 +1559,9 @@ const selection = {
 				return this.shape
 
 			if(shape[this.kind].vertexCentered)
-				return shape.new(this.kind, rtile(selection.pos), rtile(mousepos))
+				return shape.new(this.kind, rtile(selection.pos), rtile(mousePos))
 			else
-				return shape.new(this.kind, tile(selection.pos), tile(mousepos))
+				return shape.new(this.kind, tile(selection.pos), tile(mousePos))
 		},
 		hasRuler: true,
 		tokenColor: "blue",
@@ -1586,7 +1576,7 @@ const selection = {
 					if(!shape.containsToken(this.shape, tk))
 						continue;
 
-					ct.putToken(tk, ...vx(vadd(vmul(v(tk.X, tk.Y),cellSize), vsub(mousepos, selection.pos))));
+					ct.putToken(tk, ...vx(vadd(vmul(v(tk.X, tk.Y),cellSize), vsub(mousePos, selection.pos))));
 				}
 			}
 			else
@@ -1630,11 +1620,11 @@ const selection = {
 		onDrop: function() {
 			if(this.shape)
 			{
-				const off =  vsub(tile(mousepos), tile(selection.pos))
+				const off =  vsub(tile(mousePos), tile(selection.pos))
 				maphub.modifyTokens(this.shape, { move: off });
 				this.reset();
 			}
-			else if(selection.pos.x != mousepos.x || selection.pos.y != mousepos.y)
+			else if(selection.pos.x != mousePos.x || selection.pos.y != mousePos.y)
 			{
 
 				this.shape = this.getShape()
@@ -1645,11 +1635,11 @@ const selection = {
 	},
 	spawnzone: {
 		onDrop: function() {
-			maphub.setSpawnZone(tile(selection.pos.x), tile(selection.pos.y), tile(mousepos.x), tile(mousepos.y))
+			maphub.setSpawnZone(tile(selection.pos.x), tile(selection.pos.y), tile(mousePos.x), tile(mousePos.y))
 		},
 		draw: function(ct) {
-			const dx = mousepos.x - selection.pos.x
-			const dy = mousepos.y - selection.pos.y
+			const dx = mousePos.x - selection.pos.x
+			const dy = mousePos.y - selection.pos.y
 
 			ct.beginPath()
 			ct.globalAlpha = 0.4
@@ -1665,7 +1655,7 @@ const selection = {
 	fill: {
 		onDrop: function() {
 			const a = tile(selection.pos)
-			const b = tile(mousepos)
+			const b = tile(mousePos)
 
 			for (let x = Math.min(a.x, b.x); x <= Math.max(a.x, b.x); x++)
 			{
@@ -1677,8 +1667,8 @@ const selection = {
 			}
 		},
 		draw: function(ct) {
-			const dx = mousepos.x - selection.pos.x
-			const dy = mousepos.y - selection.pos.y
+			const dx = mousePos.x - selection.pos.x
+			const dy = mousePos.y - selection.pos.y
 
 			ct.beginPath()
 			ct.globalAlpha = 0.4
@@ -1782,18 +1772,18 @@ const contextmenu = {
 			this.visible.onMapUpdate(flags);
 	},
 	init: function() {
-		for (const menuname in this.menus)
+		for (const menuName in this.menus)
 		{
-			const menu = this.menus[menuname];
+			const menu = this.menus[menuName];
 
 			for (const button in menu)
 			{
 				if(button !== "condition" && button !== "onMapUpdate" && button != "updateMask")
-					document.getElementById(`${menuname}menu_${button}`).onclick =
+					document.getElementById(`${menuName}menu_${button}`).onclick =
 						function(ev) { menu[button](contextmenu.data, ev); }
 			}
 
-			menu.window = document.getElementById(`${menuname}menu`);
+			menu.window = document.getElementById(`${menuName}menu`);
 		}
 
 		mapUpdateHooks.push(this.hook);
@@ -1809,11 +1799,10 @@ const handlers = {
 	onMouseMove : function(evnt)
 	{
 		if(toolbox.activeTool == toolbox.tools.tileedit &&
-			(tile(mousepos.x) != tile(evnt.pageX) || tile(mousepos.y) != tile(evnt.pageY)))
+			(tile(mousePos.x) != tile(evnt.pageX) || tile(mousePos.y) != tile(evnt.pageY)))
 			toolbox.tools.tileedit.onMouseDown(evnt)
 
-		oldmousepos = mousepos
-		mousepos = { x: evnt.pageX, y: evnt.pageY }
+		mousePos = { x: evnt.pageX, y: evnt.pageY }
 		layers.special.draw()
 
 		if(selection.current.hasRuler)
@@ -1834,7 +1823,7 @@ const handlers = {
 			return;
 		}
 
-		mousepos = { x: evnt.pageX, y: evnt.pageY }
+		mousePos = { x: evnt.pageX, y: evnt.pageY }
 
 		const cur = selection.current
 
@@ -1844,7 +1833,7 @@ const handlers = {
 		if(selection.current != null)
 		{
 			selection.last = cur
-			selection.pos = mousepos
+			selection.pos = mousePos
 			document.onmousemove = handlers.onMouseMove
 
 			for (const s in selection) {
@@ -1909,7 +1898,7 @@ const handlers = {
 	 */
 	onCanvasDrop: function(ev)
 	{
-		function getfile(callback)
+		function getFile(callback)
 		{
 			if(ev.dataTransfer == null)
 			{
@@ -1925,7 +1914,7 @@ const handlers = {
 				}
 				if(!ev.dataTransfer.files[0].type.startsWith("image/"))
 				{
-					console.error("Error: Drop: Via Files: Expeted Image");
+					console.error("Error: Drop: Via Files: Expected Image");
 					return;
 				}
 
@@ -2008,10 +1997,9 @@ const handlers = {
 			return;
 		}
 
-		getfile(f => {
+		getFile(f => {
 			mapInterface.uploadImage(idName(tk), f)
 		});
-
 	},
 	/** Handles drag sans drop over the canvas. Prevents the browser from opening the file.
 	 * @param {DragEvent} evnt
@@ -2144,7 +2132,7 @@ const uiInterface = {
 		}
 	},
 
-	/** Reacts to highlighed shape. Called by maphub.
+	/** Reacts to highlighted shape. Called by maphub.
 	 * @param {shape} s	The blinked shape
 	 * @returns {void} nothing
 	 */
