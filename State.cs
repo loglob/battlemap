@@ -46,7 +46,7 @@ namespace battlemap
 
 		private static string timestamp
 			=> DateTime.Now.ToString("yyyy-MM-dd.HH:mm:ss");
-		
+
 		private static readonly Regex timestampMatcher = new Regex(@"[0-9]{4}(-[0-9]{2}){2}\.[0-9]{2}(:[0-9]{2}){2}");
 
 		private static IEnumerable<FieldInfo> PersistentFields
@@ -76,7 +76,7 @@ namespace battlemap
 				}
 			}
 
-			BackupTask = Task.Run(Backup);			
+			BackupTask = Task.Run(Backup);
 		}
 
 #region Methods
@@ -108,16 +108,12 @@ namespace battlemap
 
 			do
 			{
-				Console.WriteLine("Performing Backup...");
-
 				if(Invalidated)
 				{
 					long w = Save();
-					Console.WriteLine($"Done. Wrote {w.ToDataUnit()}");
-					State.Invalidated = false;
+					Console.WriteLine($"Saves maps. Wrote {w.ToDataUnit()}");
+					Invalidated = false;
 				}
-				else
-					Console.WriteLine("State unchanged.");
 
 				Thread.Sleep(BackUpInterval * 1000);
 			} while(BackUpInterval > 0);
