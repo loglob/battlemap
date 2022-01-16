@@ -63,7 +63,7 @@ namespace battlemap.Models
 			{
 				int i = 0, j = 0;
 
-				foreach (var c in System.Convert.FromBase64String(value).Granulize(3))
+				foreach (var c in System.Convert.FromBase64String(value).Granulate(3))
 				{
 					Colors[i, j++] = (c[0] << 16) | (c[1] << 8) | c[2];
 
@@ -78,10 +78,6 @@ namespace battlemap.Models
 #endregion
 
 #region Methods
-		/* Finds the token that occupies the coordinates. */
-		public Token TokenAt(int x, int y)
-			=> Tokens.FirstOrDefault(t => (x,y).InRange(t.Position, t.Size));
-
 		public Token TokenAtExact(int x, int y)
 			=> Tokens.FirstOrDefault(t => t.X == x && t.Y == y);
 
@@ -92,10 +88,6 @@ namespace battlemap.Models
 		/* Finds all tokens that occupy any part of the given rectangle */
 		public IEnumerable<Token> TokensAt((int x, int y) position, (int w, int h) size)
 			=> Tokens.Where(t => t.Hitbox.Intersects((position, size)));
-
-		/* Finds all tokens that occupy any part of the given rectangle */
-		public IEnumerable<Token> TokensAt(int x, int y, int w, int h)
-			=> TokensAt((x,y), (w,h));
 
 		public async Task<bool> Spawn(string name, string id)
 		{

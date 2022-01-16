@@ -14,8 +14,8 @@ namespace battlemap.Controllers
 		private static readonly Dictionary<string, DateTime> modifyTimes = new Dictionary<string, DateTime>();
 		private static readonly DateTime startTime = DateTime.Now;
 
-		private static DateTime timestamp(string imgid)
-			=> modifyTimes.ContainsKey(imgid) ? modifyTimes[imgid] : startTime;
+		private static DateTime timestamp(string imageID)
+			=> modifyTimes.ContainsKey(imageID) ? modifyTimes[imageID] : startTime;
 
 		public async Task<IActionResult> Upload(string map, string token)
 		{
@@ -87,7 +87,7 @@ namespace battlemap.Controllers
 			return Ok();
 		}
 
-		// Make the Image URLs cachable
+		// Make the Image URLs cacheable
 		[HttpGet("image/get/{id}")]
 		public async Task<IActionResult> Get(string id)
 		{

@@ -228,11 +228,9 @@ namespace battlemap.Hubs
 				return;
 			}
 
-			string emsg = Info.Map.CanApply(shape, delta);
-
-			if(emsg != null)
+			if(Info.Map.CanApply(shape, delta) is string error)
 			{
-				await fail(emsg);
+				await fail(error);
 				return;
 			}
 
@@ -362,19 +360,19 @@ namespace battlemap.Hubs
 
 			for (int x = 0; x < Info.Map.Width; x++)
 			{
-				int newx = x + left;
+				int newX = x + left;
 
-				if(newx < 0 || newx >= newsize.w)
+				if(newX < 0 || newX >= newsize.w)
 					continue;
 
-				for (int y = 0; newx >= 0 && y < Info.Map.Height; y++)
+				for (int y = 0; newX >= 0 && y < Info.Map.Height; y++)
 				{
-					int newy = y + up;
+					int newY = y + up;
 
-					if(newy < 0 || newy >= newsize.h)
+					if(newY < 0 || newY >= newsize.h)
 						continue;
 
-					newColors[newx, newy] = Info.Map.Colors[x, y];
+					newColors[newX, newY] = Info.Map.Colors[x, y];
 				}
 			}
 
