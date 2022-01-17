@@ -504,13 +504,13 @@ const maphub =
 
 		connection.start().catch(function (err) {
 			alert("Cannot establish connection.\nPlease refresh\n");
-			return console.error(err.toString());
+			console.error(err.toString());
 		});
 
-		connection.onclose = function(err) {
+		connection.onclose(function(err) {
 			alert("Connection lost.\nPlease refresh\n");
-			return console.error(err.toString());
-		}
+			console.error(err.toString());
+		})
 
 		for (const command in this.commands) {
 			/** @type {command} */
