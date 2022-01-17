@@ -1858,7 +1858,7 @@ const handlers = {
 	 * @param {MouseEvent} evnt
 	 * @returns {void} nothing
 	 */
-	onCanvasMouseUp: function(evnt)
+	onMouseUp: function(evnt)
 	{
 		const sel = selection.current;
 
@@ -2100,7 +2100,7 @@ const uiInterface = {
 	init: function() {
 		const s = document.getElementById("canvas_stack");
 		s.addEventListener("mousedown", handlers.onCanvasMouseDown);
-		s.addEventListener("mouseup", handlers.onCanvasMouseUp);
+		document.addEventListener("mouseup", handlers.onMouseUp);
 		s.addEventListener("dblclick", handlers.onCanvasDoubleClick);
 		s.addEventListener("drop", handlers.onCanvasDrop);
 		s.addEventListener("dragover", handlers.onCanvasDragover);
