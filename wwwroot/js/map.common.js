@@ -47,6 +47,7 @@ const conditions = [
 	{ symbol: '🪦', name: "Dead" },
 	{ symbol: '👍', name: "Buffed" },
 	{ symbol: '👎', name: "De-Buffed" },
+	{ symbol: '?', name: "Unassigned" },
 
 	{ symbol: '♠', name: "Marker #1" },
 	{ symbol: '♥', name: "Marker #2" },

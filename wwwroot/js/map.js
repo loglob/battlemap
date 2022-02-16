@@ -259,7 +259,10 @@ CanvasRenderingContext2D.prototype.putToken = function(tk, x, y, color = "black"
 	{
 		const symbol = conditions.filter((v,i) => ((1 << i) & tk.Conditions) != 0).map(c => c.symbol).join("");
 
-		this.placeText(symbol, x+10, y + 10, cc(tk.Width) - 20, cc(tk.Height)/3, "tl");
+		this.fillStyle = "black"
+		this.strokeStyle = "white"
+		this.lineWidth = 5
+		this.placeText(symbol, x+5, y + 5, cc(tk.Width) - 20, cc(tk.Height)/4, "tl");
 		this.globalAlpha = 1;
 	}
 
