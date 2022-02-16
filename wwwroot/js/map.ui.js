@@ -44,6 +44,8 @@ var mousePos;
 */
 const initpls = "_initpls_";
 
+const conditionURL = "https://www.dndbeyond.com/sources/basic-rules/appendix-a-conditions#";
+
 var canvasStyle = document.getElementById("canvas_stack").style;
 
 /** Handles the toolbox
@@ -1684,23 +1686,80 @@ const selection = {
 // Handles the right click menu
 const contextmenu = {
 	menus: {
-		token: {
+		plr_token: {
+			condition: function(x, y) {
+				const tk = tokenAt(...vx(tile(v(x,y))));
+
+				return (!isDM && tk && tk.Conditions) ? tk : null;
+			},
+			/** @param {Token} tk
+			 * @param {MouseEvent} ev
+			 */
+			onShow: function(tk, ev) {
+				const c = conditions.filter((v,i) => ((1 << i) & tk.Conditions) != 0);
+				/**@type {HTMLElement} */
+				const w = this.window;
+
+				while(w.hasChildNodes())
+					w.removeChild(w.lastChild)
+
+				for (let i = 0; i < c.length; i++) {
+					const s = document.createElement("a");
+					s.className = "bare";
+					s.innerText = c[i].symbol;
+					s.title = c[i].name;
+
+					if(c[i].dnd)
+					{
+						s.href = conditionURL + s.title;
+						s.target = "_blank"
+					}
+
+					w.appendChild(s);
+
+					if((i+1) % 4 == 0)
+						w.appendChild(document.createElement("br"));
+				}
+			}
+		},
+		dm_token: {
 			/**@param {number} x
 			 * @param {number} y */
-			condition: function(x, y) { return tokenAt(...vx(tile(v(x,y)))) },
+			condition: function(x, y) { return isDM && tokenAt(...vx(tile(v(x,y)))); },
 			onMapUpdate: function() { if(map.tokens.indexOf(contextmenu.data) == -1) contextmenu.hide() },
 			updateMask: mapFields.tokens,
+			/** @param {HTMLElement} w The window of this menu */
+			init: function(w) {
+				for (let i = 0; i < conditions.length; i++)
+				{
+					const c = conditions[i];
+					const b = document.createElement("a");
 
-			/**@param {token} tk */
-			delete: function(tk) { maphub.removeAll(shape.point(tk.X, tk.Y)); contextmenu.hide(); },
-			/**@param {token} tk */
-			clean: function(tk) { mapInterface.uploadImage(idName(tk), null) },
-			/**@param {token} tk
-			 * @param {MouseEvent} ev */
-			initiative: function(tk, ev) { toolbox.tools.initiative.insert(tk, !ev.shiftKey); },
-			/**@param {token} tk */
-			turn: function(tk) { maphub.modifyTokens(shape.point(tk.X, tk.Y), { turn: true }) },
-			/**@param {token} tk The token
+					b.className = "bare";
+					b.id = `dm_tokenmenu_cond_${c.name}`
+					b.innerText = c.symbol;
+					b.title = c.name;
+
+					b.onclick = ev => this.cond(contextmenu.data, ev, i)
+					w.appendChild(b);
+
+					if((i+1) % 4 == 0)
+						w.appendChild(document.createElement("br"));
+				}
+			},
+			buttons: {
+				/**@param {token} tk */
+				delete: function(tk) { maphub.removeAll(shape.point(tk.X, tk.Y)); contextmenu.hide(); },
+				/**@param {token} tk */
+				clean: function(tk) { mapInterface.uploadImage(idName(tk), null) },
+				/**@param {token} tk
+				 * @param {MouseEvent} ev */
+				initiative: function(tk, ev) { toolbox.tools.initiative.insert(tk, !ev.shiftKey); },
+				/**@param {token} tk */
+				turn: function(tk) { maphub.modifyTokens(shape.point(tk.X, tk.Y), { turn: true }) },
+			},
+			/** Sets a condition bit
+			 * @param {token} tk The token
 			 * @param {MouseEvent} ev The mouse event
 			 * @param {Number} cond The condition's INDEX in the conditions array
 			 */
@@ -1709,7 +1768,7 @@ const contextmenu = {
 				if(ev.shiftKey || ev.ctrlKey)
 				{
 					if(conditions[cond].dnd)
-						window.open("https://www.dndbeyond.com/sources/basic-rules/appendix-a-conditions#"+conditions[cond].name, "_blank");
+						window.open(conditionURL + conditions[cond].name, "_blank");
 
 					return;
 				}
@@ -1722,7 +1781,7 @@ const contextmenu = {
 			/**@param {number} x
 			 * @param {number} y */
 			condition: function(x, y) {
-				return map.effects.find(e => shape.containsPoint(e.shape, x / cellSize, y / cellSize));
+				return isDM && map.effects.find(e => shape.containsPoint(e.shape, x / cellSize, y / cellSize));
 			},
 			onMapUpdate: function() { if(map.effects.indexOf(contextmenu.data) == -1) contextmenu.hide() },
 			updateMask: mapFields.effects,
@@ -1737,7 +1796,13 @@ const contextmenu = {
 	},
 	data: null,
 	visible: null,
-	hook: { mask: 0, callback: function(){ if(contextmenu.visible?.onMapUpdate) contextmenu.visible.onMapUpdate(); } },
+	hook: {
+		mask: 0,
+		callback: function() {
+			if(contextmenu.visible?.onMapUpdate)
+				contextmenu.visible.onMapUpdate();
+		}
+	},
 	hide: function() {
 		// Can't use .hide() because we still need the width & height
 		this.visible.window.style.visibility = "hidden";
@@ -1746,8 +1811,6 @@ const contextmenu = {
 	},
 	/**@param {MouseEvent} event */
 	onContextMenu: function(event) {
-		if(!isDM)
-			return;
 		if(this.visible)
 			this.hide();
 		else
@@ -1775,6 +1838,9 @@ const contextmenu = {
 			const w = win.offsetWidth;
 			const h = win.offsetHeight;
 
+			if(menu.onShow)
+				menu.onShow(this.data, event);
+
 			this.visible = menu;
 			this.hook.mask = menu.updateMask ?? 0;
 			win.style.left = `${(event.offsetX + view.left + w >= view.width) ? event.offsetX - w : event.offsetX}px`;
@@ -1792,32 +1858,14 @@ const contextmenu = {
 			const menu = this.menus[menuName];
 			menu.window = document.getElementById(`${menuName}menu`);
 
-			for (const button in menu)
+			if(menu.init)
+				menu.init(menu.window);
+
+			for (const button in menu.buttons)
 			{
-				if(button === "cond")
-				{
-					for (let i = 0; i < conditions.length; i++)
-					{
-						const c = conditions[i];
-						const b = document.createElement("a");
-
-						b.className = "bare";
-						b.id = `${menuName}menu_cond_${c.name}`
-						b.innerText = c.symbol;
-						b.title = c.name;
-
-						b.onclick = ev => menu.cond(contextmenu.data, ev, i)
-						menu.window.appendChild(b);
-
-						if((i+1) % 4 == 0)
-							menu.window.appendChild(document.createElement("br"));
-					}
-				}
-				else if(button !== "window" && button !== "condition" && button !== "onMapUpdate" && button !== "updateMask")
-					document.getElementById(`${menuName}menu_${button}`).onclick =
-						function(ev) { menu[button](contextmenu.data, ev); }
+				document.getElementById(`${menuName}menu_${button}`).onclick =
+					function(ev) { menu.buttons[button](contextmenu.data, ev); }
 			}
-
 		}
 
 		mapUpdateHooks.push(this.hook);
