@@ -186,7 +186,7 @@ const maphub =
 		ModifyTokens: {
 
 			/**@param {shape} s		The shape
-			 * @param {{ move: vec2?, hidden: bool? }} delta Token Change
+			 * @param {{ move: vec2?, conditionsAdd: Number?, conditionsSub: Number?, turn: boolean? }} delta Token Change
 			 * @returns {void} nothing
 			 */
 			receive: function(s, delta) {
@@ -204,8 +204,10 @@ const maphub =
 							tk.Width = tk.Height
 							tk.Height = w
 						}
-						if(typeof delta.hidden === "boolean")
-							tk.Hidden = delta.hidden;
+						if(delta.conditionsAdd)
+							tk.Conditions |= delta.conditionsAdd;
+						if(delta.conditionsSub)
+							tk.Conditions &= ~delta.conditionsSub;
 					}
 				}
 			},
@@ -214,7 +216,7 @@ const maphub =
 			 * @returns {void} nothing
 			 */
 			check: function(s, delta) {
-				if((!delta.move || (!delta.move.x && !delta.move.y)) && typeof delta.hidden !== "boolean" && !delta.turn)
+				if((!delta.move || (!delta.move.x && !delta.move.y)) && !delta.conditionsAdd && !delta.conditionsSub && !delta.turn)
 					return "Refusing modifyTokens without change";
 
 				if(delta.move || delta.turn)

@@ -8,8 +8,6 @@ const renderOptions = {
 	},
 };
 
-
-
 //#region TextMetrics Extension Methods
 // the height of the text
 TextMetrics.prototype.getHeight = function()
@@ -53,7 +51,7 @@ CanvasRenderingContext2D.prototype.irect = function(x, y, w, h, b)
  * @param {number} width The rectangle's width
  * @param {number} height The rectangle's height
  * @param {string} [fontName="sans-serif"] The used font
- * @returns {number} The new font size, in px
+ * @returns {TextMetrics & { fontSize: Number }} The final font metrics, including the new font size
  */
 CanvasRenderingContext2D.prototype.fitText = function(txt, width, height, fontName = "sans-serif")
 {
@@ -110,16 +108,19 @@ CanvasRenderingContext2D.prototype.cramText = function(txt, width, height, fontN
  * @param {number} w	The rectangle's width
  * @param {number} h	The rectangle's height
  * @param {string} [align="cc"] in /[tcbx][lcr]/
+ * @param {Number?} [fontSize=null] If given, 0-height text boxes are interpreted as having that height
  * @returns {void} nothing
  */
-CanvasRenderingContext2D.prototype.putText = function(txt, x, y, w, h, align = "cc")
+CanvasRenderingContext2D.prototype.putText = function(txt, x, y, w, h, align = "cc", fontSize = null)
 {
 //	if(map_useCramRender && align === "cc")
 //		return this.cramText(txt, x, y, w, h);
 
 	const s = this.measureText(txt)
-	const a = s.actualBoundingBoxAscent
-	const txtH = a + s.actualBoundingBoxDescent
+	// Properly handle emoji; they're reported as having a height of 0
+	const badHeight = s.getHeight() == 0;
+	const a = badHeight ? fontSize : s.actualBoundingBoxAscent
+	const txtH = badHeight ? fontSize : a + s.actualBoundingBoxDescent
 
 	let cY;
 
@@ -165,6 +166,24 @@ CanvasRenderingContext2D.prototype.putText = function(txt, x, y, w, h, align = "
 	this.fillText(txt, cX, cY);
 }
 
+/** Combines fitText() followed by putText(). Places emoji properly.
+ * @param {string} txt	The text to render
+ * @param {number} x	The rectangle's x
+ * @param {number} y	The rectangle's y
+ * @param {number} w	The rectangle's width
+ * @param {number} h	The rectangle's height
+ * @param {string} [align="cc"] Same as for putText()
+ * @param {string} [fontName="sans-serif"] The used font
+ * @returns {TextMetrics & { fontSize: Number }} The metrics of the placed text
+ */
+CanvasRenderingContext2D.prototype.placeText = function(txt, x, y, w, h, align = "cc", fontName = "sans-serif")
+{
+	const m = this.fitText(txt, w, h, fontName);
+	this.putText(txt, x, y, w, h, align, m.fontSize);
+
+	return m;
+}
+
 /** Renders a token
  * @param {token} tk	The token
  * @param {number} x	The token's upper left x (canvas coords)
@@ -173,7 +192,7 @@ CanvasRenderingContext2D.prototype.putText = function(txt, x, y, w, h, align = "
  */
 CanvasRenderingContext2D.prototype.putToken = function(tk, x, y, color = "black")
 {
-	if(tk.Hidden)
+	if(isHidden(tk))
 	{
 		if(!isDM)
 			return;
@@ -207,21 +226,14 @@ CanvasRenderingContext2D.prototype.putToken = function(tk, x, y, color = "black"
 		this.fillStyle = color
 		this.lineWidth = 8
 		const m = this.fitText(txt, cW - 20, cH - 20)
-		const h = m.getHeight()
 
-		if(h === 0) // Emoji are reported as having 0 height
-			this.putText(txt, x + 10, y + cH/2 + m.fontSize/2, cW - 20, cH - 20, "xc")
-		else if((m.width / h) > 4 && tknum != null)
+		if(tknum != null && (m.width / m.getHeight()) > 4)
 		{
-			this.fitText(idname, cW - 20, (cH - 20) / 2)
-			this.putText(idname, x + 10, y + 0, cW - 20, (cH - 20) / 2, "bc")
-			this.fitText(tknum, cW - 20, (cH - 20) / 2)
-			this.putText(tknum, x + 10, y + 20 + (cH - 20) / 2, cW - 20, (cH - 20) / 2, "tc")
+			this.placeText(idname, x + 10, y, cW - 20, (cH - 20)/2, "bc");
+			this.placeText(tknum, x + 10, y + 20 + (cH - 20) / 2, cW - 20, (cH - 20) / 2, "tc")
 		}
 		else
-			this.putText(txt, x + 10, y + 10, cW - 20, cH - 20 /*, m.getHeight() ? "cc" : "bc"*/)
-
-		//console.log(`${idname} ${tknum}: ${r}`)
+			this.putText(txt, x + 10, y + 10, cW - 20, cH - 20, cc, m.fontSize)
 	}
 	else
 	{
@@ -243,11 +255,11 @@ CanvasRenderingContext2D.prototype.putToken = function(tk, x, y, color = "black"
 		}
 	}
 
-	if(tk.Hidden)
+	if(tk.Conditions)
 	{
-		const symbol = "👁️"
-		this.fitText(symbol, ...cc(tk.Width / 2, tk.Height / 2));
-		this.putText(symbol, x, y, ...vx(vsub(vmul(v(tk.Width, tk.Height), cellSize),10)), "bl")
+		const symbol = conditions.filter((v,i) => ((1 << i) & tk.Conditions) != 0).map(c => c.symbol).join("");
+
+		this.placeText(symbol, x+10, y + 10, cc(tk.Width) - 20, cc(tk.Height)/3, "tl");
 		this.globalAlpha = 1;
 	}
 
@@ -715,7 +727,7 @@ const mapInterface = {
 			break;
 
 			case blinkKind.initiative:
-				if(!tk.Hidden || isDM)
+				if(!isHidden(tk) || isDM)
 					highlighted.push({ time: Date.now(), token: tk, initiative: true });
 
 				const _ct = currentTurn
@@ -743,7 +755,7 @@ const mapInterface = {
 		highlighted.push({ time: t, shape: s })
 
 		for (const tk of map.tokens) {
-			if(shape.containsToken(s, tk) && (isDM || !tk.Hidden))
+			if(shape.containsToken(s, tk) && (isDM || !isHidden(tk)))
 				highlighted.push({ time: t, token: tk });
 		}
 

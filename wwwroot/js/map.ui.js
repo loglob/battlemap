@@ -79,7 +79,7 @@ const toolbox = {
 					selection.current = selection.select
 					selection.select.kind = "circle"
 				}
-				else if(tk == null || (!isDM && tk.Hidden))
+				else if(tk == null || (!isDM && isHidden(tk)))
 				{
 					selection.circle.reset();
 					selection.mask.reset();
@@ -551,7 +551,7 @@ const toolbox = {
 				const tk = tokenAt(tile(evnt.pageX), tile(evnt.pageY))
 
 				if(tk)
-					maphub.modifyTokens(shape.point(tk.X, tk.Y), { hidden: !tk.Hidden });
+					maphub.modifyTokens(shape.point(tk.X, tk.Y), { hidden: !isHidden(tk) });
 			},
 			getCursor: function() { return "help" },
 		},
@@ -1695,13 +1695,28 @@ const contextmenu = {
 			delete: function(tk) { maphub.removeAll(shape.point(tk.X, tk.Y)); contextmenu.hide(); },
 			/**@param {token} tk */
 			clean: function(tk) { mapInterface.uploadImage(idName(tk), null) },
-			/**@param {token} tk */
-			hide: function(tk) { maphub.modifyTokens(shape.point(tk.X, tk.Y), { hidden: !tk.Hidden }) },
 			/**@param {token} tk
 			 * @param {MouseEvent} ev */
 			initiative: function(tk, ev) { toolbox.tools.initiative.insert(tk, !ev.shiftKey); },
 			/**@param {token} tk */
 			turn: function(tk) { maphub.modifyTokens(shape.point(tk.X, tk.Y), { turn: true }) },
+			/**@param {token} tk The token
+			 * @param {MouseEvent} ev The mouse event
+			 * @param {Number} cond The condition's INDEX in the conditions array
+			 */
+			cond: function(tk, ev, cond)
+			{
+				if(ev.shiftKey || ev.ctrlKey)
+				{
+					if(conditions[cond].dnd)
+						window.open("https://www.dndbeyond.com/sources/basic-rules/appendix-a-conditions#"+c.name, "_blank");
+
+					return;
+				}
+
+				maphub.modifyTokens(shape.point(tk.X, tk.Y),
+					((tk.Conditions & (1 << cond)) == 0) ? { conditionsAdd: 1 << cond } : { conditionsSub: 1 << cond })
+			}
 		},
 		effect: {
 			/**@param {number} x
@@ -1775,15 +1790,33 @@ const contextmenu = {
 		for (const menuName in this.menus)
 		{
 			const menu = this.menus[menuName];
+			menu.window = document.getElementById(`${menuName}menu`);
 
 			for (const button in menu)
 			{
-				if(button !== "condition" && button !== "onMapUpdate" && button != "updateMask")
+				if(button === "cond")
+				{
+					for (let i = 0; i < conditions.length; i++)
+					{
+						const c = conditions[i];
+						const b = document.createElement("button");
+
+						b.className = "bare";
+						b.id = `${menuName}menu_cond_${c.name}`
+						b.innerText = c.symbol;
+
+						b.onclick = ev => menu.cond(contextmenu.data, ev, i)
+						menu.window.appendChild(b);
+
+						if((i+1) % 4 == 0)
+							menu.window.appendChild(document.createElement("br"));
+					}
+				}
+				else if(button !== "window" && button !== "condition" && button !== "onMapUpdate" && button !== "updateMask")
 					document.getElementById(`${menuName}menu_${button}`).onclick =
 						function(ev) { menu[button](contextmenu.data, ev); }
 			}
 
-			menu.window = document.getElementById(`${menuName}menu`);
 		}
 
 		mapUpdateHooks.push(this.hook);
@@ -1887,7 +1920,7 @@ const handlers = {
 
 		if(typeof toolbox.activeTool?.dontBlink !== "undefined")
 			return;
-		if(tk && (!tk.Hidden || isDM))
+		if(tk && (!isHidden(tk) || isDM))
 			maphub.blink(blinkKind.token, tk.X, tk.Y);
 		else
 			maphub.blink(blinkKind.tile, cX, cY);

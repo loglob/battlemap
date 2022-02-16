@@ -7,13 +7,16 @@ namespace battlemap.Models
 	public class TokenDelta
 	{
 		public Vec2<int> move;
-		public bool? hidden;
+		public int? conditionsAdd;
+		public int? conditionsSub;
 		public bool turn;
 
 		public void Apply(Token tk)
 		{
-			if(hidden.HasValue)
-				tk.Hidden = hidden.Value;
+			if(conditionsAdd.HasValue)
+				tk.Conditions |= conditionsAdd.Value;
+			if(conditionsSub.HasValue)
+				tk.Conditions &= ~conditionsSub.Value;
 			if(move != (0,0) || turn)
 				tk.Hitbox = Apply(tk.Hitbox);
 		}
@@ -23,6 +26,6 @@ namespace battlemap.Models
 
 		[JsonIgnore]
 		public bool IsEmpty
-			=> move == (0, 0) && !hidden.HasValue && !turn;
+			=> move == (0, 0) && ((conditionsAdd ?? 0) == 0) && ((conditionsSub ?? 0 ) == 0) && !turn;
 	}
 }

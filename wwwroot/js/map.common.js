@@ -8,9 +8,44 @@ window.onerror = console.error
  * @property {Number} Y
  * @property {Number} Width
  * @property {Number} Height
- * @property {boolean} Hidden
+ * @property {Number} Conditions
  * @property {string} Name
 */
+
+/** The known conditions  */
+const conditions = [
+	{ symbol: '👁️', name: "Hidden" },
+	{ symbol: '🩸', name: "Bleeding" },
+	{ symbol: '🙈', name: "Blinded", dnd: true },
+	{ symbol: '❤️', name: "Charmed", dnd: true },
+	{ symbol: '🙉', name: "Deafened", dnd: true },
+	{ symbol: '😱', name: "Frightened", dnd: true },
+	{ symbol: '🛑', name: "Grappled", dnd: true },
+	{ symbol: '🗲', name: "Paralyzed", dnd: true },
+	{ symbol: '🪨', name: "Petrified", dnd: true },
+	{ symbol: '☠', name: "Poisoned", dnd: true },
+	{ symbol: '🔥', name: "Burning" },
+	{ symbol: '❄', name: "Freezing" },
+	{ symbol: '⍖', name: "Prone", dnd: true },
+	{ symbol: '🕸', name: "Restrained", dnd: true },
+	{ symbol: '💥', name: "Stunned", dnd: true },
+	{ symbol: '💤', name: "Unconscious", dnd: true },
+	{ symbol: '🚫', name: "Incapacitated", dnd: true },
+	{ symbol: '🧠', name: "Concentrating", dnd: true },
+	{ symbol: '⛧', name: "Magic Up" },
+	{ symbol: '🙊', name: "Silenced" },
+	{ symbol: '💪', name: "Attack Up" },
+	{ symbol: '😩', name: "Attack Down" },
+	{ symbol: '🛡', name: "Defense Up" },
+	{ symbol: '🎯', name: "Defense Down" },
+	{ symbol: '⚰', name: "Dead" },
+	{ symbol: '👍', name: "Buffed" },
+	{ symbol: '👎', name: "De-Buffed" },
+	{ symbol: '♠', name: "Marker #1" },
+	{ symbol: '♥', name: "Marker #2" },
+	{ symbol: '♣', name: "Marker #3" },
+	{ symbol: '♦', name: "Marker #4" },
+];
 
 const mapFields = {
 	size: 1,
@@ -471,6 +506,12 @@ const shape = {
 
 //#region vector functions
 /** @typedef {{ x: number, y: number }} vec2 */
+
+/** Determines if a token is hidden */
+function isHidden(tk)
+{
+	return (tk.Conditions & 1) == 1;
+}
 
 /** Constructs a generic vector
  * @returns {{ x:any, y:any }}

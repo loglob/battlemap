@@ -14,9 +14,8 @@ namespace battlemap.Models
 		public int Width, Height;
 		/* The coordinate of the token */
 		public int X, Y;
-
-		public bool Hidden = false;
-
+		/* Bitvector for conditions */
+		public int Conditions;
 #endregion
 
 #region Properties
@@ -65,7 +64,7 @@ namespace battlemap.Models
 
 #region Contructors
 		[JsonConstructor]
-		public Token(string Name, int X, int Y, int Width, int Height, bool Hidden = false)
+		public Token(string Name, int X, int Y, int Width, int Height, bool Hidden = false, int Conditions = 0)
 		{
 			if(Height <= 0)
 				throw new ArgumentOutOfRangeException("h");
@@ -77,7 +76,10 @@ namespace battlemap.Models
 			this.Y = Y;
 			this.Width = Width;
 			this.Height = Height;
-			this.Hidden = Hidden;
+			this.Conditions = Conditions;
+
+			if(Hidden)
+				this.Conditions |= 1;
 		}
 
 		public Token(string name, int x, int y)
@@ -91,7 +93,7 @@ namespace battlemap.Models
 			this.Y = clone.Y;
 			this.Width = clone.Width;
 			this.Height = clone.Height;
-			this.Hidden = clone.Hidden;
+			this.Conditions = clone.Conditions;
 		}
 #endregion
 	}

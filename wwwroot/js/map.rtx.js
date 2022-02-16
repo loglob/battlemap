@@ -42,7 +42,7 @@ function toPolar(p, ref)
 	return { x:p.x, y:p.y, len2: rel.x*rel.x + rel.y * rel.y, angle: (tau + Math.atan(rel.y / rel.x) + (rel.x < 0) * Math.PI) % tau }
 }
 
-/** Shorthand for cc()ing vectors
+/** Shorthand for cc()ing vectors.
  * @param {vec2} p
  * @returns {Number[]} cc(...vx(p))
  */
@@ -659,7 +659,7 @@ const rtx = {
 	{
 		return map.tokens
 			.map(tk => [ tk, lightDict[idName(tk)] ])
-			.filter(e => (typeof(e[1]) !== "undefined") && (!hideHidden || !e[0].Hidden))
+			.filter(e => (typeof(e[1]) !== "undefined") && (!hideHidden || !isHidden(e[0])))
 			.flatMap(e => {
 				/**
 				 * @type {token}
