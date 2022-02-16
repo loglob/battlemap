@@ -62,13 +62,15 @@
 	margin: 0.1em;
 }
 
-.window button
+.window button, .window a
 {
 	margin: 0.33em;
 	background-color: var(--bg-light);
 	color: var(--fg-bright);
 	border-color: var(--bg-light);
 	font-weight: bold;
+	cursor: pointer;
+	user-select: none;
 }
 
 

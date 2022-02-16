@@ -1709,7 +1709,7 @@ const contextmenu = {
 				if(ev.shiftKey || ev.ctrlKey)
 				{
 					if(conditions[cond].dnd)
-						window.open("https://www.dndbeyond.com/sources/basic-rules/appendix-a-conditions#"+c.name, "_blank");
+						window.open("https://www.dndbeyond.com/sources/basic-rules/appendix-a-conditions#"+conditions[cond].name, "_blank");
 
 					return;
 				}
@@ -1799,11 +1799,12 @@ const contextmenu = {
 					for (let i = 0; i < conditions.length; i++)
 					{
 						const c = conditions[i];
-						const b = document.createElement("button");
+						const b = document.createElement("a");
 
 						b.className = "bare";
 						b.id = `${menuName}menu_cond_${c.name}`
 						b.innerText = c.symbol;
+						b.title = c.name;
 
 						b.onclick = ev => menu.cond(contextmenu.data, ev, i)
 						menu.window.appendChild(b);
