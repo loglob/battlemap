@@ -280,7 +280,7 @@ CanvasRenderingContext2D.prototype.putToken = function(tk, x, y, color = "black"
 // Sets the image for all commoners on the board
 function peasant()
 {
-	for(let c of arguments.length ? arguments : new Set(map.tokens.map(tk => tk.Name).filter(n => /^[commoner]+(\n.*)?$/i.test(n))))
+	for(let c of arguments.length ? arguments : new Set(map.tokens.map(tk => tk.Name).filter(n => /^commoner(\n.*)?$/i .test(n))))
 		textures.uploadURL(c, "/img/commoner.png")
 }
 
