@@ -164,21 +164,21 @@ else
 
 </div>
 
-<div id="plr_tokenmenu" class="fixed menu window" style="visibility: hidden;">
-</div>
-<div id="dm_tokenmenu" class="fixed menu window" style="visibility: hidden;">
+<div id="tokenmenu" class="fixed menu window" style="visibility: hidden;">
+@if(ViewBag.LoadDmTools)
+{
 	<button id="dm_tokenmenu_delete" class="bare">🗑️</button>
 	<button id="dm_tokenmenu_clean" class="bare">🧼</button>
 	<button id="dm_tokenmenu_initiative" class="bare">⏱️</button>
 	<button id="dm_tokenmenu_turn" class="bare">⭮</button>
 	<hr>
+}
 </div>
 <div id="effectmenu" class="fixed menu window" style="visibility: hidden;">
 	<button id="effectmenu_delete" class="bare">🗑️</button>
 	<button id="effectmenu_destroy" class="bare">🧨</button>
 	<button id="effectmenu_blink" class="bare">👁️</button>
 </div>
-
 
 <div id="distance" class="fixed bl"></div>
 

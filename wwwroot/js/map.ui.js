@@ -1207,6 +1207,7 @@ const selection = {
 	 * @type {vec2}	In screen coordinates
 	*/
 	pos: null,
+	/** @returns {shape?} A shape representing the current selection, or null */
 	getShape: function() {
 		return this.mask.rect ?? this.circle.circ ?? this.select.shape ?? this.shape.shape;
 	},
@@ -1686,46 +1687,22 @@ const selection = {
 // Handles the right click menu
 const contextmenu = {
 	menus: {
-		plr_token: {
-			condition: function(x, y) {
-				const tk = tokenAt(...vx(tile(v(x,y))));
-
-				return (!isDM && tk && tk.Conditions) ? tk : null;
-			},
-			/** @param {Token} tk
-			 * @param {MouseEvent} ev
-			 */
-			onShow: function(tk, ev) {
-				const c = conditions.filter((v,i) => ((1 << i) & tk.Conditions) != 0);
-				/**@type {HTMLElement} */
-				const w = this.window;
-
-				while(w.hasChildNodes())
-					w.removeChild(w.lastChild)
-
-				for (let i = 0; i < c.length; i++) {
-					const s = document.createElement("a");
-					s.className = "bare";
-					s.innerText = c[i].symbol;
-					s.title = c[i].name;
-
-					if(c[i].dnd)
-					{
-						s.href = conditionURL + s.title;
-						s.target = "_blank"
-					}
-
-					w.appendChild(s);
-
-					if((i+1) % 4 == 0)
-						w.appendChild(document.createElement("br"));
-				}
-			}
-		},
-		dm_token: {
+		token: {
 			/**@param {number} x
-			 * @param {number} y */
-			condition: function(x, y) { return isDM && tokenAt(...vx(tile(v(x,y)))); },
+			 * @param {number} y
+			 * @returns {{ tk: token[], sh: shape }?} The AOE to target */
+			condition: function(x, y) {
+				const s = selection.getShape()
+				const tp = tile(v(x,y));
+
+				if(s && shape.containsPoint(s, ...vx(tp)))
+					return { tk: map.tokens.filter(tk => shape.containsToken(s, tk)), sh: s };
+
+				const t = tokenAt(...vx(tp));
+
+				if(t)
+					return { tk: [t], sh: shape.point(tp) };
+			},
 			onMapUpdate: function() { if(map.tokens.indexOf(contextmenu.data) == -1) contextmenu.hide() },
 			updateMask: mapFields.tokens,
 			/** @param {HTMLElement} w The window of this menu */
@@ -1736,7 +1713,7 @@ const contextmenu = {
 					const b = document.createElement("a");
 
 					b.className = "bare";
-					b.id = `dm_tokenmenu_cond_${c.name}`
+					b.id = `tokenmenu_cond_${c.name}`
 					b.innerText = c.symbol;
 					b.title = c.name;
 
@@ -1748,22 +1725,30 @@ const contextmenu = {
 				}
 			},
 			buttons: {
-				/**@param {token} tk */
-				delete: function(tk) { maphub.removeAll(shape.point(tk.X, tk.Y)); contextmenu.hide(); },
-				/**@param {token} tk */
-				clean: function(tk) { mapInterface.uploadImage(idName(tk), null) },
-				/**@param {token} tk
+				/**@param {{ tk: token[], sh: shape}} m */
+				delete: function(m) { maphub.removeAll(m.sh); contextmenu.hide(); },
+				/**@param {{ tk: token[], sh: shape}} m */
+				clean: function(m)
+				{
+					for (const name of new Set(m.tk.map(idName)))
+						mapInterface.uploadImage(name, null)
+				},
+				/** @param {{ tk: token, sh: shape}} m
 				 * @param {MouseEvent} ev */
-				initiative: function(tk, ev) { toolbox.tools.initiative.insert(tk, !ev.shiftKey); },
-				/**@param {token} tk */
-				turn: function(tk) { maphub.modifyTokens(shape.point(tk.X, tk.Y), { turn: true }) },
+				initiative: function(m, ev)
+				{
+					for(const tk of m.tk)
+						toolbox.tools.initiative.insert(tk, !ev.shiftKey);
+				},
+				/**@param {{ tk: token[], sh: shape}} m */
+				turn: function(tk) { maphub.modifyTokens(m.sh, { turn: true }) },
 			},
 			/** Sets a condition bit
-			 * @param {token} tk The token
+			 * @param {{ tk: token[], sh: shape}} m
 			 * @param {MouseEvent} ev The mouse event
 			 * @param {Number} cond The condition's INDEX in the conditions array
 			 */
-			cond: function(tk, ev, cond)
+			cond: function(m, ev, cond)
 			{
 				if(ev.shiftKey || ev.ctrlKey)
 				{
@@ -1773,8 +1758,9 @@ const contextmenu = {
 					return;
 				}
 
-				maphub.modifyTokens(shape.point(tk.X, tk.Y),
-					((tk.Conditions & (1 << cond)) == 0) ? { conditionsAdd: 1 << cond } : { conditionsSub: 1 << cond })
+				const mask = 1 << cond;
+
+				maphub.modifyTokens(m.sh, m.tk.every(t => t.Conditions & mask) ? { conditionsSub: mask } : { conditionsAdd: mask })
 			}
 		},
 		effect: {
@@ -1863,8 +1849,10 @@ const contextmenu = {
 
 			for (const button in menu.buttons)
 			{
-				document.getElementById(`${menuName}menu_${button}`).onclick =
-					function(ev) { menu.buttons[button](contextmenu.data, ev); }
+				var e = document.getElementById(`${menuName}menu_${button}`);
+
+				if(e)
+					e.onclick = function(ev) { menu.buttons[button](contextmenu.data, ev); };
 			}
 		}
 
@@ -1896,7 +1884,7 @@ const handlers = {
 	 */
 	onCanvasMouseDown: function(evnt)
 	{
-		if(event.button === 2)
+		if(evnt.button === 2)
 			return;
 
 		if(contextmenu.visible)
