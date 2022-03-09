@@ -553,7 +553,7 @@ const toolbox = {
 				const tk = tokenAt(tile(evnt.pageX), tile(evnt.pageY))
 
 				if(tk)
-					maphub.modifyTokens(shape.point(tk.X, tk.Y), { hidden: !isHidden(tk) });
+					maphub.modifyTokens(shape.point(tk.X, tk.Y), isHidden(tk) ? { conditionsSub: 1 } : { conditionsAdd: 1 });
 			},
 			getCursor: function() { return "help" },
 		},
