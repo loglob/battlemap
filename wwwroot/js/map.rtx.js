@@ -567,6 +567,7 @@ const rtx = {
 
 		if(!S.length)
 		{
+			ctx.moveTo(rad[0] + rad[2], rad[1]);
 			ctx.arc(...rad, 0, 2 * Math.PI);
 			return;
 		}
