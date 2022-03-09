@@ -1703,7 +1703,7 @@ const contextmenu = {
 				if(t)
 					return { tk: [t], sh: shape.point(tp) };
 			},
-			onMapUpdate: function() { if(map.tokens.indexOf(contextmenu.data) == -1) contextmenu.hide() },
+			onMapUpdate: function() { if(contextmenu.data.tk.some(t => map.tokens.indexOf(t) == -1)) contextmenu.hide() },
 			updateMask: mapFields.tokens,
 			/** @param {HTMLElement} w The window of this menu */
 			init: function(w) {
