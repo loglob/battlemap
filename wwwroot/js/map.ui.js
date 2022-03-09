@@ -1741,7 +1741,7 @@ const contextmenu = {
 						toolbox.tools.initiative.insert(tk, !ev.shiftKey);
 				},
 				/**@param {{ tk: token[], sh: shape}} m */
-				turn: function(tk) { maphub.modifyTokens(m.sh, { turn: true }) },
+				turn: function(m) { maphub.modifyTokens(m.sh, { turn: true }) },
 			},
 			/** Sets a condition bit
 			 * @param {{ tk: token[], sh: shape}} m
