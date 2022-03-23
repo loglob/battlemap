@@ -518,7 +518,7 @@ const shape = {
 /** Determines if a token is hidden */
 function isHidden(tk)
 {
-	return (tk.Conditions & 1) == 1;
+	return (tk.Conditions & 1) == 1 && tk != uiInterface?.player;
 }
 
 /** Constructs a generic vector
