@@ -571,9 +571,12 @@ const toolbox = {
 					DistanceUnit: this.Unit.value })
 			},
 			update: function() {
-				this.Denom.value = map.settings.Sqrt2Denominator
-				this.Num.value = map.settings.Sqrt2Numerator
-				this.Unit.value = map.settings.DistanceUnit
+				if(this.Denom && this.Num && this.Unit)
+				{
+					this.Denom.value = map.settings.Sqrt2Denominator
+					this.Num.value = map.settings.Sqrt2Numerator
+					this.Unit.value = map.settings.DistanceUnit
+				}
 			}
 		},
 		/**@constant {tool} */
