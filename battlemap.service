@@ -5,6 +5,8 @@
 
 [Service]
 	Type=simple
+	User=battlemap
+	Group=battlemap
 	ExecStart=/srv/battlemap/battlemap
 	WorkingDirectory=/srv/battlemap/
 

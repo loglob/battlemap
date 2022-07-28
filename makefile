@@ -24,7 +24,6 @@ install:
 
 	if [ $(serviceStatus) = "active" ]; then sudo systemctl stop battlemap; fi;
 
-	cp -r bin/Release/net6.0/linux-x64/publish/* /srv/battlemap
-	cp -r wwwroot /srv/battlemap
+	sudo su battlemap -c "cp -r bin/Release/net6.0/linux-x64/publish/* /srv/battlemap"
 
 	if [ $(serviceStatus) = "active" ]; then sudo systemctl start battlemap; fi;

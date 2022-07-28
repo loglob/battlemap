@@ -10,5 +10,5 @@ Run `make index` to swap the english index page for the german one and vice vers
 
 ## install
 A SystemD service file (`battlemap.service`) is included.
-It expects an executable in /srv/battlemap.
+It expects an executable in /srv/battlemap and a user called battlemap.
 Use `make install` to compile to that directory. (automatically starts/stops the service)
