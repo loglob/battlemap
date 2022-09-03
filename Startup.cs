@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using battlemap.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using battlemap.Util;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace battlemap
 {
@@ -40,10 +41,15 @@ namespace battlemap
 				app.UseExceptionHandler("/Home/Error");
 			}
 
+			var prov = new FileExtensionContentTypeProvider();
+			prov.Mappings[".glsl"] = "text/glsl";
+
 			//app.UseHttpsRedirection();
 
 			app.UseDefaultFiles();
-			app.UseStaticFiles();
+			app.UseStaticFiles(new StaticFileOptions{
+				ContentTypeProvider = prov
+			});
 
 
 			app.UseRouting();

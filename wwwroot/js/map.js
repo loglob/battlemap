@@ -349,6 +349,7 @@ HTMLElement.prototype.unhide = function()
  * @property {string} id
  * @property {HTMLElement} canvas
  * @property {CanvasRenderingContext2D} context
+ * @property {string=} contextType Request a custom contextType rather than "2d"
  */
 const layers =
 {
@@ -528,6 +529,7 @@ const layers =
 	/** Optional obscuremnt of the map. Controlled by the loaded RTX interface
 	 * @constant {layer_t} */
 	shadow: {
+		contextType: "webgl2",
 		draw: function()
 		{
 			if(typeof rtxInterface !== "undefined")
@@ -865,7 +867,7 @@ const mapInterface = {
 
 			stack.appendChild(l.canvas);
 
-			l.context = l.canvas.getContext("2d")
+			l.context = l.canvas.getContext(l.contextType ?? "2d")
 			l.draw();
 		}
 

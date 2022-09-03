@@ -160,6 +160,7 @@ Array.prototype.remove = function(item) {
 
 	return false;
 }
+
 //#endregion
 
 /** @typedef {Object} shape
@@ -701,6 +702,17 @@ function compareObj(a,b)
 	}
 
 	return true;
+}
+
+/** Allocates and populates a 2 dimensional array
+ * @param {number} w The width, i.e. first dimension
+ * @param {number} h The height, i.e. second dimension
+ * @param {any} x An item to fill the array with
+ * @returns {any[][]}
+ */
+function new2D(w,h,x)
+{
+	return Array.from(Array(w), () => new Array(h).fill(x));
 }
 
 /** Turns a color number into a HTML color string
