@@ -1,25 +1,7 @@
 "use strict";
 
-const tau = Math.PI * 2
-
 /** A map of all opaque tiles, indexed with x[row][column]
  * @typedef {boolean[][]} obsmap_t
-*/
-
-/** A rectangle that is compatible with geometric functions for tokens
- * @typedef {Object} rect
- * @property {number} X
- * @property {number} Y
- * @property {number} Width
- * @property {number} Height
-*/
-
-/** A vector in polar coordinates
- * @typedef {Object} pvec
- * @property {number} x The absolute X coordinate
- * @property {number} y The absolute Y coordinate
- * @property {number} angle The relative angle to the reference point
- * @property {number} len2	The squared distance to the reference point
 */
 
 /** A light source
@@ -29,28 +11,6 @@ const tau = Math.PI * 2
  * @property {number} range The range (in tiles) of the light
  * @property {number} level The light level (as in light level enum)
 */
-
-
-/** Calculates a polar coordinate point.
- * @param {vec2} p the target point
- * @param {vec2} ref the reference point
- * @returns {pvec} The polar coords for p
- */
-function toPolar(p, ref)
-{
-	const rel = vsub(p, ref)
-	return { x:p.x, y:p.y, len2: rel.x*rel.x + rel.y * rel.y, angle: (tau + Math.atan(rel.y / rel.x) + (rel.x < 0) * Math.PI) % tau }
-}
-
-/** Shorthand for cc()ing vectors.
- * @param {vec2} p
- * @returns {Number[]} cc(...vx(p))
- */
-function ccv(p)
-{
-	return cc(...vx(p))
-}
-
 
 const lightLevel = {
 	dark: 0,
@@ -82,16 +42,41 @@ precision mediump float;
 in vec2 map_pos;
 out vec4 fragColor;
 
+uniform ivec2 size;
 uniform lowp sampler2D map;
 uniform bool globalDim;
 
 const float dim_alpha = .4;
+const float pen_depth = .2;
+
+int conn(float o)
+{ return (o < pen_depth) ? -1 : (o > 1.0 - pen_depth) ? 1 : 0; }
+
+bool solid(ivec2 p)
+{ return p.x < 0 || p.y < 0 || p.x >= size.x || p.y >= size.y || texelFetch(map, p.yx, 0).r != 0.0; }
 
 void main()
 {
-	fragColor = vec4( 0, 0, 0, texelFetch(map, ivec2(map_pos).yx, 0).r != 0.0 ? (globalDim ? dim_alpha : 1.0) : 0.0);
-}
-`,
+	ivec2 tile = ivec2(map_pos);
+
+	if(!solid(tile))
+	{ // no wall hit possible
+		fragColor = vec4(0);
+		return;
+	}
+
+	fragColor = vec4( 0, 0, 0, globalDim ? dim_alpha : 1.0);
+
+	vec2 off = map_pos - vec2(tile);
+	ivec2 ind = ivec2(conn(off.x), conn(off.y));
+
+	if(ind == ivec2(0,0))
+		return;
+	else if(!solid(tile + ind))
+		fragColor.w = 0.0;
+	else if(ind.x != 0 && ind.y != 0 && (!solid(tile + ivec2(ind.x, 0)) || !solid(tile + ivec2(0, ind.y))))
+		fragColor.w = 0.0;
+}`,
 	cache: {
 		/** @type {WebGL2RenderingContext} The last context passed to draw() */
 		lastGL: null,
