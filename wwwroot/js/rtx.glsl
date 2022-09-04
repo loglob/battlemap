@@ -14,6 +14,8 @@ uniform lowp sampler2D map;
 uniform bool lineOfSight;
 // The player's position. Only relevant is lineOfSight is true
 uniform vec2 player;
+// The player's darkvision
+uniform float darkvision;
 
 
 // The properties of light sources. 3 channels, z stores light range. y selects brightness (bright=0).
@@ -89,16 +91,28 @@ bool distance_lt(vec2 a, vec2 b, float dist)
 
 void main()
 {
-	fragColor = vec4(.0,.0,.0, globalDim ? dim_alpha : 1.0);
+	fragColor = vec4(0,0,0, 1);
 
 	ivec2 tile = ivec2(map_pos);
-
-	if(opaque(tile))
-		return;
 
 	// check line of sight
 	if(lineOfSight && !line(map_pos, player))
 		return;
+
+	if(globalDim)
+		fragColor.w = dim_alpha;
+
+	if(opaque(tile))
+		return;
+
+	// whether darkvision is active at this pixel
+	bool dv = darkvision > .0 && distance_lt(player, map_pos, darkvision) && (lineOfSight || line(map_pos, player));
+
+	if(dv && globalDim)
+	{
+		fragColor.w = 0.0;
+		return;
+	}
 
 	for(int b = 0; b < bright_count; b++)
 	{
@@ -108,7 +122,7 @@ void main()
 
 		if(distance_lt(light.xy, map_pos, (dim ? 1.0 : 2.0) * light.z) && line(light.xy, map_pos))
 		{ // pixel is brightly illuminated, no further computation needed
-			if(dim || distance_lt(light.xy, map_pos, light.z))
+			if(dv || dim || distance_lt(light.xy, map_pos, light.z))
 			{
 				fragColor.w = 0.0;
 				return;
@@ -127,8 +141,11 @@ void main()
 
 		if(distance_lt(light.xy, map_pos, light.z) && line(light.xy, map_pos))
 		{ // pixel is dimly illuminated, no further computation needed
-			fragColor.w = dim_alpha;
+			fragColor.w = dv ? 0.0 : dim_alpha;
 			return;
 		}
 	}
+
+	if(dv)
+		fragColor.w = dim_alpha;
 }

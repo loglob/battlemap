@@ -59,7 +59,7 @@ const lightLevel = {
 }
 
 const rtx = {
-	/** @type {String} The source code of the shadow fragment shader. Loaded from additional file */
+	/** @type {String} The source code of the shadow fragment shader. Loaded from rtx.glsl */
 	shaderSrc: null,
 	/** The vertex shader */
 	vertexSrc:
@@ -215,15 +215,15 @@ void main()
 		if(rtx.cache.floodFill)
 			return;
 
-		if(map.rtxInfo.lineOfSight && uiInterface.findPlayer())
-		{
-			let plr = uiInterface.findPlayer();
-			gl.uniform1i(u("lineOfSight"), 1);
-			gl.uniform2f(u("player"), plr.X + plr.Width/2, plr.Y + plr.Height/2);
-		}
-		else
-			gl.uniform1i(u("lineOfSight"), 0);
+		let plr = uiInterface.findPlayer();
 
+		if(plr)
+			gl.uniform2f(u("player"), plr.X + plr.Width/2, plr.Y + plr.Height/2);
+
+		gl.uniform1i(u("lineOfSight"), (map.rtxInfo.lineOfSight && plr) ? 1 : 0);
+
+		let dv = Number(toolbox.tools.character.darkvision?.value);
+		gl.uniform1f(u("darkvision"), (dv && plr) ? dv : 0);
 
 		/** @type {light[]} The active light sources */
 		let lights = map.tokens.map(tk => {
