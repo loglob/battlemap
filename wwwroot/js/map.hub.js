@@ -184,7 +184,9 @@ const maphub =
 		},
 
 		ModifyTokens: {
-
+			/** @type {{ move: vec2, timestamp: number }}
+			 * 	stores the last move that was denied because it would move your player token into a wall */
+			deniedMove: {},
 			/**@param {shape} s		The shape
 			 * @param {{ move: vec2?, conditionsAdd: Number?, conditionsSub: Number?, turn: boolean? }} delta Token Change
 			 * @returns {void} nothing
@@ -256,6 +258,27 @@ const maphub =
 									return `Refusing modifyTokens that would make ${flatName(tk)} collide`;
 
 								points.add(i);
+							}
+						}
+					}
+					let plr = uiInterface.findPlayer();
+
+					if(plr && shape.containsToken(s, plr) && map.rtxInfo.lineOfSight && map.rtxInfo.globallight < lightLevel.bright)
+					{
+						let npos = vadd(vadd(v(plr.X, plr.Y), delta.move), vdiv(v(plr.Width, plr.Height), 2));
+						let nt = vmap(npos, Math.floor);
+						let col = map.colors[nt.x][nt.y];
+						
+						if(map.rtxInfo.opaque.some(x => x == col))
+						{
+							let ts = Date.now();
+							/** @type {{ move: vec2, timestamp: number }} */
+							let dm = this.deniedMove;
+
+							if(delta.move.x !== dm.move?.x || delta.move.y !== dm.move?.y || ts - dm.timestamp > 5000)
+							{
+								this.deniedMove = { move: delta.move, timestamp: ts }
+								return "Refusing move that places the player in a wall. Repeat the same move to bypass."
 							}
 						}
 					}
