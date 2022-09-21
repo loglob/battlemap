@@ -182,7 +182,7 @@ void main()
 			let tex = gl.createTexture()
 			gl.bindTexture(gl.TEXTURE_2D, tex);
 			// NO idea why but webGL insists this is a float texture, despite the UNSIGNED_BYTE type
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, map.width, map.height, 0, gl.RED, gl.UNSIGNED_BYTE,
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, map.height, map.width, 0, gl.RED, gl.UNSIGNED_BYTE,
 			// note that this is column-major !
 				new Uint8Array(obsmap.flat()));
 
