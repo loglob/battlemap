@@ -263,7 +263,7 @@ const maphub =
 					}
 					let plr = uiInterface.findPlayer();
 
-					if(plr && shape.containsToken(s, plr) && map.rtxInfo.lineOfSight && map.rtxInfo.globallight < lightLevel.bright)
+					if(plr && shape.containsToken(s, plr) && map.rtxInfo.globallight < lightLevel.bright)
 					{
 						let npos = vadd(vadd(v(plr.X, plr.Y), delta.move), vdiv(v(plr.Width, plr.Height), 2));
 						let nt = vmap(npos, Math.floor);

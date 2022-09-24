@@ -210,17 +210,8 @@ void main()
 		let dv = Number(toolbox.tools.character.darkvision?.value);
 		gl.uniform1f(u("darkvision"), (dv && plr) ? dv : 0);
 
-		/** @type {light[]} The active light sources */
-		let lights = map.tokens.map(tk => {
-				let l = map.rtxInfo.sources[idName(tk)]
-				if(l && ( !map.rtxInfo.hideHidden || !isHidden(tk) ))
-					return { level: l.level, range: l.range, x: tk.X + tk.Width/2, y:tk.Y + tk.Height/2 };
-				else
-					return null;
-			}).filter(tk => tk);
-
-		let dim = lights.filter(l => l.level === lightLevel.dim);
-		let bright = lights.filter(l => l.level === lightLevel.bright);
+		let dim = rtxInterface.cache.lights.filter(l => l.level === lightLevel.dim);
+		let bright = rtxInterface.cache.lights.filter(l => l.level === lightLevel.bright);
 
 		gl.uniform1i(u("dim_count"), dim.length);
 		gl.uniform1i(u("bright_count"), bright.length);
@@ -324,7 +315,7 @@ const rtxInterface = {
 		if(fields & (mapFields.rtxInfo | mapFields.tokens))
 			this.cache.lights = map.tokens.map(tk => {
 				let l = map.rtxInfo.sources[idName(tk)]
-				if(l)
+				if(l && ( !map.rtxInfo.hideHidden || !isHidden(tk) ))
 					return { x: tk.X + tk.Width/2, y: tk.Y + tk.Height/2, level: l.level, range: l.range };
 				else
 					return null
