@@ -52,6 +52,9 @@ bool line(vec2 start, vec2 end)
 	vec2 ds = sign(d);
 	ivec2 endTile = ivec2(end);
 
+	if(opaque(endTile))
+		return false;
+
 	vec2 cur = start;
 
 	for(int i = 0; i < size.x+size.y; i++)
@@ -94,6 +97,9 @@ void main()
 	fragColor = vec4(0,0,0, 1);
 
 	ivec2 tile = ivec2(map_pos);
+
+	if(lineOfSight && tile == ivec2(player))
+		fragColor.w = dim_alpha;
 
 	// check line of sight
 	if(lineOfSight && !line(map_pos, player))
