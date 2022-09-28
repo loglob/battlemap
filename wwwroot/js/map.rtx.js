@@ -173,6 +173,7 @@ void main()
 		const gl = rtx.cache.lastGL
 
 		gl.uniform2i(u("size"), map.width, map.height);
+		gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
 		{ // Create "texture" describing obsmap
 			gl.activeTexture(gl.TEXTURE0);
@@ -181,7 +182,7 @@ void main()
 
 			let tex = gl.createTexture()
 			gl.bindTexture(gl.TEXTURE_2D, tex);
-			// NO idea why but webGL insists this is a float texture, despite the UNSIGNED_BYTE type
+			
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, map.height, map.width, 0, gl.RED, gl.UNSIGNED_BYTE,
 			// note that this is column-major !
 				new Uint8Array(obsmap.flat()));
@@ -190,7 +191,6 @@ void main()
 			gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE );
 			gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST );
 
-			gl.bindTexture(gl.TEXTURE_2D, tex);
 			gl.uniform1i(u("map"), 0);
 		}
 
@@ -251,6 +251,7 @@ void main()
 	draw: function(gl)
 	{
 		gl.clear(gl.COLOR_BUFFER_BIT);
+		gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
 		if(map.rtxInfo.globallight == lightLevel.bright)
 			return;
@@ -312,7 +313,7 @@ const rtxInterface = {
 			this.cache.opaqueSet = new Set(map.rtxInfo.opaque)
 		if(fields & (mapFields.rtxInfo | mapFields.size | mapFields.colors))
 			this.cache.obsmap = rtx.getObsmap(this.cache.opaqueSet);
-		if(fields & (mapFields.rtxInfo | mapFields.tokens))
+		if(fields & (mapFields.rtxInfo | mapFields.size | mapFields.tokens))
 			this.cache.lights = map.tokens.map(tk => {
 				let l = map.rtxInfo.sources[idName(tk)]
 				if(l && ( !map.rtxInfo.hideHidden || !isHidden(tk) ))
